@@ -1,5 +1,5 @@
 import createContextHook from '@nkzw/create-context-hook';
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Chat, Message, Alert, RiskLevel, RiskAnalysis } from '@/constants/types';
 import { MOCK_CHATS, INITIAL_MESSAGES } from '@/constants/mockData';
 import { generateObject } from '@rork-ai/toolkit-sdk';
@@ -17,6 +17,13 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   const [chats, setChats] = useState<Chat[]>(MOCK_CHATS);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const analyzeMessage = useCallback(async (message: Message): Promise<RiskAnalysis> => {
     try {
@@ -82,6 +89,10 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   }, []);
 
   const addMessage = useCallback(async (chatId: string, text: string, senderId: string, senderName: string, imageUri?: string) => {
+    if (!isMountedRef.current) {
+      return;
+    }
+
     const newMessage: Message = {
       id: `msg_${Date.now()}_${Math.random()}`,
       text,
@@ -108,73 +119,91 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
     );
 
     setIsAnalyzing(true);
-    const analysis = await analyzeMessage(newMessage);
-    
-    let imageAnalysis = { blocked: false, reasons: [] as string[] };
-    if (imageUri) {
-      imageAnalysis = await analyzeImage(imageUri);
-    }
-    
-    setIsAnalyzing(false);
 
-    if (analysis.riskLevel === 'critical') {
-      HapticFeedback.error();
-    } else if (analysis.riskLevel === 'high') {
-      HapticFeedback.warning();
-    } else if (analysis.riskLevel === 'medium') {
-      HapticFeedback.warning();
-    } else if (analysis.riskLevel === 'safe') {
-      HapticFeedback.success();
-    }
+    try {
+      const analysis = await analyzeMessage(newMessage);
 
-    setChats((prev) =>
-      prev.map((chat) => {
-        if (chat.id === chatId) {
-          const updatedMessages = chat.messages.map((msg) =>
-            msg.id === newMessage.id
-              ? {
-                  ...msg,
-                  riskLevel: analysis.riskLevel,
-                  riskReasons: analysis.reasons,
-                  analyzed: true,
-                  imageAnalyzed: true,
-                  imageBlocked: imageAnalysis.blocked,
-                  imageRiskReasons: imageAnalysis.reasons,
-                }
-              : msg
-          );
+      if (!isMountedRef.current) {
+        return;
+      }
 
-          const highestRisk = updatedMessages.reduce((max, msg) => {
-            const levels: RiskLevel[] = ['safe', 'low', 'medium', 'high', 'critical'];
-            const msgLevel = msg.riskLevel || 'safe';
-            return levels.indexOf(msgLevel) > levels.indexOf(max) ? msgLevel : max;
-          }, 'safe' as RiskLevel);
-
-          const shouldAlert = analysis.riskLevel !== 'safe' && analysis.riskLevel !== 'low';
-          const imageRisk = imageAnalysis.blocked;
-          
-          if (shouldAlert || imageRisk) {
-            const newAlert: Alert = {
-              id: `alert_${Date.now()}`,
-              chatId,
-              messageId: newMessage.id,
-              riskLevel: analysis.riskLevel,
-              timestamp: Date.now(),
-              reasons: analysis.reasons,
-              resolved: false,
-            };
-            setAlerts((prev) => [newAlert, ...prev]);
-          }
-
-          return {
-            ...chat,
-            messages: updatedMessages,
-            overallRisk: highestRisk,
-          };
+      let imageAnalysis = { blocked: false, reasons: [] as string[] };
+      if (imageUri) {
+        imageAnalysis = await analyzeImage(imageUri);
+        if (!isMountedRef.current) {
+          return;
         }
-        return chat;
-      })
-    );
+      }
+
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      if (analysis.riskLevel === 'critical') {
+        HapticFeedback.error();
+      } else if (analysis.riskLevel === 'high' || analysis.riskLevel === 'medium') {
+        HapticFeedback.warning();
+      } else if (analysis.riskLevel === 'safe') {
+        HapticFeedback.success();
+      }
+
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      setChats((prev) =>
+        prev.map((chat) => {
+          if (chat.id === chatId) {
+            const updatedMessages = chat.messages.map((msg) =>
+              msg.id === newMessage.id
+                ? {
+                    ...msg,
+                    riskLevel: analysis.riskLevel,
+                    riskReasons: analysis.reasons,
+                    analyzed: true,
+                    imageAnalyzed: true,
+                    imageBlocked: imageAnalysis.blocked,
+                    imageRiskReasons: imageAnalysis.reasons,
+                  }
+                : msg
+            );
+
+            const levels: RiskLevel[] = ['safe', 'low', 'medium', 'high', 'critical'];
+            const highestRisk = updatedMessages.reduce((max, msg) => {
+              const msgLevel = msg.riskLevel || 'safe';
+              return levels.indexOf(msgLevel) > levels.indexOf(max) ? msgLevel : max;
+            }, 'safe' as RiskLevel);
+
+            const shouldAlert = analysis.riskLevel !== 'safe' && analysis.riskLevel !== 'low';
+            const imageRisk = imageAnalysis.blocked;
+
+            if ((shouldAlert || imageRisk) && isMountedRef.current) {
+              const newAlert: Alert = {
+                id: `alert_${Date.now()}`,
+                chatId,
+                messageId: newMessage.id,
+                riskLevel: analysis.riskLevel,
+                timestamp: Date.now(),
+                reasons: analysis.reasons,
+                resolved: false,
+              };
+              setAlerts((prevAlerts) => [newAlert, ...prevAlerts]);
+            }
+
+            return {
+              ...chat,
+              messages: updatedMessages,
+              overallRisk: highestRisk,
+            };
+          }
+          return chat;
+        })
+      );
+    } finally {
+      if (isMountedRef.current) {
+        setIsAnalyzing(false);
+      }
+    }
   }, [analyzeMessage, analyzeImage]);
 
   const initializeChatMessages = useCallback(() => {

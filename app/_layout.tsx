@@ -81,6 +81,24 @@ function RootLayoutNav() {
   );
 }
 
+function AppProviders({ children }: { children: ReactNode }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <AppErrorBoundary>
+          <UserProvider>
+            <ParentalControlsProvider>
+              <MonitoringProvider>
+                {children}
+              </MonitoringProvider>
+            </ParentalControlsProvider>
+          </UserProvider>
+        </AppErrorBoundary>
+      </trpc.Provider>
+    </QueryClientProvider>
+  );
+}
+
 export default function RootLayout() {
   const [isReady, setIsReady] = useState(Platform.OS === 'web');
 
@@ -111,21 +129,11 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <AppErrorBoundary>
-          <UserProvider>
-            <ParentalControlsProvider>
-              <MonitoringProvider>
-                <GestureHandlerRootView style={styles.container}>
-                  <RootLayoutNav />
-                </GestureHandlerRootView>
-              </MonitoringProvider>
-            </ParentalControlsProvider>
-          </UserProvider>
-        </AppErrorBoundary>
-      </trpc.Provider>
-    </QueryClientProvider>
+    <AppProviders>
+      <GestureHandlerRootView style={styles.container}>
+        <RootLayoutNav />
+      </GestureHandlerRootView>
+    </AppProviders>
   );
 }
 
