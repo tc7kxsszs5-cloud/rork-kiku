@@ -39,38 +39,51 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const loadData = async () => {
+      try {
+        const [settingsData, sosData, contactsData, restrictionsData, complianceData] =
+          await Promise.all([
+            AsyncStorage.getItem(SETTINGS_STORAGE_KEY),
+            AsyncStorage.getItem(SOS_ALERTS_STORAGE_KEY),
+            AsyncStorage.getItem(CONTACTS_STORAGE_KEY),
+            AsyncStorage.getItem(TIME_RESTRICTIONS_STORAGE_KEY),
+            AsyncStorage.getItem(COMPLIANCE_LOG_STORAGE_KEY),
+          ]);
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (settingsData) setSettings(JSON.parse(settingsData));
+        if (sosData) setSosAlerts(JSON.parse(sosData));
+        if (contactsData) setContacts(JSON.parse(contactsData));
+        if (restrictionsData) setTimeRestrictions(JSON.parse(restrictionsData));
+        if (complianceData) setComplianceLog(JSON.parse(complianceData));
+      } catch (error) {
+        console.error('Error loading parental controls data:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
     if (Platform.OS !== 'web') {
       loadData();
     } else {
-      const timer = setTimeout(() => {
-        loadData();
-      }, 0);
-      return () => clearTimeout(timer);
+      timer = setTimeout(loadData, 0);
     }
+
+    return () => {
+      isMounted = false;
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
   }, []);
-
-  const loadData = async () => {
-    try {
-      const [settingsData, sosData, contactsData, restrictionsData, complianceData] =
-        await Promise.all([
-          AsyncStorage.getItem(SETTINGS_STORAGE_KEY),
-          AsyncStorage.getItem(SOS_ALERTS_STORAGE_KEY),
-          AsyncStorage.getItem(CONTACTS_STORAGE_KEY),
-          AsyncStorage.getItem(TIME_RESTRICTIONS_STORAGE_KEY),
-          AsyncStorage.getItem(COMPLIANCE_LOG_STORAGE_KEY),
-        ]);
-
-      if (settingsData) setSettings(JSON.parse(settingsData));
-      if (sosData) setSosAlerts(JSON.parse(sosData));
-      if (contactsData) setContacts(JSON.parse(contactsData));
-      if (restrictionsData) setTimeRestrictions(JSON.parse(restrictionsData));
-      if (complianceData) setComplianceLog(JSON.parse(complianceData));
-    } catch (error) {
-      console.error('Error loading parental controls data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const logCompliance = useCallback(
     async (action: string, userId: string, details: Record<string, any>, parentalConsent = false) => {

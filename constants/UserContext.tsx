@@ -22,32 +22,44 @@ export const [UserProvider, useUser] = createContextHook(() => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const loadUser = async () => {
+      try {
+        const stored = await AsyncStorage.getItem(USER_STORAGE_KEY);
+        if (!isMounted) {
+          return;
+        }
+        if (stored) {
+          const userData = JSON.parse(stored);
+          setUser(userData);
+          if (userData.language) {
+            i18n.changeLanguage(userData.language);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading user:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
     if (Platform.OS !== 'web') {
       loadUser();
     } else {
-      const timer = setTimeout(() => {
-        loadUser();
-      }, 0);
-      return () => clearTimeout(timer);
+      timer = setTimeout(loadUser, 0);
     }
-  }, []);
 
-  const loadUser = async () => {
-    try {
-      const stored = await AsyncStorage.getItem(USER_STORAGE_KEY);
-      if (stored) {
-        const userData = JSON.parse(stored);
-        setUser(userData);
-        if (userData.language) {
-          i18n.changeLanguage(userData.language);
-        }
+    return () => {
+      isMounted = false;
+      if (timer) {
+        clearTimeout(timer);
       }
-    } catch (error) {
-      console.error('Error loading user:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
+  }, []);
 
   const identifyUser = useCallback(async (userData: Omit<User, 'id' | 'createdAt'>) => {
     try {
