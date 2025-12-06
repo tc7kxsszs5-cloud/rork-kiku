@@ -16,6 +16,7 @@ import { generateObject } from '@rork-ai/toolkit-sdk';
 import { z } from 'zod';
 import { HapticFeedback } from '@/constants/haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useIsMounted } from '@/hooks/useIsMounted';
 
 const RecommendationsSchema = z.object({
   general: z.array(
@@ -102,6 +103,7 @@ export default function RecommendationsScreen() {
   const [recommendations, setRecommendations] = useState<Recommendations | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isMountedRef = useIsMounted();
 
   const hasCriticalSignals = useMemo(() => alerts.some((a) => !a.resolved), [alerts]);
 
@@ -121,6 +123,10 @@ export default function RecommendationsScreen() {
   };
 
   const generateRecommendations = async () => {
+    if (!isMountedRef.current) {
+      return;
+    }
+
     HapticFeedback.medium();
     setIsLoading(true);
     setError(null);
@@ -163,14 +169,22 @@ ${chatsInfo.map((c) => `- ${c.name}: риск ${c.risk}, ${c.riskMessages} оп�
         schema: RecommendationsSchema,
       });
 
+      if (!isMountedRef.current) {
+        return;
+      }
+
       setRecommendations(result);
       HapticFeedback.success();
     } catch (err) {
       console.error('Error generating recommendations:', err);
-      setError('Не удалось сгенерировать рекомендации');
+      if (isMountedRef.current) {
+        setError('Не удалось сгенерировать рекомендации');
+      }
       HapticFeedback.error();
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 

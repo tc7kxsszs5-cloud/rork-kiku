@@ -26,6 +26,7 @@ import {
 import { useUser } from '@/constants/UserContext';
 import { useParentalControls } from '@/constants/ParentalControlsContext';
 import { HapticFeedback } from '@/constants/haptics';
+import { useIsMounted } from '@/hooks/useIsMounted';
 
 const ROLE_OPTIONS = [
   {
@@ -59,6 +60,7 @@ export default function ProfileScreen() {
   const [paymentLinked, setPaymentLinked] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const isMountedRef = useIsMounted();
 
   useEffect(() => {
     if (user) {
@@ -108,10 +110,14 @@ export default function ProfileScreen() {
       Alert.alert('Профиль сохранен', 'Данные успешно обновлены');
     } catch (err) {
       console.error('[ProfileScreen] Error saving profile', err);
-      setError('Не удалось сохранить профиль. Попробуйте позже');
+      if (isMountedRef.current) {
+        setError('Не удалось сохранить профиль. Попробуйте позже');
+      }
       HapticFeedback.error();
     } finally {
-      setIsSubmitting(false);
+      if (isMountedRef.current) {
+        setIsSubmitting(false);
+      }
     }
   };
 
