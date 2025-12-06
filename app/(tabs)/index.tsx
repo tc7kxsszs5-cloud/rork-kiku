@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -32,7 +32,7 @@ const RISK_LABELS: Record<RiskLevel, string> = {
 
 export default function MonitoringScreen() {
   const router = useRouter();
-  const { chats, unresolvedAlerts, initializeChatMessages } = useMonitoring();
+  const { chats, unresolvedAlerts } = useMonitoring();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRiskFilter, setSelectedRiskFilter] = useState<RiskLevel | 'all'>('all');
   const searchBarHeight = useRef(new Animated.Value(0)).current;
@@ -40,10 +40,6 @@ export default function MonitoringScreen() {
   
   const totalChats = chats.length;
   const totalMessages = chats.reduce((sum, chat) => sum + chat.messages.length, 0);
-
-  useEffect(() => {
-    initializeChatMessages();
-  }, [initializeChatMessages]);
 
   const filteredChats = useMemo(() => {
     let result = chats;
