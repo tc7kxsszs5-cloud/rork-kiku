@@ -51,7 +51,7 @@ const getBaseUrl = () => {
   return PROJECT_BASE_URL;
 };
 
-export const trpcClient = trpc.createClient({
+export const trpcClient = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
       url: `${getBaseUrl()}/api/trpc`,
