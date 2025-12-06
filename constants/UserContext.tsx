@@ -17,7 +17,7 @@ export interface User {
 
 const USER_STORAGE_KEY = '@user_data';
 
-const [UserProviderComponent, useUser] = createContextHook(() => {
+export const [UserProvider, useUser] = createContextHook(() => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -132,6 +132,3 @@ const [UserProviderComponent, useUser] = createContextHook(() => {
     logoutUser,
   }), [user, isLoading, isParent, isChild, identifyUser, updateUser, logoutUser]);
 });
-
-export const UserProvider = UserProviderComponent;
-export { useUser };
