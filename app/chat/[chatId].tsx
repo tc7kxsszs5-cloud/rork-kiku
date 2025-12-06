@@ -20,6 +20,7 @@ import { useUser } from '@/constants/UserContext';
 import { Message, RiskLevel } from '@/constants/types';
 import { HapticFeedback } from '@/constants/haptics';
 import { Audio } from 'expo-av';
+import { useIsMounted } from '@/hooks/useIsMounted';
 
 const RISK_COLORS: Record<RiskLevel, string> = {
   safe: '#10b981',
@@ -48,6 +49,7 @@ export default function ChatScreen() {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const micScaleAnim = useRef(new Animated.Value(1)).current;
   const sendButtonScaleAnim = useRef(new Animated.Value(1)).current;
+  const isMountedRef = useIsMounted();
 
   const chat = chats.find((c) => c.id === chatId);
 
@@ -60,6 +62,11 @@ export default function ChatScreen() {
   }
 
   const startRecording = async () => {
+    if (Platform.OS === 'web') {
+      Alert.alert('Недоступно', 'Запись аудио недоступна в веб-версии приложения');
+      return;
+    }
+
     try {
       HapticFeedback.light();
       const permission = await Audio.requestPermissionsAsync();
@@ -69,17 +76,20 @@ export default function ChatScreen() {
         return;
       }
 
-      if (Platform.OS !== 'web') {
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: true,
-          playsInSilentModeIOS: true,
-        });
-      }
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
 
       const { recording: newRecording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
       
+      if (!isMountedRef.current) {
+        await newRecording.stopAndUnloadAsync();
+        return;
+      }
+
       setRecording(newRecording);
       setIsRecording(true);
       
@@ -118,6 +128,10 @@ export default function ChatScreen() {
       }
       
       const uri = recording.getURI();
+      if (!isMountedRef.current) {
+        return;
+      }
+
       setRecording(null);
       
       if (uri) {
@@ -143,13 +157,19 @@ export default function ChatScreen() {
         await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
       }
       
-      setRecording(null);
+      if (isMountedRef.current) {
+        setRecording(null);
+      }
     } catch (err) {
       console.error('Failed to cancel recording:', err);
     }
   };
 
   const transcribeAudio = async (uri: string) => {
+    if (!isMountedRef.current) {
+      return;
+    }
+
     setIsTranscribing(true);
     
     try {
@@ -180,13 +200,19 @@ export default function ChatScreen() {
       }
       
       const result = await sttResponse.json();
+      if (!isMountedRef.current) {
+        return;
+      }
+
       setInputText(result.text);
       HapticFeedback.success();
     } catch (err) {
       console.error('Transcription error:', err);
       HapticFeedback.error();
     } finally {
-      setIsTranscribing(false);
+      if (isMountedRef.current) {
+        setIsTranscribing(false);
+      }
     }
   };
 
@@ -228,7 +254,9 @@ export default function ChatScreen() {
     const senderName = sender === chat.participants[0] ? chat.participantNames[0] : chat.participantNames[1];
 
     await addMessage(chatId, inputText.trim(), sender, senderName);
-    setInputText('');
+    if (isMountedRef.current) {
+      setInputText('');
+    }
   };
 
   const renderMessage = ({ item }: { item: Message }) => {

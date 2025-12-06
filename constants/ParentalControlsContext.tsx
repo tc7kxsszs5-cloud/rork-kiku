@@ -122,7 +122,7 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
         
         let location: { lat: number; lng: number } | undefined;
         
-        if (settings.locationSharingEnabled) {
+        if (settings.locationSharingEnabled && Platform.OS !== 'web') {
           const { status } = await Location.requestForegroundPermissionsAsync();
           if (status === 'granted') {
             const loc = await Location.getCurrentPositionAsync({});
