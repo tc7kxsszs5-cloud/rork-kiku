@@ -12,35 +12,36 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Lightbulb, RefreshCcw, CheckCircle2, AlertCircle, ShieldAlert, ExternalLink } from 'lucide-react-native';
 import { useMonitoring } from '@/constants/MonitoringContext';
-import { generateObject } from '@rork-ai/toolkit-sdk';
-import { z } from 'zod';
 import { HapticFeedback } from '@/constants/haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useIsMounted } from '@/hooks/useIsMounted';
+import { Chat, Alert as ChatAlert } from '@/constants/types';
 
-const RecommendationsSchema = z.object({
-  general: z.array(
-    z.object({
-      title: z.string(),
-      description: z.string(),
-      priority: z.enum(['high', 'medium', 'low']),
-    })
-  ),
-  chatSpecific: z.array(
-    z.object({
-      chatId: z.string(),
-      chatName: z.string(),
-      recommendations: z.array(z.string()),
-    })
-  ),
-});
+type RecommendationPriority = 'high' | 'medium' | 'low';
 
 type ResourceLink = {
   id: string;
   title: string;
   description: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: RecommendationPriority;
   url: string;
+};
+
+type GeneralRecommendation = {
+  title: string;
+  description: string;
+  priority: RecommendationPriority;
+};
+
+type ChatRecommendation = {
+  chatId: string;
+  chatName: string;
+  recommendations: string[];
+};
+
+type RecommendationsData = {
+  general: GeneralRecommendation[];
+  chatSpecific: ChatRecommendation[];
 };
 
 const RESOURCE_LINKS: ResourceLink[] = [
@@ -70,8 +71,6 @@ const RESOURCE_LINKS: ResourceLink[] = [
   },
 ];
 
-type Recommendations = z.infer<typeof RecommendationsSchema>;
-
 const PRIORITY_COLORS = {
   high: '#ef4444',
   medium: '#f59e0b',
@@ -83,6 +82,101 @@ const PRIORITY_LABELS = {
   medium: 'Средний приоритет',
   low: 'Низкий приоритет',
 } as const;
+
+const RECOMMENDATION_DELAY_MS = 260;
+
+const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+const formatChatName = (chat: Chat) => {
+  if (chat.isGroup && chat.groupName) {
+    return chat.groupName;
+  }
+  if (chat.participantNames.length >= 2) {
+    return chat.participantNames.slice(0, 2).join(' и ');
+  }
+  return chat.participantNames[0] ?? 'Чат без названия';
+};
+
+const buildChatRecommendations = (chat: Chat, unresolvedAlerts: ChatAlert[]): string[] => {
+  const recs: string[] = [];
+  const chatAlerts = unresolvedAlerts.filter((alert) => alert.chatId === chat.id);
+  if (chatAlerts.length) {
+    recs.push(`Разберите ${chatAlerts.length} тревог(и) и отметьте решение в приложении.`);
+  }
+  const riskyMessages = chat.messages.filter((message) => message.riskLevel && message.riskLevel !== 'safe');
+  if (riskyMessages.length) {
+    const latest = riskyMessages[riskyMessages.length - 1].text.trim();
+    const snippet = latest.length > 80 ? `${latest.slice(0, 80)}…` : latest;
+    recs.push(`Обсудите сообщение «${snippet}» и уточните, чувствует ли ребёнок давление.`);
+  }
+  if (chat.overallRisk === 'critical') {
+    recs.push('Временно ограничьте чат и предупредите остальных опекунов до выяснения обстоятельств.');
+  } else if (chat.overallRisk === 'high') {
+    recs.push('Проверяйте чат каждые 2–3 часа и фиксируйте новые сигналы до стабилизации.');
+  } else {
+    recs.push('Напомните о правилах общения и поддержите ребёнка в доверительном диалоге.');
+  }
+  return Array.from(new Set(recs));
+};
+
+type GeneralInputs = {
+  unresolvedAlerts: number;
+  highRiskChats: number;
+  mediumRiskChats: number;
+  totalChats: number;
+  riskyMessages: number;
+};
+
+const buildGeneralRecommendations = (input: GeneralInputs): GeneralRecommendation[] => {
+  const items: GeneralRecommendation[] = [];
+  const pushUnique = (item: GeneralRecommendation) => {
+    if (!items.find((existing) => existing.title === item.title)) {
+      items.push(item);
+    }
+  };
+
+  if (input.unresolvedAlerts > 0) {
+    pushUnique({
+      title: `Разберите ${input.unresolvedAlerts} активных тревог`,
+      description: 'Назначьте ответственных и завершите ручную проверку до конца дня, фиксируя результат в журнале безопасности.',
+      priority: 'high',
+    });
+  }
+
+  if (input.highRiskChats > 0) {
+    pushUnique({
+      title: 'Назначьте регламент для опасных чатов',
+      description: `Выделите отдельное время мониторинга для ${input.highRiskChats} чатов с высоким риском и зафиксируйте порог эскалации.`,
+      priority: 'high',
+    });
+  }
+
+  if (input.riskyMessages > 5) {
+    pushUnique({
+      title: 'Проведите эмоциональный чек-ин с ребёнком',
+      description: 'Обсудите, что его тревожит в переписках, и предложите сценарии выхода из сложных разговоров.',
+      priority: 'medium',
+    });
+  }
+
+  if (input.mediumRiskChats > 0) {
+    pushUnique({
+      title: 'Ежевечерний профилактический обзор',
+      description: 'Объедините чаты со средним риском в чек-лист и просматривайте их вместе перед сном.',
+      priority: 'medium',
+    });
+  }
+
+  if (items.length === 0 || (!input.unresolvedAlerts && !input.highRiskChats)) {
+    pushUnique({
+      title: 'Обновите семейные правила безопасности',
+      description: 'Повторите правила приватности, ограничьте доступ незнакомцев и закрепите доверительный канал связи.',
+      priority: 'low',
+    });
+  }
+
+  return items.slice(0, 5);
+};
 
 const ESSENTIAL_GUIDANCE = {
   title: 'Базовые меры безопасности',
@@ -100,12 +194,17 @@ const ESSENTIAL_GUIDANCE = {
 export default function RecommendationsScreen() {
   const insets = useSafeAreaInsets();
   const { chats, alerts } = useMonitoring();
-  const [recommendations, setRecommendations] = useState<Recommendations | null>(null);
+  const [recommendations, setRecommendations] = useState<RecommendationsData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isMountedRef = useIsMounted();
 
-  const hasCriticalSignals = useMemo(() => alerts.some((a) => !a.resolved), [alerts]);
+  const hasCriticalSignals = useMemo(
+    () =>
+      alerts.some((a) => !a.resolved) ||
+      chats.some((chat) => chat.overallRisk === 'high' || chat.overallRisk === 'critical'),
+    [alerts, chats]
+  );
 
   const openResource = async (url: string) => {
     try {
@@ -132,53 +231,41 @@ export default function RecommendationsScreen() {
     setError(null);
 
     try {
-      const unresolvedAlerts = alerts.filter((a) => !a.resolved);
-      const highRiskChats = chats.filter((c) => c.overallRisk === 'high' || c.overallRisk === 'critical');
+      const unresolvedAlertsList = alerts.filter((alertItem) => !alertItem.resolved);
+      const highRiskChats = chats.filter((chat) => chat.overallRisk === 'high' || chat.overallRisk === 'critical');
+      const mediumRiskChats = chats.filter((chat) => chat.overallRisk === 'medium');
+      const riskyMessagesCount = chats.reduce((sum, chat) => {
+        return sum + chat.messages.filter((message) => message.riskLevel && message.riskLevel !== 'safe').length;
+      }, 0);
 
-      const chatsInfo = chats.map((chat) => ({
-        id: chat.id,
-        name: chat.participantNames.join(' и '),
-        risk: chat.overallRisk,
-        messageCount: chat.messages.length,
-        riskMessages: chat.messages.filter((m) => m.riskLevel && m.riskLevel !== 'safe').length,
-      }));
+      await delay(RECOMMENDATION_DELAY_MS);
 
-      const result = await generateObject({
-        messages: [
-          {
-            role: 'user',
-            content: `Ты эксперт по цифровой безопасности и защите детей в интернете. 
-            
-Проанализируй данные о мониторинге чатов и предоставь рекомендации по безопасности:
-
-Статистика:
-- Всего чатов: ${chats.length}
-- Чатов с высоким риском: ${highRiskChats.length}
-- Нерешенных тревог: ${unresolvedAlerts.length}
-
-Чаты:
-${chatsInfo.map((c) => `- ${c.name}: риск ${c.risk}, ${c.riskMessages} опасных сообщений из ${c.messageCount}`).join('\n')}
-
-Предоставь:
-1. Общие рекомендации (3-5 советов) с приоритетами (high/medium/low)
-2. Специфичные рекомендации для чатов с высоким риском
-
-Рекомендации должны быть практичными и конкретными.`,
-          },
-        ],
-        schema: RecommendationsSchema,
+      const general = buildGeneralRecommendations({
+        unresolvedAlerts: unresolvedAlertsList.length,
+        highRiskChats: highRiskChats.length,
+        mediumRiskChats: mediumRiskChats.length,
+        totalChats: chats.length,
+        riskyMessages: riskyMessagesCount,
       });
+
+      const focusChats = highRiskChats.length > 0 ? highRiskChats : mediumRiskChats.slice(0, 2);
+
+      const chatSpecific = focusChats.map((chat) => ({
+        chatId: chat.id,
+        chatName: formatChatName(chat),
+        recommendations: buildChatRecommendations(chat, unresolvedAlertsList),
+      }));
 
       if (!isMountedRef.current) {
         return;
       }
 
-      setRecommendations(result);
+      setRecommendations({ general, chatSpecific });
       HapticFeedback.success();
     } catch (err) {
-      console.error('Error generating recommendations:', err);
+      console.error('Error building recommendations:', err);
       if (isMountedRef.current) {
-        setError('Не удалось сгенерировать рекомендации');
+        setError('Не удалось собрать рекомендации. Попробуйте ещё раз');
       }
       HapticFeedback.error();
     } finally {
