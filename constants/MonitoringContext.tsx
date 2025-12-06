@@ -114,7 +114,7 @@ const evaluateImageRisk = (imageUri: string): { blocked: boolean; reasons: strin
   };
 };
 
-export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
+const [MonitoringProviderComponent, useMonitoring] = createContextHook(() => {
   const [chats, setChats] = useState<Chat[]>(MOCK_CHATS);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -314,3 +314,6 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
     [chats, alerts, unresolvedAlerts, criticalAlerts, isAnalyzing, addMessage, initializeChatMessages, resolveAlert]
   );
 });
+
+export const MonitoringProvider = MonitoringProviderComponent;
+export { useMonitoring };
