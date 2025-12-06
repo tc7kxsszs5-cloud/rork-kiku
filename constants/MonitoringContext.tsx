@@ -1,5 +1,5 @@
 import createContextHook from '@nkzw/create-context-hook';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Chat, Message, Alert, RiskLevel, RiskAnalysis } from '@/constants/types';
 import { MOCK_CHATS, INITIAL_MESSAGES } from '@/constants/mockData';
 import { generateObject } from '@rork-ai/toolkit-sdk';
@@ -185,6 +185,10 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
       }))
     );
   }, []);
+
+  useEffect(() => {
+    initializeChatMessages();
+  }, [initializeChatMessages]);
 
   const resolveAlert = useCallback((alertId: string) => {
     setAlerts((prev) =>
