@@ -30,7 +30,7 @@ const DEFAULT_SETTINGS: ParentalSettings = {
   guardianPhones: [],
 };
 
-export const [ParentalControlsProvider, useParentalControls] = createContextHook(() => {
+const [ParentalControlsProviderComponent, useParentalControls] = createContextHook(() => {
   const [settings, setSettings] = useState<ParentalSettings>(DEFAULT_SETTINGS);
   const [sosAlerts, setSosAlerts] = useState<SOSAlert[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -364,3 +364,6 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
     ]
   );
 });
+
+export const ParentalControlsProvider = ParentalControlsProviderComponent;
+export { useParentalControls };
