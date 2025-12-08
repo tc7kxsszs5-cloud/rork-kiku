@@ -58,6 +58,19 @@ export default function AboutScreen() {
       </View>
 
       <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Лицензия</Text>
+        <View style={styles.licenseCard} testID="about-license-card">
+          <Text style={styles.licenseStatus}>Файл LICENSE не найден</Text>
+          <Text style={styles.licenseHint}>
+            Добавьте LICENSE в корень проекта и заполните поле «license» в package.json, чтобы зафиксировать выбранную лицензию.
+          </Text>
+          <Text style={styles.licenseHint}>
+            Проверяйте наличие файла LICENSE и значения «license» в package.json — это основной способ понять, оформлена ли лицензия.
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.section}>
         <Text style={styles.sectionTitle}>Основные функции</Text>
         
         <View style={styles.feature}>
@@ -353,6 +366,29 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 12,
     color: '#9ab6d8',
+  },
+  licenseCard: {
+    marginTop: 12,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  licenseStatus: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#1a1a1a',
+    marginBottom: 8,
+  },
+  licenseHint: {
+    fontSize: 14,
+    color: '#4a4a4a',
+    lineHeight: 20,
+    marginTop: 6,
   },
   footer: {
     alignItems: 'center',
