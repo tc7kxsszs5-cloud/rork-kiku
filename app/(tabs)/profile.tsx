@@ -27,6 +27,8 @@ import { useUser } from '@/constants/UserContext';
 import { useParentalControls } from '@/constants/ParentalControlsContext';
 import { HapticFeedback } from '@/constants/haptics';
 import { useIsMounted } from '@/hooks/useIsMounted';
+import { useThemeMode, ThemePalette } from '@/constants/ThemeContext';
+import { ThemeModeToggle } from '@/components/ThemeModeToggle';
 
 const ROLE_OPTIONS = [
   {
@@ -61,6 +63,10 @@ export default function ProfileScreen() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const isMountedRef = useIsMounted();
+  const { theme } = useThemeMode();
+  const styles = useMemo(() => createStyles(theme), [theme]);
+  const placeholderColor = theme.textSecondary;
+  const primaryActionTextColor = theme.isDark ? '#0b1220' : '#1a1a1a';
 
   useEffect(() => {
     if (user) {
@@ -148,7 +154,7 @@ export default function ProfileScreen() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer} testID="profile-loading">
-        <ActivityIndicator size="large" color="#FFD700" />
+        <ActivityIndicator size="large" color={theme.accentPrimary} />
         <Text style={styles.loadingText}>Загружаем профиль...</Text>
       </View>
     );
@@ -156,9 +162,9 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} testID="profile-screen">
-      <LinearGradient colors={["#fff4d7", "#ffe4c4"]} style={styles.heroCard}>
+      <LinearGradient colors={theme.heroGradient} style={styles.heroCard}>
         <View style={styles.heroIconWrapper}>
-          <UserIcon color="#1a1a1a" size={32} />
+          <UserIcon color={theme.textPrimary} size={32} />
         </View>
         <Text style={styles.heroName} testID="profile-name-display">
           {name || 'Новый пользователь'}
@@ -172,10 +178,11 @@ export default function ProfileScreen() {
             <Text style={styles.badgeText}>Защита активна</Text>
           </View>
           <View style={styles.badge}>
-            <Mail size={16} color="#f97316" />
+            <Mail size={16} color={theme.accentPrimary} />
             <Text style={styles.badgeText}>{guardianSummary}</Text>
           </View>
         </View>
+        <ThemeModeToggle variant="expanded" style={styles.heroToggle} testID="profile-theme-toggle" />
       </LinearGradient>
 
       {error && (
@@ -193,7 +200,7 @@ export default function ProfileScreen() {
             onChangeText={setName}
             placeholder="Иван Иванов"
             style={styles.input}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={placeholderColor}
             autoCapitalize="words"
             testID="profile-name-input"
           />
@@ -207,7 +214,7 @@ export default function ProfileScreen() {
             style={styles.input}
             keyboardType="email-address"
             autoCapitalize="none"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={placeholderColor}
             testID="profile-email-input"
           />
         </View>
@@ -238,7 +245,7 @@ export default function ProfileScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Язык интерфейса</Text>
         <View style={styles.languageRow}>
-          <Languages size={20} color="#6b7280" />
+          <Languages size={20} color={theme.textSecondary} />
           {LANGUAGE_OPTIONS.map((lang) => (
             <TouchableOpacity
               key={lang.value}
@@ -297,7 +304,7 @@ export default function ProfileScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Платежные данные</Text>
         <View style={styles.paymentCard}>
-          <CreditCard size={24} color="#1a1a1a" />
+          <CreditCard size={24} color={theme.textPrimary} />
           <View style={styles.paymentInfo}>
             <Text style={styles.paymentTitle}>
               {paymentLinked ? 'Карта привязана' : 'Нет привязанной карты'}
@@ -320,10 +327,10 @@ export default function ProfileScreen() {
           testID="profile-save-button"
         >
           {isSubmitting ? (
-            <ActivityIndicator color="#1a1a1a" />
+            <ActivityIndicator color={primaryActionTextColor} />
           ) : (
             <>
-              <Save size={18} color="#1a1a1a" />
+              <Save size={18} color={primaryActionTextColor} />
               <Text style={styles.primaryButtonText}>Сохранить</Text>
             </>
           )}
@@ -335,7 +342,7 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.footerCard}>
-        <Smartphone size={20} color="#0f172a" />
+        <Smartphone size={20} color={theme.textPrimary} />
         <View style={styles.footerTextWrapper}>
           <Text style={styles.footerTitle}>Доверенные устройства</Text>
           <Text style={styles.footerSubtitle}>
@@ -347,22 +354,23 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemePalette) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff9e6',
+    backgroundColor: theme.backgroundPrimary,
   },
   contentContainer: {
     padding: 20,
     paddingBottom: 80,
     gap: 20,
+    backgroundColor: theme.backgroundPrimary,
   },
   heroCard: {
     borderRadius: 28,
     padding: 24,
-    shadowColor: '#fbbf24',
+    shadowColor: theme.accentPrimary,
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
+    shadowOpacity: theme.isDark ? 0.35 : 0.25,
     shadowRadius: 20,
     elevation: 8,
   },
@@ -370,7 +378,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 18,
-    backgroundColor: '#fff9c4',
+    backgroundColor: theme.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -378,11 +386,11 @@ const styles = StyleSheet.create({
   heroName: {
     fontSize: 26,
     fontWeight: '800' as const,
-    color: '#0f172a',
+    color: theme.textPrimary,
   },
   heroRole: {
     fontSize: 14,
-    color: '#475569',
+    color: theme.textSecondary,
     marginTop: 4,
   },
   heroBadges: {
@@ -391,36 +399,39 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flexWrap: 'wrap',
   },
+  heroToggle: {
+    marginTop: 20,
+  },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#fff',
+    backgroundColor: theme.card,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: '#fde68a',
+    borderColor: theme.borderSoft,
   },
   badgeText: {
     fontSize: 13,
     fontWeight: '600' as const,
-    color: '#0f172a',
+    color: theme.textPrimary,
   },
   section: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.card,
     borderRadius: 20,
     padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: Platform.OS === 'web' ? 0.05 : 0.08,
+    shadowOpacity: Platform.OS === 'web' ? 0.08 : (theme.isDark ? 0.25 : 0.08),
     shadowRadius: 10,
     elevation: 3,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700' as const,
-    color: '#0f172a',
+    color: theme.textPrimary,
     marginBottom: 16,
   },
   inputGroup: {
@@ -428,29 +439,30 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: '#6b7280',
+    color: theme.textSecondary,
     marginBottom: 6,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: theme.borderSoft,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#0f172a',
-    backgroundColor: '#fffdf5',
+    color: theme.textPrimary,
+    backgroundColor: theme.cardMuted,
   },
   roleCard: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: theme.borderSoft,
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
+    backgroundColor: theme.card,
   },
   roleCardActive: {
-    borderColor: '#f59e0b',
-    backgroundColor: '#fff7ed',
+    borderColor: theme.accentPrimary,
+    backgroundColor: theme.isDark ? 'rgba(250,204,21,0.12)' : '#fff7ed',
   },
   roleHeader: {
     flexDirection: 'row',
@@ -466,11 +478,11 @@ const styles = StyleSheet.create({
   roleTitle: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: '#0f172a',
+    color: theme.textPrimary,
   },
   roleDescription: {
     fontSize: 13,
-    color: '#475569',
+    color: theme.textSecondary,
     lineHeight: 18,
   },
   languageRow: {
@@ -484,19 +496,20 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    backgroundColor: '#fff',
+    borderColor: theme.borderSoft,
+    backgroundColor: theme.card,
   },
   languageChipActive: {
-    borderColor: '#fbbf24',
-    backgroundColor: '#fff9c4',
+    borderColor: theme.accentPrimary,
+    backgroundColor: theme.accentPrimary,
   },
   languageChipText: {
     fontSize: 14,
-    color: '#0f172a',
+    color: theme.textPrimary,
   },
   languageChipTextActive: {
     fontWeight: '700' as const,
+    color: theme.isDark ? theme.backgroundPrimary : '#1a1a1a',
   },
   toggleRow: {
     flexDirection: 'row',
@@ -508,11 +521,11 @@ const styles = StyleSheet.create({
   toggleTitle: {
     fontSize: 15,
     fontWeight: '600' as const,
-    color: '#0f172a',
+    color: theme.textPrimary,
   },
   toggleDescription: {
     fontSize: 13,
-    color: '#64748b',
+    color: theme.textSecondary,
     marginTop: 4,
   },
   securityCard: {
@@ -520,10 +533,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     borderWidth: 1,
-    borderColor: '#fde68a',
+    borderColor: theme.borderSoft,
     borderRadius: 16,
     padding: 16,
-    backgroundColor: '#fffbeb',
+    backgroundColor: theme.cardMuted,
   },
   securityTextWrapper: {
     flex: 1,
@@ -531,32 +544,33 @@ const styles = StyleSheet.create({
   securityTitle: {
     fontSize: 15,
     fontWeight: '600' as const,
-    color: '#92400e',
+    color: theme.textPrimary,
   },
   securityDescription: {
     fontSize: 13,
-    color: '#b45309',
+    color: theme.textSecondary,
     marginTop: 4,
   },
   securityButton: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 12,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: theme.textPrimary,
   },
   securityButtonText: {
     fontSize: 13,
     fontWeight: '600' as const,
-    color: '#facc15',
+    color: theme.backgroundPrimary,
   },
   paymentCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: theme.borderSoft,
     borderRadius: 18,
     padding: 18,
+    backgroundColor: theme.card,
   },
   paymentInfo: {
     flex: 1,
@@ -564,21 +578,21 @@ const styles = StyleSheet.create({
   paymentTitle: {
     fontSize: 15,
     fontWeight: '700' as const,
-    color: '#0f172a',
+    color: theme.textPrimary,
   },
   paymentSubtitle: {
     fontSize: 13,
-    color: '#475569',
+    color: theme.textSecondary,
     marginTop: 2,
   },
   paymentButton: {
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 12,
-    backgroundColor: '#0f172a',
+    backgroundColor: theme.textPrimary,
   },
   paymentButtonText: {
-    color: '#facc15',
+    color: theme.backgroundPrimary,
     fontWeight: '700' as const,
   },
   actionRow: {
@@ -591,7 +605,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    backgroundColor: '#facc15',
+    backgroundColor: theme.accentPrimary,
     borderRadius: 16,
     paddingVertical: 14,
   },
@@ -601,7 +615,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: '#1a1a1a',
+    color: theme.isDark ? '#0b1220' : '#1a1a1a',
   },
   secondaryButton: {
     flexDirection: 'row',
@@ -610,7 +624,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 18,
     borderRadius: 16,
-    backgroundColor: '#fee2e2',
+    backgroundColor: theme.isDark ? 'rgba(239,68,68,0.18)' : '#fee2e2',
   },
   secondaryButtonText: {
     fontWeight: '700' as const,
@@ -619,11 +633,11 @@ const styles = StyleSheet.create({
   footerCard: {
     flexDirection: 'row',
     gap: 12,
-    backgroundColor: '#e0f2fe',
+    backgroundColor: theme.cardMuted,
     padding: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#bae6fd',
+    borderColor: theme.borderSoft,
   },
   footerTextWrapper: {
     flex: 1,
@@ -631,20 +645,20 @@ const styles = StyleSheet.create({
   footerTitle: {
     fontSize: 15,
     fontWeight: '700' as const,
-    color: '#0f172a',
+    color: theme.textPrimary,
   },
   footerSubtitle: {
     fontSize: 13,
-    color: '#0369a1',
+    color: theme.textSecondary,
     marginTop: 4,
     lineHeight: 18,
   },
   errorBanner: {
-    backgroundColor: '#fee2e2',
+    backgroundColor: theme.isDark ? 'rgba(248,113,113,0.2)' : '#fee2e2',
     borderRadius: 14,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#fecaca',
+    borderColor: theme.isDark ? 'rgba(248,113,113,0.3)' : '#fecaca',
   },
   errorText: {
     color: '#b91c1c',
@@ -654,11 +668,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff9e6',
+    backgroundColor: theme.backgroundPrimary,
   },
   loadingText: {
     marginTop: 12,
     fontSize: 14,
-    color: '#475569',
+    color: theme.textSecondary,
   },
 });

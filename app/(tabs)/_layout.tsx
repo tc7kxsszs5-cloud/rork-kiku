@@ -1,33 +1,36 @@
 import { Tabs } from "expo-router";
 import { MessageCircle, Bell, BarChart3, Lightbulb, Info, User } from "lucide-react-native";
 import React from "react";
+import { StyleSheet } from "react-native";
+import { useThemeMode } from "@/constants/ThemeContext";
+import { ThemeModeToggle } from "@/components/ThemeModeToggle";
 
 export default function TabLayout() {
+  const { theme } = useThemeMode();
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#FFD700',
-        tabBarInactiveTintColor: '#999',
+        tabBarActiveTintColor: theme.tabBarActive,
+        tabBarInactiveTintColor: theme.tabBarInactive,
         headerShown: true,
         headerStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: theme.headerBackground,
         },
         headerTitleStyle: {
           fontWeight: '700' as const,
           fontSize: 18,
+          color: theme.headerText,
         },
-        tabBarStyle: {
-          backgroundColor: '#fff',
-          borderTopWidth: 2,
-          borderTopColor: '#FFD700',
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600' as const,
-        },
+        headerTintColor: theme.headerText,
+        headerRight: () => <ThemeModeToggle variant="compact" />,
+        tabBarStyle: [
+          styles.tabBarBase,
+          {
+            backgroundColor: theme.tabBarBackground,
+            borderTopColor: theme.borderSoft,
+          },
+        ],
+        tabBarLabelStyle: styles.tabBarLabel,
       }}
     >
       <Tabs.Screen
@@ -78,3 +81,16 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBarBase: {
+    borderTopWidth: 2,
+    height: 60,
+    paddingBottom: 8,
+    paddingTop: 8,
+  },
+  tabBarLabel: {
+    fontSize: 12,
+    fontWeight: '600' as const,
+  },
+});

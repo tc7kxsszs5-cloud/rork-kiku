@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import { AlertTriangle, CheckCircle, Clock } from 'lucide-react-native';
 import { useMonitoring } from '@/constants/MonitoringContext';
 import { Alert, RiskLevel } from '@/constants/types';
 import { HapticFeedback } from '@/constants/haptics';
+import { useThemeMode, ThemePalette } from '@/constants/ThemeContext';
 
 const RISK_COLORS: Record<RiskLevel, string> = {
   safe: '#10b981',
@@ -32,6 +33,8 @@ const RISK_LABELS: Record<RiskLevel, string> = {
 export default function AlertsScreen() {
   const router = useRouter();
   const { alerts, chats, resolveAlert } = useMonitoring();
+  const { theme } = useThemeMode();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   const getChatName = (chatId: string) => {
     const chat = chats.find((c) => c.id === chatId);
@@ -169,10 +172,10 @@ export default function AlertsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemePalette) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff9e6',
+    backgroundColor: theme.backgroundPrimary,
   },
   section: {
     paddingHorizontal: 16,
@@ -185,12 +188,12 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     paddingBottom: 12,
     borderBottomWidth: 2,
-    borderBottomColor: '#FFD700',
+    borderBottomColor: theme.accentPrimary,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '800' as const,
-    color: '#1a1a1a',
+    color: theme.textPrimary,
     marginRight: 10,
   },
   countBadge: {
@@ -214,17 +217,17 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   alertCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.card,
     borderRadius: 16,
     padding: 18,
     marginBottom: 14,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
+    shadowOpacity: theme.isDark ? 0.35 : 0.15,
     shadowRadius: 6,
     elevation: 5,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: theme.borderSoft,
   },
   resolvedCard: {
     opacity: 0.6,
@@ -252,25 +255,27 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.cardMuted,
     justifyContent: 'center',
     alignItems: 'center',
   },
   chatName: {
     fontSize: 16,
     fontWeight: '600' as const,
-    color: '#007AFF',
+    color: theme.accentPrimary,
     marginBottom: 8,
   },
   messagePreview: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.cardMuted,
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
   },
   messageText: {
     fontSize: 14,
-    color: '#333',
+    color: theme.textPrimary,
     lineHeight: 20,
   },
   reasonsContainer: {
@@ -279,12 +284,12 @@ const styles = StyleSheet.create({
   reasonsTitle: {
     fontSize: 13,
     fontWeight: '600' as const,
-    color: '#666',
+    color: theme.textSecondary,
     marginBottom: 6,
   },
   reasonText: {
     fontSize: 13,
-    color: '#666',
+    color: theme.textSecondary,
     marginBottom: 2,
   },
   alertFooter: {
@@ -293,11 +298,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#e5e5e5',
+    borderTopColor: theme.borderSoft,
   },
   timestamp: {
     fontSize: 12,
-    color: '#999',
+    color: theme.textSecondary,
   },
   resolveButton: {
     flexDirection: 'row',
@@ -305,7 +310,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: theme.isDark ? 'rgba(16,185,129,0.15)' : '#f0fdf4',
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#10b981',
@@ -319,19 +324,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 60,
-    backgroundColor: '#fff',
+    backgroundColor: theme.card,
     borderRadius: 16,
     marginHorizontal: 4,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
   },
   emptyText: {
     fontSize: 20,
     fontWeight: '700' as const,
-    color: '#1a1a1a',
+    color: theme.textPrimary,
     marginTop: 20,
   },
   emptySubtext: {
     fontSize: 15,
-    color: '#666',
+    color: theme.textSecondary,
     marginTop: 8,
   },
 });

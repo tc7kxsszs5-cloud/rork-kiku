@@ -8,11 +8,14 @@ import {
   TextInput,
   Animated,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { MessageCircle, AlertTriangle, Shield, Search, X } from 'lucide-react-native';
 import { useMonitoring } from '@/constants/MonitoringContext';
 import { Chat, RiskLevel } from '@/constants/types';
 import { HapticFeedback } from '@/constants/haptics';
+import { useThemeMode, ThemePalette } from '@/constants/ThemeContext';
+import { ThemeModeToggle } from '@/components/ThemeModeToggle';
 
 const RISK_COLORS: Record<RiskLevel, string> = {
   safe: '#10b981',
@@ -37,6 +40,8 @@ export default function MonitoringScreen() {
   const [selectedRiskFilter, setSelectedRiskFilter] = useState<RiskLevel | 'all'>('all');
   const searchBarHeight = useRef(new Animated.Value(0)).current;
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const { theme } = useThemeMode();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   
   const totalChats = chats.length;
   const totalMessages = chats.reduce((sum, chat) => sum + chat.messages.length, 0);
@@ -129,7 +134,7 @@ export default function MonitoringScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.gradientBackground}>
+      <LinearGradient colors={theme.surfaceGradient} style={styles.gradientBackground}>
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <Text style={styles.headerTitle}>KIDS</Text>
@@ -137,8 +142,9 @@ export default function MonitoringScreen() {
           </View>
           <View style={styles.headerActions}>
             <TouchableOpacity style={styles.iconButton} onPress={toggleSearch}>
-              <Search size={20} color="#1a1a1a" />
+              <Search size={20} color={theme.textPrimary} />
             </TouchableOpacity>
+            <ThemeModeToggle variant="compact" style={styles.headerToggle} />
             {unresolvedAlerts.length > 0 && (
               <View style={styles.alertsBadge}>
                 <AlertTriangle size={16} color="#fff" />
@@ -150,17 +156,17 @@ export default function MonitoringScreen() {
 
         <Animated.View style={[styles.searchContainer, { height: searchBarHeight, opacity: searchBarHeight.interpolate({ inputRange: [0, 60], outputRange: [0, 1] }) }]}>
           <View style={styles.searchInputContainer}>
-            <Search size={18} color="#666" />
+            <Search size={18} color={theme.textSecondary} />
             <TextInput
               style={styles.searchInput}
               placeholder="Поиск по участникам..."
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholderTextColor="#999"
+              placeholderTextColor={theme.textSecondary}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <X size={18} color="#666" />
+                <X size={18} color={theme.textSecondary} />
               </TouchableOpacity>
             )}
           </View>
@@ -195,7 +201,7 @@ export default function MonitoringScreen() {
 
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
-            <MessageCircle size={28} color="#1a1a1a" />
+            <MessageCircle size={28} color={theme.textPrimary} />
             <Text style={styles.statNumber}>{totalChats}</Text>
             <Text style={styles.statLabel}>Чатов</Text>
           </View>
@@ -210,7 +216,7 @@ export default function MonitoringScreen() {
             <Text style={styles.statLabel}>Тревог</Text>
           </View>
         </View>
-      </View>
+      </LinearGradient>
 
       <FlatList
         data={filteredChats}
@@ -219,7 +225,7 @@ export default function MonitoringScreen() {
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <MessageCircle size={48} color="#ccc" />
+            <MessageCircle size={48} color={theme.borderSoft} />
             <Text style={styles.emptyText}>Ничего не найдено</Text>
           </View>
         }
@@ -228,14 +234,15 @@ export default function MonitoringScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemePalette) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff9e6',
+    backgroundColor: theme.backgroundPrimary,
   },
   gradientBackground: {
-    backgroundColor: '#FFD700',
     paddingBottom: 16,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
   header: {
     flexDirection: 'row',
@@ -251,44 +258,32 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: '800' as const,
-    color: '#1a1a1a',
+    color: theme.textPrimary,
     letterSpacing: 1,
   },
   headerSubtitle: {
     fontSize: 14,
     fontWeight: '500' as const,
-    color: '#4a4a4a',
+    color: theme.textSecondary,
     marginTop: 4,
   },
-  statsContainer: {
+  headerActions: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    gap: 10,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 16,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    gap: 12,
   },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: '700' as const,
-    color: '#1a1a1a',
-    marginTop: 8,
+  headerToggle: {
+    marginLeft: 8,
   },
-  statLabel: {
-    fontSize: 12,
-    fontWeight: '500' as const,
-    color: '#666',
-    marginTop: 4,
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: theme.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: theme.accentPrimary,
   },
   alertsBadge: {
     flexDirection: 'row',
@@ -309,21 +304,6 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
     color: '#fff',
   },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FFF9C4',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#FFD700',
-  },
   searchContainer: {
     paddingHorizontal: 16,
     paddingBottom: 8,
@@ -332,16 +312,18 @@ const styles = StyleSheet.create({
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: theme.card,
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
     gap: 8,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
   },
   searchInput: {
     flex: 1,
     fontSize: 15,
-    color: '#1a1a1a',
+    color: theme.textPrimary,
   },
   filterContainer: {
     flexDirection: 'row',
@@ -353,49 +335,87 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: '#fff',
+    backgroundColor: theme.card,
     borderWidth: 2,
-    borderColor: '#e0e0e0',
+    borderColor: theme.borderSoft,
   },
   filterChipActive: {
-    backgroundColor: '#1a1a1a',
-    borderColor: '#1a1a1a',
+    backgroundColor: theme.accentPrimary,
+    borderColor: theme.accentPrimary,
   },
   filterChipText: {
     fontSize: 12,
     fontWeight: '600' as const,
-    color: '#666',
+    color: theme.textSecondary,
   },
   filterChipTextActive: {
-    color: '#fff',
+    color: theme.isDark ? theme.backgroundPrimary : '#0b1220',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    gap: 10,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: theme.card,
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: theme.isDark ? 0.4 : 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: theme.isDark ? 1 : 0,
+    borderColor: theme.borderSoft,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: '700' as const,
+    color: theme.textPrimary,
+    marginTop: 8,
+  },
+  statLabel: {
+    fontSize: 12,
+    fontWeight: '500' as const,
+    color: theme.textSecondary,
+    marginTop: 4,
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 80,
+    backgroundColor: theme.card,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+    marginHorizontal: 4,
   },
   emptyText: {
     fontSize: 16,
     fontWeight: '600' as const,
-    color: '#999',
+    color: theme.textPrimary,
     marginTop: 16,
   },
   listContainer: {
     padding: 16,
     paddingTop: 8,
+    backgroundColor: theme.backgroundPrimary,
   },
   chatCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.card,
     borderRadius: 16,
     padding: 18,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
+    shadowOpacity: theme.isDark ? 0.35 : 0.15,
     shadowRadius: 6,
     elevation: 5,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: theme.borderSoft,
   },
   chatHeader: {
     flexDirection: 'row',
@@ -405,13 +425,13 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: '#FFF9C4',
+    backgroundColor: theme.cardMuted,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 14,
   },
   groupIconContainer: {
-    backgroundColor: '#FFE5B4',
+    backgroundColor: theme.accentMuted,
   },
   chatEmoji: {
     fontSize: 24,
@@ -422,17 +442,17 @@ const styles = StyleSheet.create({
   chatTitle: {
     fontSize: 16,
     fontWeight: '600' as const,
-    color: '#000',
+    color: theme.textPrimary,
     marginBottom: 4,
   },
   chatSubtitle: {
     fontSize: 14,
-    color: '#666',
+    color: theme.textSecondary,
     marginBottom: 2,
   },
   lastActivity: {
     fontSize: 12,
-    color: '#999',
+    color: theme.textSecondary,
   },
   chatFooter: {
     marginTop: 12,

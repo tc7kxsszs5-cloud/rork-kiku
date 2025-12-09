@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MonitoringProvider } from "@/constants/MonitoringContext";
 import { UserProvider } from "@/constants/UserContext";
 import { ParentalControlsProvider } from "@/constants/ParentalControlsContext";
+import { ThemeProvider } from "@/constants/ThemeContext";
 import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
 
@@ -86,13 +87,15 @@ function AppProviders({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <AppErrorBoundary>
-          <UserProvider>
-            <ParentalControlsProvider>
-              <MonitoringProvider>
-                {children}
-              </MonitoringProvider>
-            </ParentalControlsProvider>
-          </UserProvider>
+          <ThemeProvider>
+            <UserProvider>
+              <ParentalControlsProvider>
+                <MonitoringProvider>
+                  {children}
+                </MonitoringProvider>
+              </ParentalControlsProvider>
+            </UserProvider>
+          </ThemeProvider>
         </AppErrorBoundary>
       </trpc.Provider>
     </QueryClientProvider>
