@@ -9,7 +9,7 @@ import {
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image } from 'expo-image';
+
 import { useRouter } from 'expo-router';
 import { MessageCircle, AlertTriangle, Shield, Search, X } from 'lucide-react-native';
 import { useMonitoring } from '@/constants/MonitoringContext';
@@ -26,7 +26,7 @@ const RISK_COLORS: Record<RiskLevel, string> = {
   critical: '#991b1b',
 };
 
-const HERO_IMAGE_URL = 'https://rork.app/pa/d8v7u672uumlfpscvnbps/generate-images';
+
 
 const RISK_LABELS: Record<RiskLevel, string> = {
   safe: 'Безопасно',
@@ -176,21 +176,7 @@ export default function MonitoringScreen() {
           </View>
         </Animated.View>
 
-        <View style={styles.heroCard} testID="creativeHeroCard">
-          <View style={styles.heroTextBlock}>
-            <Text style={styles.heroLabel}>Готово</Text>
-            <Text style={styles.heroTitle}>Генератор визуалов</Text>
-            <Text style={styles.heroSubtitle}>Используйте свежие изображения, такие как @generate-images, чтобы делать отчёты ярче.</Text>
-            <TouchableOpacity
-              style={styles.heroButton}
-              onPress={() => router.push('/recommendations')}
-              testID="heroCtaButton"
-            >
-              <Text style={styles.heroButtonText}>Открыть подборки</Text>
-            </TouchableOpacity>
-          </View>
-          <Image source={{ uri: HERO_IMAGE_URL }} style={styles.heroImage} contentFit="cover" />
-        </View>
+
 
         <View style={styles.filterContainer}>
           <TouchableOpacity
@@ -334,62 +320,7 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     paddingBottom: 8,
     overflow: 'hidden',
   },
-  heroCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: 16,
-    marginBottom: 16,
-    backgroundColor: theme.card,
-    borderRadius: 24,
-    padding: 20,
-    gap: 20,
-    borderWidth: 1,
-    borderColor: theme.borderSoft,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: theme.isDark ? 0.45 : 0.12,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  heroTextBlock: {
-    flex: 1,
-    gap: 8,
-  },
-  heroLabel: {
-    fontSize: 12,
-    fontWeight: '700' as const,
-    color: theme.accentPrimary,
-    letterSpacing: 1,
-  },
-  heroTitle: {
-    fontSize: 20,
-    fontWeight: '700' as const,
-    color: theme.textPrimary,
-  },
-  heroSubtitle: {
-    fontSize: 14,
-    color: theme.textSecondary,
-    lineHeight: 20,
-  },
-  heroButton: {
-    marginTop: 8,
-    alignSelf: 'flex-start',
-    backgroundColor: theme.accentPrimary,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 999,
-  },
-  heroButtonText: {
-    fontSize: 13,
-    fontWeight: '700' as const,
-    color: theme.isDark ? theme.backgroundPrimary : '#0b1220',
-  },
-  heroImage: {
-    width: 110,
-    height: 110,
-    borderRadius: 16,
-  },
+
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
