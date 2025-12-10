@@ -1,16 +1,45 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image as RNImage, Pressable, Linking } from 'react-native';
-import { AlertOctagon, Image as ImageIcon, Clock, Users, Lock, FileText, Eye } from 'lucide-react-native';
+import { AlertOctagon, Image as ImageIcon, Clock, Users, Lock, FileText, Eye, Wifi } from 'lucide-react-native';
+import * as Clipboard from 'expo-clipboard';
 import appIcon from '@/assets/images/icon.png';
 
 const PROJECT_URL = 'https://rork.app/p/d8v7u672uumlfpscvnbps';
+const START_COMMAND = 'CI=false bunx rork start -p d8v7u672uumlfpscvnbps --tunnel';
+
+type CopyState = 'idle' | 'copied' | 'error';
 
 export default function AboutScreen() {
+  const [copyState, setCopyState] = useState<CopyState>('idle');
+
   const handleOpenProjectUrl = () => {
     Linking.openURL(PROJECT_URL).catch((error) => {
       console.log('Failed to open project URL', error);
     });
   };
+
+  const handleCopyStartCommand = useCallback(async () => {
+    try {
+      await Clipboard.setStringAsync(START_COMMAND);
+      setCopyState('copied');
+      console.log('[AboutScreen] Copied start command');
+    } catch (error) {
+      console.error('[AboutScreen] Failed to copy start command', error);
+      setCopyState('error');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (copyState === 'idle') {
+      return;
+    }
+    const timeout = setTimeout(() => {
+      setCopyState('idle');
+    }, 2200);
+    return () => clearTimeout(timeout);
+  }, [copyState]);
+
+  const copyHint = copyState === 'copied' ? 'Команда скопирована' : copyState === 'error' ? 'Не удалось скопировать' : 'Нажмите, чтобы скопировать';
 
   return (
     <ScrollView style={styles.container}>
@@ -55,6 +84,33 @@ export default function AboutScreen() {
           </Text>
           <Text style={styles.urlHint}>Нажмите, чтобы открыть</Text>
         </Pressable>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Стабильный запуск</Text>
+        <View style={styles.commandCard}>
+          <View style={styles.commandHeader}>
+            <View style={styles.commandIconWrap}>
+              <Wifi size={22} color="#0d1b2a" />
+            </View>
+            <View style={styles.commandTitleWrap}>
+              <Text style={styles.commandTitle}>Запустите dev-сервер с туннелем</Text>
+              <Text style={styles.commandSubtitle}>Используйте, если устройство не видит Metro</Text>
+            </View>
+          </View>
+          <View style={styles.commandCodeBlock}>
+            <Text style={styles.commandCode} testID="about-start-command">
+              {START_COMMAND}
+            </Text>
+          </View>
+          <Pressable
+            onPress={handleCopyStartCommand}
+            style={({ pressed }) => [styles.copyButton, pressed && styles.copyButtonPressed]}
+            testID="about-copy-command"
+          >
+            <Text style={styles.copyButtonText}>{copyHint}</Text>
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.section}>
@@ -405,5 +461,68 @@ const styles = StyleSheet.create({
     color: '#bbb',
     marginTop: 8,
     textAlign: 'center',
+  },
+  commandCard: {
+    marginTop: 12,
+    backgroundColor: '#ffffff',
+    borderRadius: 18,
+    padding: 20,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  commandHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  commandIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#ffe7a3',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  commandTitleWrap: {
+    flex: 1,
+  },
+  commandTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#1a1a1a',
+  },
+  commandSubtitle: {
+    fontSize: 13,
+    color: '#5c5c5c',
+    marginTop: 4,
+  },
+  commandCodeBlock: {
+    backgroundColor: '#0d1b2a',
+    borderRadius: 12,
+    padding: 16,
+  },
+  commandCode: {
+    fontFamily: 'Courier',
+    color: '#fef3c7',
+    fontSize: 14,
+  },
+  copyButton: {
+    marginTop: 16,
+    borderRadius: 12,
+    backgroundColor: '#0d1b2a',
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  copyButtonPressed: {
+    opacity: 0.85,
+  },
+  copyButtonText: {
+    fontSize: 15,
+    fontWeight: '600' as const,
+    color: '#ffe7a3',
   },
 });
