@@ -9,6 +9,7 @@ import { UserProvider } from "@/constants/UserContext";
 import { ParentalControlsProvider } from "@/constants/ParentalControlsContext";
 import { ThemeProvider } from "@/constants/ThemeContext";
 import { trpc, trpcClient } from "@/lib/trpc";
+import CustomSplashScreen from "@/components/SplashScreen";
 import "@/constants/i18n";
 
 if (Platform.OS !== 'web') {
@@ -103,29 +104,47 @@ function AppProviders({ children }: { children: ReactNode }) {
 }
 
 export default function RootLayout() {
-  const [isReady, setIsReady] = useState(Platform.OS === 'web');
+  const [isReady, setIsReady] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    if (Platform.OS === 'web') {
-      return;
-    }
-
     let isMounted = true;
 
-    SplashScreen.hideAsync()
-      .catch((error) => {
-        console.error('[RootLayout] Failed to hide splash screen', error);
-      })
-      .finally(() => {
+    const initApp = async () => {
+      try {
+        if (Platform.OS !== 'web') {
+          await SplashScreen.hideAsync();
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 2500));
+        
         if (isMounted) {
+          setShowSplash(false);
+          setTimeout(() => {
+            if (isMounted) {
+              setIsReady(true);
+            }
+          }, 300);
+        }
+      } catch (error) {
+        console.error('[RootLayout] Failed to initialize app', error);
+        if (isMounted) {
+          setShowSplash(false);
           setIsReady(true);
         }
-      });
+      }
+    };
+
+    initApp();
 
     return () => {
       isMounted = false;
     };
   }, []);
+
+  if (showSplash) {
+    return <CustomSplashScreen />;
+  }
 
   if (!isReady) {
     return null;
