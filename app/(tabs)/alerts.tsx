@@ -69,7 +69,7 @@ export default function AlertsScreen() {
 
         <TouchableOpacity onPress={() => {
           HapticFeedback.light();
-          router.push({ pathname: '/chat/[chatId]', params: { chatId: item.chatId } });
+          router.push(`/chat/${item.chatId}` as any);
         }}>
           <Text style={styles.chatName}>{chatName}</Text>
         </TouchableOpacity>
