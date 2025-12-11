@@ -115,6 +115,50 @@ const PERMISSION_STATUS_META: Record<PushPermissionState, { label: string; descr
   },
 };
 
+type ReadinessStatus = 'ready' | 'pending' | 'blocked';
+
+type ReadinessKey = 'permissions' | 'token' | 'sync' | 'diagnostics' | 'hardware';
+
+type IconComponent = typeof Bell;
+
+interface ReadinessItem {
+  key: ReadinessKey;
+  title: string;
+  description: string;
+  detail: string;
+  status: ReadinessStatus;
+  Icon: IconComponent;
+}
+
+const READINESS_STATUS_META: Record<ReadinessStatus, { label: string; chipBackground: string; chipColor: string; iconBackground: string }> = {
+  ready: {
+    label: 'Готово',
+    chipBackground: 'rgba(34,197,94,0.15)',
+    chipColor: '#15803d',
+    iconBackground: 'rgba(34,197,94,0.2)',
+  },
+  pending: {
+    label: 'Требует действий',
+    chipBackground: 'rgba(251,191,36,0.2)',
+    chipColor: '#92400e',
+    iconBackground: 'rgba(251,191,36,0.25)',
+  },
+  blocked: {
+    label: 'Заблокировано',
+    chipBackground: 'rgba(248,113,113,0.2)',
+    chipColor: '#b91c1c',
+    iconBackground: 'rgba(248,113,113,0.25)',
+  },
+};
+
+const readinessIconMap: Record<ReadinessKey, IconComponent> = {
+  permissions: Bell,
+  token: KeyRound,
+  sync: CloudUpload,
+  diagnostics: Activity,
+  hardware: Smartphone,
+};
+
 const DIAGNOSTIC_LABELS: Record<NotificationTestType, string> = {
   permissions: 'Разрешения',
   token: 'Push токен',
@@ -167,6 +211,96 @@ export default function ProfileScreen() {
       })
     : 'Нет данных синхронизации';
   const diagnosticsPreview = useMemo(() => lastDiagnostics.slice(0, 3), [lastDiagnostics]);
+
+  const readinessChecklist = useMemo<ReadinessItem[]>(() => {
+    const effectiveResults = serverRecord?.testResults ?? lastDiagnostics;
+    const latestDeliveryTest = [...effectiveResults]
+      .filter((result) => result.type === 'delivery' && result.status === 'passed')
+      .sort((a, b) => b.timestamp - a.timestamp)[0];
+    const hasRecentDeliveryTest = latestDeliveryTest ? Date.now() - latestDeliveryTest.timestamp < 1000 * 60 * 60 * 24 : false;
+    const deliveryDetail = latestDeliveryTest
+      ? `Последний тест: ${new Date(latestDeliveryTest.timestamp).toLocaleString('ru-RU', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })}`
+      : 'Диагностика доставки не запускалась';
+
+    const permissionStatusValue: ReadinessStatus = permissionStatus === 'granted'
+      ? 'ready'
+      : permissionStatus === 'denied'
+        ? 'blocked'
+        : 'pending';
+
+    const tokenStatus: ReadinessStatus = expoPushToken
+      ? 'ready'
+      : permissionStatus === 'granted'
+        ? 'pending'
+        : 'blocked';
+
+    const syncStatus: ReadinessStatus = serverRecord?.lastSyncedAt ? 'ready' : 'pending';
+
+    const diagnosticsStatus: ReadinessStatus = hasRecentDeliveryTest ? 'ready' : (isPushSupported ? 'pending' : 'blocked');
+
+    const hardwareStatus: ReadinessStatus = isPushSupported ? 'ready' : 'blocked';
+
+    return [
+      {
+        key: 'permissions',
+        title: 'Разрешения push',
+        description: 'Требуются для TestFlight и App Store Connect',
+        detail: permissionMeta.label,
+        status: permissionStatusValue,
+        Icon: readinessIconMap.permissions,
+      },
+      {
+        key: 'token',
+        title: 'Expo токен',
+        description: 'Нужен для боевых уведомлений и edge-тестов',
+        detail: expoPushToken ? truncatedToken : 'Токен не получен',
+        status: tokenStatus,
+        Icon: readinessIconMap.token,
+      },
+      {
+        key: 'sync',
+        title: 'Серверная регистрация',
+        description: 'Устройство должно быть зарегистрировано на сервере',
+        detail: serverRecord?.lastSyncedAt ? lastSyncText : 'Синхронизация не выполнялась',
+        status: syncStatus,
+        Icon: readinessIconMap.sync,
+      },
+      {
+        key: 'diagnostics',
+        title: 'Диагностика доставки',
+        description: 'Недавний тест push на реальном устройстве',
+        detail: deliveryDetail,
+        status: diagnosticsStatus,
+        Icon: readinessIconMap.diagnostics,
+      },
+      {
+        key: 'hardware',
+        title: 'Тестовое устройство',
+        description: 'Нужно реальное iOS устройство с Expo Go/TestFlight',
+        detail: isPushSupported ? 'Устройство поддерживает push API' : 'Используется платформа без push поддержки',
+        status: hardwareStatus,
+        Icon: readinessIconMap.hardware,
+      },
+    ];
+  }, [expoPushToken, isPushSupported, lastDiagnostics, lastSyncText, permissionMeta.label, permissionStatus, serverRecord?.lastSyncedAt, serverRecord?.testResults, truncatedToken]);
+
+  const readinessSummary = useMemo(() => {
+    const total = readinessChecklist.length;
+    const readyCount = readinessChecklist.filter((item) => item.status === 'ready').length;
+    const blockedCount = readinessChecklist.filter((item) => item.status === 'blocked').length;
+    const score = total > 0 ? Math.round((readyCount / total) * 100) : 0;
+    return {
+      total,
+      readyCount,
+      blockedCount,
+      score,
+    };
+  }, [readinessChecklist]);
 
   const handleRegisterPush = async () => {
     if (!isPushSupported) {
@@ -332,6 +466,52 @@ export default function ProfileScreen() {
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
+
+      <View style={styles.section} testID="profile-readiness-section">
+        <Text style={styles.sectionTitle}>Готовность к тестированию</Text>
+        <View style={styles.readinessSummaryCard}>
+          <View style={styles.readinessSummaryHeader}>
+            <View>
+              <Text style={styles.readinessSummaryLabel}>Сводный прогресс</Text>
+              <Text style={styles.readinessSummaryScore} testID="profile-readiness-score">{readinessSummary.score}%</Text>
+            </View>
+            <View style={styles.readinessSummaryBadgeRow}>
+              <View style={styles.readinessSummaryBadge}>
+                <CheckCircle2 size={16} color="#22c55e" />
+                <Text style={styles.readinessSummaryBadgeText}>{readinessSummary.readyCount} готово</Text>
+              </View>
+              <View style={[styles.readinessSummaryBadge, styles.readinessSummaryBadgeWarning]}>
+                <XCircle size={16} color="#ef4444" />
+                <Text style={styles.readinessSummaryBadgeText}>{readinessSummary.blockedCount} блок</Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.readinessProgressTrack}>
+            <View style={[styles.readinessProgressFill, { width: `${readinessSummary.score}%` }]} testID="profile-readiness-progress" />
+          </View>
+          <Text style={styles.readinessSummaryHint}>Закройте все пункты ниже, прежде чем отправлять сборку в TestFlight.</Text>
+        </View>
+        {readinessChecklist.map((item) => {
+          const meta = READINESS_STATUS_META[item.status];
+          return (
+            <View key={item.key} style={styles.readinessItem} testID={`profile-readiness-${item.key}`}>
+              <View style={[styles.readinessIconWrapper, { backgroundColor: meta.iconBackground }]}>
+                <item.Icon size={18} color={meta.chipColor} />
+              </View>
+              <View style={styles.readinessTextWrapper}>
+                <View style={styles.readinessItemHeader}>
+                  <Text style={styles.readinessItemTitle}>{item.title}</Text>
+                  <View style={[styles.readinessStatusBadge, { backgroundColor: meta.chipBackground }]}>
+                    <Text style={[styles.readinessStatusText, { color: meta.chipColor }]}>{meta.label}</Text>
+                  </View>
+                </View>
+                <Text style={styles.readinessItemDescription}>{item.description}</Text>
+                <Text style={styles.readinessItemDetail}>{item.detail}</Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Центр настроек</Text>
@@ -753,6 +933,120 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     fontWeight: '700' as const,
     color: theme.textPrimary,
     marginBottom: 16,
+  },
+  readinessSummaryCard: {
+    backgroundColor: theme.cardMuted,
+    borderRadius: 18,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+    marginBottom: 16,
+  },
+  readinessSummaryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  readinessSummaryLabel: {
+    fontSize: 13,
+    color: theme.textSecondary,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.5,
+  },
+  readinessSummaryScore: {
+    fontSize: 32,
+    fontWeight: '800' as const,
+    color: theme.textPrimary,
+    marginTop: 4,
+  },
+  readinessSummaryBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  readinessSummaryBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: theme.card,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+  },
+  readinessSummaryBadgeWarning: {
+    backgroundColor: theme.isDark ? 'rgba(239,68,68,0.15)' : '#fee2e2',
+    borderColor: theme.isDark ? 'rgba(239,68,68,0.4)' : '#fecaca',
+  },
+  readinessSummaryBadgeText: {
+    fontSize: 12,
+    fontWeight: '600' as const,
+    color: theme.textPrimary,
+  },
+  readinessProgressTrack: {
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: theme.borderSoft,
+    overflow: 'hidden',
+    marginBottom: 10,
+  },
+  readinessProgressFill: {
+    height: '100%',
+    borderRadius: 999,
+    backgroundColor: theme.accentPrimary,
+  },
+  readinessSummaryHint: {
+    fontSize: 13,
+    color: theme.textSecondary,
+  },
+  readinessItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 14,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderColor: theme.borderSoft,
+  },
+  readinessIconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  readinessTextWrapper: {
+    flex: 1,
+  },
+  readinessItemHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  readinessItemTitle: {
+    fontSize: 15,
+    fontWeight: '700' as const,
+    color: theme.textPrimary,
+  },
+  readinessStatusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+  readinessStatusText: {
+    fontSize: 11,
+    fontWeight: '700' as const,
+  },
+  readinessItemDescription: {
+    fontSize: 13,
+    color: theme.textSecondary,
+  },
+  readinessItemDetail: {
+    fontSize: 13,
+    color: theme.textPrimary,
+    marginTop: 4,
   },
   notificationCard: {
     backgroundColor: theme.cardMuted,
