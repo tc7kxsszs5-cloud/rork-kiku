@@ -24,8 +24,16 @@ import {
   Mail,
   Smartphone,
   Lightbulb,
+  Bell,
+  CloudUpload,
+  RefreshCcw,
+  Activity,
+  CheckCircle2,
+  XCircle,
 } from 'lucide-react-native';
 import { useUser } from '@/constants/UserContext';
+import { useNotifications, PushPermissionState } from '@/constants/NotificationsContext';
+import { NotificationTestType } from '@/constants/types';
 import { useParentalControls } from '@/constants/ParentalControlsContext';
 import { HapticFeedback } from '@/constants/haptics';
 import { useIsMounted } from '@/hooks/useIsMounted';
@@ -80,6 +88,40 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
   },
 ];
 
+const PERMISSION_STATUS_META: Record<PushPermissionState, { label: string; description: string; color: string; textColor: string }> = {
+  granted: {
+    label: 'Разрешено',
+    description: 'Уведомления включены',
+    color: '#dcfce7',
+    textColor: '#166534',
+  },
+  denied: {
+    label: 'Запрещено',
+    description: 'Нет доступа к уведомлениям',
+    color: '#fee2e2',
+    textColor: '#b91c1c',
+  },
+  undetermined: {
+    label: 'Не запрошено',
+    description: 'Требуется запрос разрешений',
+    color: '#fef9c3',
+    textColor: '#92400e',
+  },
+  unavailable: {
+    label: 'Недоступно',
+    description: 'Платформа без поддержки push',
+    color: '#e2e8f0',
+    textColor: '#475569',
+  },
+};
+
+const DIAGNOSTIC_LABELS: Record<NotificationTestType, string> = {
+  permissions: 'Разрешения',
+  token: 'Push токен',
+  delivery: 'Доставка',
+  sync: 'Синхронизация',
+};
+
 export default function ProfileScreen() {
   const { user, isLoading, identifyUser, updateUser, logoutUser } = useUser();
   const { settings } = useParentalControls();
@@ -98,6 +140,75 @@ export default function ProfileScreen() {
   const styles = useMemo(() => createStyles(theme), [theme]);
   const placeholderColor = theme.textSecondary;
   const primaryActionTextColor = theme.isDark ? '#0b1220' : '#1a1a1a';
+
+  const {
+    permissionStatus,
+    expoPushToken,
+    registerDevice: registerPushDevice,
+    isRegistering: isRegisteringDevice,
+    serverRecord,
+    runDiagnostics,
+    isRunningDiagnostics,
+    lastDiagnostics,
+    lastError: pushError,
+    refreshStatus: refreshPushStatus,
+    isSupported: isPushSupported,
+    isSyncing: isPushSyncing,
+  } = useNotifications();
+
+  const permissionMeta = PERMISSION_STATUS_META[permissionStatus] ?? PERMISSION_STATUS_META.undetermined;
+  const truncatedToken = expoPushToken ? `${expoPushToken.slice(0, 14)}…${expoPushToken.slice(-6)}` : 'Токен не получен';
+  const lastSyncText = serverRecord?.lastSyncedAt
+    ? new Date(serverRecord.lastSyncedAt).toLocaleString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : 'Нет данных синхронизации';
+  const diagnosticsPreview = useMemo(() => lastDiagnostics.slice(0, 3), [lastDiagnostics]);
+
+  const handleRegisterPush = async () => {
+    if (!isPushSupported) {
+      Alert.alert('Недоступно', 'Push-уведомления не поддерживаются на этой платформе');
+      return;
+    }
+    HapticFeedback.medium();
+    console.log('[ProfileScreen] Manual push registration requested');
+    try {
+      await registerPushDevice();
+      Alert.alert('Готово', 'Устройство синхронизировано с сервером');
+    } catch (err) {
+      console.error('[ProfileScreen] Push registration error', err);
+      Alert.alert('Ошибка', err instanceof Error ? err.message : 'Не удалось подключить push-уведомления');
+    }
+  };
+
+  const handleRunDiagnostics = async () => {
+    HapticFeedback.light();
+    console.log('[ProfileScreen] Diagnostics started');
+    try {
+      const results = await runDiagnostics();
+      const hasFailures = results.some((result) => result.status === 'failed');
+      Alert.alert(
+        hasFailures ? 'Диагностика завершена с ошибками' : 'Диагностика успешна',
+        hasFailures ? 'Проверьте список проверок ниже' : 'Все проверки пройдены',
+      );
+    } catch (err) {
+      console.error('[ProfileScreen] Diagnostics error', err);
+      Alert.alert('Ошибка диагностики', err instanceof Error ? err.message : 'Не удалось запустить проверку');
+    }
+  };
+
+  const handleRefreshPushStatus = async () => {
+    HapticFeedback.selection();
+    console.log('[ProfileScreen] Refreshing push sync status');
+    try {
+      await refreshPushStatus();
+    } catch (err) {
+      console.error('[ProfileScreen] Refresh status error', err);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -243,6 +354,128 @@ export default function ProfileScreen() {
             </View>
           </TouchableOpacity>
         ))}
+      </View>
+
+      <View style={styles.section} testID="notifications-section">
+        <Text style={styles.sectionTitle}>Push-уведомления</Text>
+        <View style={styles.notificationCard}>
+          <View style={styles.notificationRow}>
+            <Bell size={20} color={theme.textPrimary} />
+            <View style={styles.notificationTextWrapper}>
+              <Text style={styles.notificationLabel}>Статус разрешений</Text>
+              <Text style={styles.notificationValue}>{permissionMeta.description}</Text>
+            </View>
+            <View
+              style={[styles.statusPill, { backgroundColor: permissionMeta.color }]}
+              testID="notifications-permission-chip"
+            >
+              <Text style={[styles.statusPillText, { color: permissionMeta.textColor }]}>{permissionMeta.label}</Text>
+            </View>
+          </View>
+          <View style={styles.notificationRow}>
+            <CloudUpload size={20} color={theme.textPrimary} />
+            <View style={styles.notificationTextWrapper}>
+              <Text style={styles.notificationLabel}>Синхронизация</Text>
+              <Text style={styles.notificationValue} testID="notifications-sync-status">
+                {lastSyncText}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.iconGhostButton}
+              onPress={handleRefreshPushStatus}
+              disabled={isPushSyncing}
+              testID="notifications-refresh-button"
+            >
+              {isPushSyncing ? (
+                <ActivityIndicator size="small" color={theme.textPrimary} />
+              ) : (
+                <RefreshCcw size={18} color={theme.textPrimary} />
+              )}
+            </TouchableOpacity>
+          </View>
+          <View style={styles.tokenRow}>
+            <Text style={styles.notificationLabel}>Expo токен</Text>
+            <Text style={styles.tokenText} numberOfLines={1} testID="notifications-token-value">
+              {truncatedToken}
+            </Text>
+          </View>
+        </View>
+        {!isPushSupported && (
+          <View style={styles.notificationAlert} testID="notifications-alert-unsupported">
+            <Text style={styles.notificationAlertText}>
+              Веб-версия не поддерживает фоновые push-уведомления. Используйте мобильное приложение для тестов.
+            </Text>
+          </View>
+        )}
+        {pushError && (
+          <View style={styles.notificationAlert} testID="notifications-alert-error">
+            <Text style={styles.notificationAlertText}>{pushError}</Text>
+          </View>
+        )}
+        <View style={styles.notificationActions}>
+          <TouchableOpacity
+            style={[styles.primaryNotificationButton, (isRegisteringDevice || !isPushSupported) && styles.disabledButton]}
+            onPress={handleRegisterPush}
+            disabled={isRegisteringDevice || !isPushSupported}
+            testID="notifications-register-button"
+          >
+            {isRegisteringDevice ? (
+              <ActivityIndicator color={primaryActionTextColor} />
+            ) : (
+              <>
+                <Bell size={18} color={primaryActionTextColor} />
+                <Text style={styles.primaryNotificationButtonText}>
+                  {permissionStatus === 'granted' ? 'Обновить токен' : 'Включить push'}
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.secondaryNotificationButton, isRunningDiagnostics && styles.disabledButton]}
+            onPress={handleRunDiagnostics}
+            disabled={isRunningDiagnostics}
+            testID="notifications-diagnostics-button"
+          >
+            {isRunningDiagnostics ? (
+              <ActivityIndicator color={theme.textPrimary} />
+            ) : (
+              <>
+                <Activity size={18} color={theme.textPrimary} />
+                <Text style={styles.secondaryNotificationButtonText}>Диагностика</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
+        <View style={styles.testResultsCard}>
+          <View style={styles.testResultsHeader}>
+            <Text style={styles.notificationLabel}>Последние проверки</Text>
+            <Text style={styles.notificationValue}>
+              {diagnosticsPreview.length > 0
+                ? `${diagnosticsPreview.length} / ${lastDiagnostics.length || diagnosticsPreview.length}`
+                : 'Нет данных'}
+            </Text>
+          </View>
+          {diagnosticsPreview.length > 0 ? (
+            diagnosticsPreview.map((result) => (
+              <View key={result.id} style={styles.testResultRow} testID={`notifications-test-result-${result.id}`}>
+                {result.status === 'passed' ? (
+                  <CheckCircle2 size={18} color="#22c55e" />
+                ) : (
+                  <XCircle size={18} color="#ef4444" />
+                )}
+                <View style={styles.notificationTextWrapper}>
+                  <Text style={styles.notificationValue}>{DIAGNOSTIC_LABELS[result.type]}</Text>
+                  <Text style={styles.testResultMessage}>{result.message}</Text>
+                </View>
+                <Text style={styles.testResultTime}>
+                  {new Date(result.timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.notificationValue}>Диагностика ещё не запускалась</Text>
+          )}
+        </View>
       </View>
 
       <View style={styles.section}>
@@ -520,6 +753,138 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     fontWeight: '700' as const,
     color: theme.textPrimary,
     marginBottom: 16,
+  },
+  notificationCard: {
+    backgroundColor: theme.cardMuted,
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+    gap: 16,
+  },
+  notificationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  notificationTextWrapper: {
+    flex: 1,
+  },
+  notificationLabel: {
+    fontSize: 12,
+    color: theme.textSecondary,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.5,
+  },
+  notificationValue: {
+    fontSize: 15,
+    fontWeight: '600' as const,
+    color: theme.textPrimary,
+    marginTop: 4,
+  },
+  statusPill: {
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  statusPillText: {
+    fontSize: 12,
+    fontWeight: '700' as const,
+  },
+  iconGhostButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.card,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+  },
+  tokenRow: {
+    marginTop: 8,
+  },
+  tokenText: {
+    fontSize: 13,
+    color: theme.textSecondary,
+    marginTop: 4,
+  },
+  notificationAlert: {
+    marginTop: 12,
+    borderRadius: 14,
+    padding: 12,
+    backgroundColor: theme.isDark ? 'rgba(248,113,113,0.12)' : '#fef2f2',
+    borderWidth: 1,
+    borderColor: theme.isDark ? 'rgba(248,113,113,0.3)' : '#fecaca',
+  },
+  notificationAlertText: {
+    fontSize: 13,
+    color: theme.isDark ? '#fecaca' : '#b91c1c',
+  },
+  notificationActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
+  },
+  primaryNotificationButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 14,
+    backgroundColor: theme.accentPrimary,
+  },
+  primaryNotificationButtonText: {
+    fontSize: 14,
+    fontWeight: '700' as const,
+    color: theme.isDark ? '#0b1220' : '#1a1a1a',
+  },
+  secondaryNotificationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: theme.cardMuted,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+  },
+  secondaryNotificationButtonText: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+    color: theme.textPrimary,
+  },
+  testResultsCard: {
+    marginTop: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+    padding: 16,
+    backgroundColor: theme.card,
+    gap: 12,
+  },
+  testResultsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  testResultRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 6,
+  },
+  testResultMessage: {
+    fontSize: 12,
+    color: theme.textSecondary,
+  },
+  testResultTime: {
+    fontSize: 12,
+    color: theme.textSecondary,
   },
   inputGroup: {
     marginBottom: 16,
