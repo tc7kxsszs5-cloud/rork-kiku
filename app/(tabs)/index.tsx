@@ -9,7 +9,6 @@ import {
   Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { MessageCircle, AlertTriangle, Shield, Search, X } from 'lucide-react-native';
 import { useMonitoring } from '@/constants/MonitoringContext';
@@ -25,8 +24,6 @@ const RISK_COLORS: Record<RiskLevel, string> = {
   high: '#ef4444',
   critical: '#991b1b',
 };
-
-const HERO_IMAGE_URL = 'https://rork.app/pa/d8v7u672uumlfpscvnbps/generate-images';
 
 const RISK_LABELS: Record<RiskLevel, string> = {
   safe: 'Безопасно',
@@ -166,58 +163,37 @@ export default function MonitoringScreen() {
               value={searchQuery}
               onChangeText={setSearchQuery}
               placeholderTextColor={theme.textSecondary}
-              testID="searchInput"
             />
             {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery('')} testID="clearSearchButton">
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
                 <X size={18} color={theme.textSecondary} />
               </TouchableOpacity>
             )}
           </View>
         </Animated.View>
 
-        <View style={styles.heroCard} testID="creativeHeroCard">
-          <View style={styles.heroTextBlock}>
-            <Text style={styles.heroLabel}>Готово</Text>
-            <Text style={styles.heroTitle}>Генератор визуалов</Text>
-            <Text style={styles.heroSubtitle}>Используйте свежие изображения, такие как @generate-images, чтобы делать отчёты ярче.</Text>
-            <TouchableOpacity
-              style={styles.heroButton}
-              onPress={() => router.push('/recommendations')}
-              testID="heroCtaButton"
-            >
-              <Text style={styles.heroButtonText}>Открыть подборки</Text>
-            </TouchableOpacity>
-          </View>
-          <Image source={{ uri: HERO_IMAGE_URL }} style={styles.heroImage} contentFit="cover" />
-        </View>
-
         <View style={styles.filterContainer}>
           <TouchableOpacity
             style={[styles.filterChip, selectedRiskFilter === 'all' && styles.filterChipActive]}
             onPress={() => handleRiskFilter('all')}
-            testID="filterAll"
           >
             <Text style={[styles.filterChipText, selectedRiskFilter === 'all' && styles.filterChipTextActive]}>Все</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.filterChip, selectedRiskFilter === 'safe' && styles.filterChipActive, { borderColor: RISK_COLORS.safe }]}
             onPress={() => handleRiskFilter('safe')}
-            testID="filterSafe"
           >
             <Text style={[styles.filterChipText, selectedRiskFilter === 'safe' && styles.filterChipTextActive]}>Безопасно</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.filterChip, selectedRiskFilter === 'medium' && styles.filterChipActive, { borderColor: RISK_COLORS.medium }]}
             onPress={() => handleRiskFilter('medium')}
-            testID="filterMedium"
           >
             <Text style={[styles.filterChipText, selectedRiskFilter === 'medium' && styles.filterChipTextActive]}>Средний</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.filterChip, selectedRiskFilter === 'high' && styles.filterChipActive, { borderColor: RISK_COLORS.high }]}
             onPress={() => handleRiskFilter('high')}
-            testID="filterHigh"
           >
             <Text style={[styles.filterChipText, selectedRiskFilter === 'high' && styles.filterChipTextActive]}>Высокий</Text>
           </TouchableOpacity>
@@ -253,7 +229,6 @@ export default function MonitoringScreen() {
             <Text style={styles.emptyText}>Ничего не найдено</Text>
           </View>
         }
-        testID="chatsList"
       />
     </View>
   );
@@ -333,62 +308,6 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 8,
     overflow: 'hidden',
-  },
-  heroCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginHorizontal: 16,
-    marginBottom: 16,
-    backgroundColor: theme.card,
-    borderRadius: 24,
-    padding: 20,
-    gap: 20,
-    borderWidth: 1,
-    borderColor: theme.borderSoft,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: theme.isDark ? 0.45 : 0.12,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  heroTextBlock: {
-    flex: 1,
-    gap: 8,
-  },
-  heroLabel: {
-    fontSize: 12,
-    fontWeight: '700' as const,
-    color: theme.accentPrimary,
-    letterSpacing: 1,
-  },
-  heroTitle: {
-    fontSize: 20,
-    fontWeight: '700' as const,
-    color: theme.textPrimary,
-  },
-  heroSubtitle: {
-    fontSize: 14,
-    color: theme.textSecondary,
-    lineHeight: 20,
-  },
-  heroButton: {
-    marginTop: 8,
-    alignSelf: 'flex-start',
-    backgroundColor: theme.accentPrimary,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 999,
-  },
-  heroButtonText: {
-    fontSize: 13,
-    fontWeight: '700' as const,
-    color: theme.isDark ? theme.backgroundPrimary : '#0b1220',
-  },
-  heroImage: {
-    width: 110,
-    height: 110,
-    borderRadius: 16,
   },
   searchInputContainer: {
     flexDirection: 'row',
