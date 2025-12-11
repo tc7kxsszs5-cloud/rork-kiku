@@ -10,12 +10,13 @@ import {
   Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Lightbulb, RefreshCcw, CheckCircle2, AlertCircle, ShieldAlert, ExternalLink } from 'lucide-react-native';
 import { useMonitoring } from '@/constants/MonitoringContext';
 import { HapticFeedback } from '@/constants/haptics';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { Chat, Alert as ChatAlert } from '@/constants/types';
+import { useThemeMode, ThemePalette } from '@/constants/ThemeContext';
 
 type RecommendationPriority = 'high' | 'medium' | 'low';
 
@@ -191,8 +192,10 @@ const ESSENTIAL_GUIDANCE = {
   ],
 };
 
-export default function RecommendationsScreen() {
+export default function AIRecommendationsScreen() {
   const insets = useSafeAreaInsets();
+  const { theme } = useThemeMode();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const { chats, alerts } = useMonitoring();
   const [recommendations, setRecommendations] = useState<RecommendationsData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -203,7 +206,7 @@ export default function RecommendationsScreen() {
     () =>
       alerts.some((a) => !a.resolved) ||
       chats.some((chat) => chat.overallRisk === 'high' || chat.overallRisk === 'critical'),
-    [alerts, chats]
+    [alerts, chats],
   );
 
   const openResource = async (url: string) => {
@@ -277,210 +280,212 @@ export default function RecommendationsScreen() {
 
   return (
     <View style={styles.safeArea}>
-      <ScrollView style={styles.container}>
-        <View style={[styles.header, { paddingTop: insets.top + 24 }]}>
-        <Lightbulb size={32} color="#1a1a1a" />
-        <Text style={styles.headerTitle}>Рекомендации AI</Text>
-      </View>
+      <ScrollView style={styles.container} contentInsetAdjustmentBehavior="automatic">
+        <View style={[styles.header, { paddingTop: insets.top + 12 }]}> 
+          <Lightbulb size={32} color={theme.textPrimary} />
+          <View>
+            <Text style={styles.headerTitle}>AI рекомендации</Text>
+            <Text style={styles.headerSubtitle}>Динамические советы для родителей</Text>
+          </View>
+        </View>
 
-      <View style={styles.content}>
-        <LinearGradient
-          colors={['#fff4c7', '#ffe0c7']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.guidanceCard}
-          testID="essential-guidance-card"
-        >
-          <View style={styles.guidanceHeader}>
-            <ShieldAlert size={28} color="#b45309" />
-            <View style={styles.guidanceTitleBlock}>
-              <Text style={styles.guidanceTitle}>{ESSENTIAL_GUIDANCE.title}</Text>
-              <Text style={styles.guidancePriority}>Высокий приоритет</Text>
+        <View style={styles.content}>
+          <LinearGradient
+            colors={theme.heroGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.guidanceCard}
+            testID="essential-guidance-card"
+          >
+            <View style={styles.guidanceHeader}>
+              <ShieldAlert size={28} color={theme.isDark ? '#fef3c7' : '#7c2d12'} />
+              <View style={styles.guidanceTitleBlock}>
+                <Text style={styles.guidanceTitle}>{ESSENTIAL_GUIDANCE.title}</Text>
+                <Text style={styles.guidancePriority}>Высокий приоритет</Text>
+              </View>
             </View>
-          </View>
-          <Text style={styles.guidanceDescription}>{ESSENTIAL_GUIDANCE.description}</Text>
-          {ESSENTIAL_GUIDANCE.bullets.map((bullet) => (
-            <View key={bullet} style={styles.guidanceBulletRow}>
-              <View style={styles.guidanceBulletDot} />
-              <Text style={styles.guidanceBulletText}>{bullet}</Text>
-            </View>
-          ))}
-          {!hasCriticalSignals && (
-            <Text style={styles.guidanceFooter}>
-              Даже при отсутствии тревог держите эти практики в ежедневной рутине — это снизит вероятность появления угроз.
-            </Text>
-          )}
-        </LinearGradient>
+            <Text style={styles.guidanceDescription}>{ESSENTIAL_GUIDANCE.description}</Text>
+            {ESSENTIAL_GUIDANCE.bullets.map((bullet) => (
+              <View key={bullet} style={styles.guidanceBulletRow}>
+                <View style={styles.guidanceBulletDot} />
+                <Text style={styles.guidanceBulletText}>{bullet}</Text>
+              </View>
+            ))}
+            {!hasCriticalSignals && (
+              <Text style={styles.guidanceFooter}>
+                Даже при отсутствии тревог держите эти практики в ежедневной рутине — это снизит вероятность появления угроз.
+              </Text>
+            )}
+          </LinearGradient>
 
-        {!recommendations && !isLoading && (
-          <View style={styles.emptyState}>
-            <Lightbulb size={64} color="#FFD700" />
-            <Text style={styles.emptyTitle}>Получите персональные рекомендации</Text>
-            <Text style={styles.emptySubtitle}>
-              AI проанализирует ваши данные и предоставит советы по безопасности
-            </Text>
-            <TouchableOpacity
-              style={styles.generateButton}
-              onPress={generateRecommendations}
-            >
-              <RefreshCcw size={20} color="#fff" />
-              <Text style={styles.generateButtonText}>Сгенерировать рекомендации</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {isLoading && (
-          <View style={styles.loadingState}>
-            <ActivityIndicator size="large" color="#FFD700" />
-            <Text style={styles.loadingText}>AI анализирует ваши данные...</Text>
-          </View>
-        )}
-
-        {error && (
-          <View style={styles.errorState}>
-            <AlertCircle size={48} color="#ef4444" />
-            <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity
-              style={styles.retryButton}
-              onPress={generateRecommendations}
-            >
-              <Text style={styles.retryButtonText}>Попробовать снова</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {recommendations && !isLoading && (
-          <>
-            <View style={styles.refreshButtonContainer}>
+          {!recommendations && !isLoading && (
+            <View style={styles.emptyState}>
+              <Lightbulb size={64} color={theme.accentPrimary} />
+              <Text style={styles.emptyTitle}>Получите персональные рекомендации</Text>
+              <Text style={styles.emptySubtitle}>
+                AI проанализирует ваши данные и предоставит советы по безопасности
+              </Text>
               <TouchableOpacity
-                style={styles.refreshButton}
+                style={styles.generateButton}
                 onPress={generateRecommendations}
+                testID="recommendations-generate-button"
               >
-                <RefreshCcw size={18} color="#FFD700" />
-                <Text style={styles.refreshButtonText}>Обновить</Text>
+                <RefreshCcw size={20} color={theme.isDark ? '#0b1220' : '#fff'} />
+                <Text style={styles.generateButtonText}>Сгенерировать рекомендации</Text>
               </TouchableOpacity>
             </View>
+          )}
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Общие рекомендации</Text>
-              {recommendations.general.map((rec, index) => (
-                <View
-                  key={`${rec.title}-${index}`}
-                  style={[
-                    styles.recommendationCard,
-                    { borderLeftColor: PRIORITY_COLORS[rec.priority] },
-                  ]}
-                >
-                  <View style={styles.recommendationHeader}>
-                    <CheckCircle2 size={20} color={PRIORITY_COLORS[rec.priority]} />
-                    <Text style={styles.recommendationTitle}>{rec.title}</Text>
-                  </View>
-                  <Text style={styles.recommendationDescription}>{rec.description}</Text>
-                  <View
-                    style={[
-                      styles.priorityBadge,
-                      { backgroundColor: PRIORITY_COLORS[rec.priority] + '20' },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.priorityText,
-                        { color: PRIORITY_COLORS[rec.priority] },
-                      ]}
-                    >
-                      {PRIORITY_LABELS[rec.priority]}
-                    </Text>
-                  </View>
-                </View>
-              ))}
+          {isLoading && (
+            <View style={styles.loadingState}>
+              <ActivityIndicator size="large" color={theme.accentPrimary} />
+              <Text style={styles.loadingText}>AI анализирует ваши данные...</Text>
             </View>
+          )}
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Полезные материалы</Text>
-              {RESOURCE_LINKS.map((resource) => (
-                <View key={resource.id} style={styles.resourceCard} testID={`resource-card-${resource.id}`}>
-                  <View style={styles.resourceHeader}>
-                    <View style={[styles.priorityBadge, { backgroundColor: PRIORITY_COLORS[resource.priority] + '20' }]}>
-                      <Text style={[styles.priorityText, { color: PRIORITY_COLORS[resource.priority] }]}>
-                        {PRIORITY_LABELS[resource.priority]}
+          {error && (
+            <View style={styles.errorState}>
+              <AlertCircle size={48} color="#ef4444" />
+              <Text style={styles.errorText}>{error}</Text>
+              <TouchableOpacity
+                style={styles.retryButton}
+                onPress={generateRecommendations}
+                testID="recommendations-retry-button"
+              >
+                <Text style={styles.retryButtonText}>Попробовать снова</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {recommendations && !isLoading && (
+            <>
+              <View style={styles.refreshButtonContainer}>
+                <TouchableOpacity
+                  style={styles.refreshButton}
+                  onPress={generateRecommendations}
+                  testID="recommendations-refresh-button"
+                >
+                  <RefreshCcw size={18} color={theme.accentPrimary} />
+                  <Text style={styles.refreshButtonText}>Обновить</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Общие рекомендации</Text>
+                {recommendations.general.map((rec, index) => (
+                  <View
+                    key={`${rec.title}-${index}`}
+                    style={[styles.recommendationCard, { borderLeftColor: PRIORITY_COLORS[rec.priority] }]}
+                  >
+                    <View style={styles.recommendationHeader}>
+                      <CheckCircle2 size={20} color={PRIORITY_COLORS[rec.priority]} />
+                      <Text style={styles.recommendationTitle}>{rec.title}</Text>
+                    </View>
+                    <Text style={styles.recommendationDescription}>{rec.description}</Text>
+                    <View
+                      style={[styles.priorityBadge, { backgroundColor: `${PRIORITY_COLORS[rec.priority]}20` }]}
+                    >
+                      <Text style={[styles.priorityText, { color: PRIORITY_COLORS[rec.priority] }]}>
+                        {PRIORITY_LABELS[rec.priority]}
                       </Text>
                     </View>
-                    <TouchableOpacity
-                      style={styles.resourceButton}
-                      onPress={() => openResource(resource.url)}
-                      testID={`resource-link-${resource.id}`}
-                    >
-                      <ExternalLink size={16} color="#FFD700" />
-                      <Text style={styles.resourceButtonText}>Открыть</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <Text style={styles.resourceTitle}>{resource.title}</Text>
-                  <Text style={styles.resourceDescription}>{resource.description}</Text>
-                  <Text style={styles.resourceUrl}>{resource.url}</Text>
-                </View>
-              ))}
-            </View>
-
-            {recommendations.chatSpecific.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Рекомендации по чатам</Text>
-                {recommendations.chatSpecific.map((chatRec, index) => (
-                  <View
-                    key={`${chatRec.chatId}-${index}`}
-                    style={styles.chatRecommendationCard}
-                    testID={`chat-recommendation-${chatRec.chatId}`}
-                  >
-                    <Text style={styles.chatName}>{chatRec.chatName}</Text>
-                    {chatRec.recommendations.map((rec, recIndex) => (
-                      <View key={`${chatRec.chatId}-${recIndex}`} style={styles.chatRecommendationItem}>
-                        <Text style={styles.chatRecommendationBullet}>•</Text>
-                        <Text style={styles.chatRecommendationText}>{rec}</Text>
-                      </View>
-                    ))}
                   </View>
                 ))}
               </View>
-            )}
-          </>
-        )}
-      </View>
+
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Полезные материалы</Text>
+                {RESOURCE_LINKS.map((resource) => (
+                  <View key={resource.id} style={styles.resourceCard} testID={`resource-card-${resource.id}`}>
+                    <View style={styles.resourceHeader}>
+                      <View style={[styles.priorityBadge, { backgroundColor: `${PRIORITY_COLORS[resource.priority]}20` }]}
+                      >
+                        <Text style={[styles.priorityText, { color: PRIORITY_COLORS[resource.priority] }]}>
+                          {PRIORITY_LABELS[resource.priority]}
+                        </Text>
+                      </View>
+                      <TouchableOpacity
+                        style={styles.resourceButton}
+                        onPress={() => openResource(resource.url)}
+                        testID={`resource-link-${resource.id}`}
+                      >
+                        <ExternalLink size={16} color={theme.accentPrimary} />
+                        <Text style={styles.resourceButtonText}>Открыть</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.resourceTitle}>{resource.title}</Text>
+                    <Text style={styles.resourceDescription}>{resource.description}</Text>
+                    <Text style={styles.resourceUrl}>{resource.url}</Text>
+                  </View>
+                ))}
+              </View>
+
+              {recommendations.chatSpecific.length > 0 && (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Рекомендации по чатам</Text>
+                  {recommendations.chatSpecific.map((chatRec, index) => (
+                    <View
+                      key={`${chatRec.chatId}-${index}`}
+                      style={styles.chatRecommendationCard}
+                      testID={`chat-recommendation-${chatRec.chatId}`}
+                    >
+                      <Text style={styles.chatName}>{chatRec.chatName}</Text>
+                      {chatRec.recommendations.map((rec, recIndex) => (
+                        <View key={`${chatRec.chatId}-${recIndex}`} style={styles.chatRecommendationItem}>
+                          <Text style={styles.chatRecommendationBullet}>•</Text>
+                          <Text style={styles.chatRecommendationText}>{rec}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  ))}
+                </View>
+              )}
+            </>
+          )}
+        </View>
       </ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: ThemePalette) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFD700',
+    backgroundColor: theme.backgroundPrimary,
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff9e6',
+    backgroundColor: theme.backgroundPrimary,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    padding: 20,
-    backgroundColor: '#FFD700',
-    paddingTop: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+    backgroundColor: theme.backgroundSecondary,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '800' as const,
-    color: '#1a1a1a',
+    color: theme.textPrimary,
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    fontWeight: '600' as const,
+    color: theme.textSecondary,
+    marginTop: 2,
   },
   content: {
     padding: 16,
+    gap: 16,
   },
   guidanceCard: {
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 20,
-    marginBottom: 24,
-    shadowColor: '#f97316',
+    shadowColor: theme.accentPrimary,
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
+    shadowOpacity: theme.isDark ? 0.45 : 0.2,
     shadowRadius: 12,
     elevation: 5,
   },
@@ -496,17 +501,17 @@ const styles = StyleSheet.create({
   guidanceTitle: {
     fontSize: 18,
     fontWeight: '700' as const,
-    color: '#5c2c05',
+    color: theme.textPrimary,
   },
   guidancePriority: {
     fontSize: 13,
     fontWeight: '600' as const,
-    color: '#a64700',
+    color: theme.textSecondary,
     marginTop: 2,
   },
   guidanceDescription: {
     fontSize: 14,
-    color: '#6b3a0c',
+    color: theme.textPrimary,
     lineHeight: 20,
     marginBottom: 16,
   },
@@ -520,19 +525,19 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#b45309',
+    backgroundColor: theme.textPrimary,
     marginTop: 6,
   },
   guidanceBulletText: {
     flex: 1,
     fontSize: 14,
-    color: '#5c2c05',
+    color: theme.textPrimary,
     lineHeight: 20,
   },
   guidanceFooter: {
     marginTop: 6,
     fontSize: 13,
-    color: '#7c4312',
+    color: theme.textSecondary,
     lineHeight: 18,
   },
   emptyState: {
@@ -540,17 +545,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 60,
     paddingHorizontal: 20,
+    backgroundColor: theme.card,
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: theme.isDark ? 0.35 : 0.1,
+    shadowRadius: 12,
   },
   emptyTitle: {
     fontSize: 22,
     fontWeight: '700' as const,
-    color: '#1a1a1a',
+    color: theme.textPrimary,
     marginTop: 20,
     textAlign: 'center',
   },
   emptySubtitle: {
     fontSize: 15,
-    color: '#666',
+    color: theme.textSecondary,
     marginTop: 12,
     textAlign: 'center',
     lineHeight: 22,
@@ -559,36 +570,35 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#FFD700',
+    backgroundColor: theme.accentPrimary,
     paddingHorizontal: 24,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 16,
     marginTop: 30,
-    shadowColor: '#FFD700',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
   },
   generateButtonText: {
     fontSize: 16,
     fontWeight: '600' as const,
-    color: '#fff',
+    color: theme.isDark ? '#0b1220' : '#fff',
   },
   loadingState: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 80,
+    paddingVertical: 60,
+    backgroundColor: theme.card,
+    borderRadius: 18,
   },
   loadingText: {
     fontSize: 16,
-    color: '#666',
+    color: theme.textSecondary,
     marginTop: 20,
   },
   errorState: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 60,
+    backgroundColor: theme.card,
+    borderRadius: 18,
   },
   errorText: {
     fontSize: 16,
@@ -610,44 +620,50 @@ const styles = StyleSheet.create({
   },
   refreshButtonContainer: {
     alignItems: 'flex-end',
-    marginBottom: 16,
   },
   refreshButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#fff',
+    backgroundColor: theme.card,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#FFD700',
+    borderColor: theme.accentPrimary,
   },
   refreshButtonText: {
     fontSize: 14,
     fontWeight: '600' as const,
-    color: '#FFD700',
+    color: theme.accentPrimary,
   },
   section: {
-    marginBottom: 24,
+    backgroundColor: theme.card,
+    borderRadius: 20,
+    padding: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: theme.isDark ? 0.35 : 0.08,
+    shadowRadius: 6,
+    elevation: 3,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700' as const,
-    color: '#1a1a1a',
+    color: theme.textPrimary,
     marginBottom: 12,
   },
   recommendationCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.cardMuted,
     borderRadius: 16,
     padding: 18,
     marginBottom: 12,
     borderLeftWidth: 4,
+    borderColor: theme.borderSoft,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
+    shadowOpacity: theme.isDark ? 0.3 : 0.08,
     shadowRadius: 4,
-    elevation: 3,
   },
   recommendationHeader: {
     flexDirection: 'row',
@@ -659,11 +675,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '600' as const,
-    color: '#1a1a1a',
+    color: theme.textPrimary,
   },
   recommendationDescription: {
     fontSize: 14,
-    color: '#666',
+    color: theme.textSecondary,
     lineHeight: 20,
     marginBottom: 12,
   },
@@ -677,52 +693,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600' as const,
   },
-  chatRecommendationCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  chatName: {
-    fontSize: 16,
-    fontWeight: '600' as const,
-    color: '#1a1a1a',
-    marginBottom: 12,
-  },
-  chatRecommendationItem: {
-    flexDirection: 'row',
-    marginBottom: 8,
-    paddingLeft: 4,
-  },
-  chatRecommendationBullet: {
-    fontSize: 18,
-    color: '#FFD700',
-    marginRight: 8,
-    fontWeight: '700' as const,
-  },
-  chatRecommendationText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-  },
   resourceCard: {
-    backgroundColor: '#fff',
+    backgroundColor: theme.cardMuted,
     borderRadius: 18,
     padding: 18,
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 3,
     borderWidth: 1,
-    borderColor: '#f4e5b5',
+    borderColor: theme.borderSoft,
   },
   resourceHeader: {
     flexDirection: 'row',
@@ -737,28 +714,61 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: theme.card,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
   },
   resourceButtonText: {
     fontSize: 13,
     fontWeight: '600' as const,
-    color: '#FFD700',
+    color: theme.accentPrimary,
   },
   resourceTitle: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: '#1a1a1a',
+    color: theme.textPrimary,
     marginBottom: 6,
   },
   resourceDescription: {
     fontSize: 14,
-    color: '#4b4b4b',
+    color: theme.textSecondary,
     lineHeight: 20,
     marginBottom: 8,
   },
   resourceUrl: {
     fontSize: 12,
-    color: '#6b7280',
+    color: theme.textSecondary,
     textDecorationLine: 'underline',
+  },
+  chatRecommendationCard: {
+    backgroundColor: theme.cardMuted,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+  },
+  chatName: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: theme.textPrimary,
+    marginBottom: 12,
+  },
+  chatRecommendationItem: {
+    flexDirection: 'row',
+    marginBottom: 8,
+    paddingLeft: 4,
+  },
+  chatRecommendationBullet: {
+    fontSize: 18,
+    color: theme.accentPrimary,
+    marginRight: 8,
+    fontWeight: '700' as const,
+  },
+  chatRecommendationText: {
+    flex: 1,
+    fontSize: 14,
+    color: theme.textSecondary,
+    lineHeight: 20,
   },
 });

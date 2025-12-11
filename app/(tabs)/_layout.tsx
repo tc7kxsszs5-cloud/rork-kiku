@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { MessageCircle, Bell, BarChart3, Lightbulb, Info, User } from "lucide-react-native";
+import { MessageCircle, Info, User } from "lucide-react-native";
 import React from "react";
 import { StyleSheet } from "react-native";
 import { useThemeMode } from "@/constants/ThemeContext";
@@ -38,28 +38,6 @@ export default function TabLayout() {
         options={{
           title: "Чаты",
           tabBarIcon: ({ color }) => <MessageCircle color={color} size={24} />,
-          headerShown: false,
-        }}
-      />
-      <Tabs.Screen
-        name="alerts"
-        options={{
-          title: "Уведомления",
-          tabBarIcon: ({ color }) => <Bell color={color} size={24} />,
-        }}
-      />
-      <Tabs.Screen
-        name="statistics"
-        options={{
-          title: "Статистика",
-          tabBarIcon: ({ color }) => <BarChart3 color={color} size={24} />,
-        }}
-      />
-      <Tabs.Screen
-        name="recommendations"
-        options={{
-          title: "Рекомендации",
-          tabBarIcon: ({ color }) => <Lightbulb color={color} size={24} />,
           headerShown: false,
         }}
       />

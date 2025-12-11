@@ -12,6 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Href, useRouter } from 'expo-router';
 import {
   User as UserIcon,
   ShieldCheck,
@@ -22,6 +23,7 @@ import {
   LogOut,
   Mail,
   Smartphone,
+  Lightbulb,
 } from 'lucide-react-native';
 import { useUser } from '@/constants/UserContext';
 import { useParentalControls } from '@/constants/ParentalControlsContext';
@@ -50,9 +52,38 @@ const LANGUAGE_OPTIONS = [
   { value: 'en', label: 'English' },
 ];
 
+type SettingsShortcut = {
+  key: 'security' | 'recommendations';
+  title: string;
+  description: string;
+  accent: string;
+  target: Href;
+  Icon: typeof ShieldCheck;
+};
+
+const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
+  {
+    key: 'security',
+    title: 'Настройки безопасности',
+    description: 'Статусы тревог, аналитика рисков и покрытие мониторинга',
+    accent: '#fb923c',
+    target: '/security-settings',
+    Icon: ShieldCheck,
+  },
+  {
+    key: 'recommendations',
+    title: 'AI рекомендации',
+    description: 'Персональные советы и обучение всей семьи',
+    accent: '#fde047',
+    target: '/ai-recommendations',
+    Icon: Lightbulb,
+  },
+];
+
 export default function ProfileScreen() {
   const { user, isLoading, identifyUser, updateUser, logoutUser } = useUser();
   const { settings } = useParentalControls();
+  const router = useRouter();
 
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
@@ -190,6 +221,29 @@ export default function ProfileScreen() {
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Центр настроек</Text>
+        {SETTINGS_SHORTCUTS.map((shortcut) => (
+          <TouchableOpacity
+            key={shortcut.key}
+            style={styles.shortcutCard}
+            onPress={() => {
+              HapticFeedback.light();
+              router.push(shortcut.target);
+            }}
+            testID={`profile-shortcut-${shortcut.key}`}
+          >
+            <View style={[styles.shortcutIcon, { backgroundColor: shortcut.accent }]}>
+              <shortcut.Icon color={theme.isDark ? '#0b1220' : '#1a1a1a'} size={20} />
+            </View>
+            <View style={styles.shortcutTextWrapper}>
+              <Text style={styles.shortcutTitle}>{shortcut.title}</Text>
+              <Text style={styles.shortcutDescription}>{shortcut.description}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Основные данные</Text>
@@ -417,6 +471,39 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     fontSize: 13,
     fontWeight: '600' as const,
     color: theme.textPrimary,
+  },
+  shortcutCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    backgroundColor: theme.cardMuted,
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+    marginBottom: 12,
+  },
+  shortcutIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.accentPrimary,
+  },
+  shortcutTextWrapper: {
+    flex: 1,
+  },
+  shortcutTitle: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: theme.textPrimary,
+  },
+  shortcutDescription: {
+    fontSize: 13,
+    color: theme.textSecondary,
+    marginTop: 4,
+    lineHeight: 18,
   },
   section: {
     backgroundColor: theme.card,

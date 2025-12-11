@@ -78,6 +78,20 @@ function RootLayoutNav() {
           presentation: 'card',
         }} 
       />
+      <Stack.Screen
+        name="security-settings"
+        options={{
+          title: "Настройки безопасности",
+          presentation: 'card',
+        }}
+      />
+      <Stack.Screen
+        name="ai-recommendations"
+        options={{
+          headerShown: false,
+          presentation: 'card',
+        }}
+      />
     </Stack>
   );
 }
