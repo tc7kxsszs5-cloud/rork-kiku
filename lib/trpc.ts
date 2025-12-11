@@ -8,6 +8,15 @@ export const trpc = createTRPCReact<AppRouter>();
 
 const PROJECT_BASE_URL = 'https://d8v7u672uumlfpscvnbps.rork.live';
 
+type ExpoExtra = {
+  rork?: { apiBaseUrl?: string };
+  devServer?: { url?: string };
+  expoGo?: {
+    debuggerHost?: string;
+    metroServerUrl?: string;
+  };
+};
+
 const isLocalHost = (host?: string | null) => {
   if (!host) {
     return false;
@@ -21,6 +30,61 @@ const isLocalHost = (host?: string | null) => {
     normalized.startsWith('192.168.') ||
     normalized.endsWith('.local')
   );
+};
+
+const normalizeDevServerUrl = (value?: string | null) => {
+  if (!value) {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const sanitized = trimmed
+    .replace(/^exp:\/\//i, 'http://')
+    .replace(/^ws:\/\//i, 'http://')
+    .replace(/^wss:\/\//i, 'https://');
+
+  if (sanitized.startsWith('http://') || sanitized.startsWith('https://')) {
+    return sanitized.replace(/\/$/, '');
+  }
+
+  return `http://${sanitized}`.replace(/\/$/, '');
+};
+
+const getDevServerFromExtras = () => {
+  const extra = Constants.expoConfig?.extra as ExpoExtra | undefined;
+  if (!extra) {
+    return null;
+  }
+
+  const candidates = [
+    extra.rork?.apiBaseUrl,
+    extra.devServer?.url,
+    extra.expoGo?.metroServerUrl,
+    extra.expoGo?.debuggerHost,
+  ];
+
+  for (const candidate of candidates) {
+    const normalized = normalizeDevServerUrl(candidate);
+    if (!normalized) {
+      continue;
+    }
+
+    try {
+      const parsed = new URL(normalized);
+      if (isLocalHost(parsed.hostname)) {
+        console.log('[tRPC] Using Expo extra host:', normalized);
+        return normalized;
+      }
+    } catch (error) {
+      console.warn('[tRPC] Failed to parse extra host candidate:', candidate, error);
+    }
+  }
+
+  return null;
 };
 
 const getBaseUrl = () => {
@@ -37,13 +101,24 @@ const getBaseUrl = () => {
     }
   }
 
+  const extraHost = getDevServerFromExtras();
+  if (extraHost) {
+    return extraHost;
+  }
+
   const hostUri = Constants.expoConfig?.hostUri;
   if (hostUri) {
-    const [hostname] = hostUri.split(':');
-    if (isLocalHost(hostname)) {
-      const normalizedHost = hostUri.startsWith('http') ? hostUri : `http://${hostUri}`;
-      console.log('[tRPC] Using Expo hostUri:', normalizedHost);
-      return normalizedHost.replace(/\/?$/, '');
+    const normalizedHost = normalizeDevServerUrl(hostUri);
+    if (normalizedHost) {
+      try {
+        const parsed = new URL(normalizedHost);
+        if (isLocalHost(parsed.hostname)) {
+          console.log('[tRPC] Using Expo hostUri:', normalizedHost);
+          return normalizedHost;
+        }
+      } catch (error) {
+        console.warn('[tRPC] Failed to parse hostUri:', hostUri, error);
+      }
     }
   }
 
