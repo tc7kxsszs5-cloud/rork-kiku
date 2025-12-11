@@ -5,6 +5,34 @@ import appIcon from '@/assets/images/icon.png';
 
 const PROJECT_URL = 'https://rork.app/p/d8v7u672uumlfpscvnbps';
 
+type StageHighlight = {
+  title: string;
+  value: string;
+  description: string;
+  accent: string;
+};
+
+const stageHighlights: StageHighlight[] = [
+  {
+    title: 'Стадия',
+    value: 'Late MVP / Pre-Production',
+    description: 'UI/UX и функциональность основных экранов готовы, идет финализация стабильности',
+    accent: '#2ecc71',
+  },
+  {
+    title: 'AI & Контент',
+    value: 'Готово',
+    description: 'Модерация чатов, визуализация рисков, аналитика и рекомендации реализованы',
+    accent: '#00c2ff',
+  },
+  {
+    title: 'Оставшиеся шаги',
+    value: 'Интеграция backend + push',
+    description: 'Нужно подключить серверную синхронизацию, push-уведомления и аналитику',
+    accent: '#ff9f0a',
+  },
+];
+
 export default function AboutScreen() {
   const handleOpenProjectUrl = () => {
     Linking.openURL(PROJECT_URL).catch((error) => {
@@ -29,6 +57,39 @@ export default function AboutScreen() {
         <Text style={styles.title}>KIDS</Text>
         <Text style={styles.subtitle}>Защита переписок с AI</Text>
         <Text style={styles.version}>Версия 1.0.0</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Текущий статус</Text>
+        <Text style={styles.description}>
+          Проект находится на стадии позднего MVP: весь пользовательский функционал и дизайн готовы,
+          проводим стабилизацию и готовим интеграцию с backend и пуш-уведомлениями.
+        </Text>
+        <View style={styles.stageGrid}>
+          {stageHighlights.map((item, index) => (
+            <View key={item.title} style={styles.stageCard} testID={`about-stage-card-${index}`}>
+              <View style={[styles.stagePill, { backgroundColor: item.accent }]}
+                testID={`about-stage-pill-${index}`}
+              >
+                <Text style={styles.stagePillText}>{item.title}</Text>
+              </View>
+              <Text style={styles.stageValue}>{item.value}</Text>
+              <Text style={styles.stageDescription}>{item.description}</Text>
+            </View>
+          ))}
+        </View>
+        <View style={styles.progressBlock} testID="about-stage-progress">
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressLabel}>Готовность релиза</Text>
+            <Text style={styles.progressValue}>80%</Text>
+          </View>
+          <View style={styles.progressBar}>
+            <View style={styles.progressFill} />
+          </View>
+          <Text style={styles.progressHint}>
+            Осталось: подключить push-уведомления, серверную синхронизацию и провести тесты на устройствах.
+          </Text>
+        </View>
       </View>
 
       <View style={styles.section}>
@@ -281,6 +342,87 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#666',
     lineHeight: 24,
+  },
+  stageGrid: {
+    marginTop: 20,
+    flexDirection: 'row',
+    flexWrap: 'wrap' as const,
+    gap: 16,
+  },
+  stageCard: {
+    flexBasis: '48%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  stagePill: {
+    alignSelf: 'flex-start',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    marginBottom: 12,
+  },
+  stagePillText: {
+    fontSize: 12,
+    fontWeight: '700' as const,
+    color: '#0d1b2a',
+    letterSpacing: 0.5,
+  },
+  stageValue: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#0d1b2a',
+    marginBottom: 6,
+  },
+  stageDescription: {
+    fontSize: 13,
+    color: '#4a4a4a',
+    lineHeight: 18,
+  },
+  progressBlock: {
+    marginTop: 24,
+    backgroundColor: '#0d1b2a',
+    borderRadius: 18,
+    padding: 20,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  progressLabel: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#fff',
+  },
+  progressValue: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: '#2ecc71',
+  },
+  progressBar: {
+    height: 10,
+    borderRadius: 8,
+    backgroundColor: '#19273b',
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    width: '80%',
+    backgroundColor: '#2ecc71',
+    borderRadius: 8,
+  },
+  progressHint: {
+    marginTop: 12,
+    fontSize: 13,
+    color: '#d5e2ff',
+    lineHeight: 18,
   },
   feature: {
     flexDirection: 'row',
