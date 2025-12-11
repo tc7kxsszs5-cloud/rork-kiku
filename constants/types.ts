@@ -108,3 +108,28 @@ export interface ComplianceLog {
   details: Record<string, any>;
   parentalConsent?: boolean;
 }
+
+export type NotificationTestStatus = 'passed' | 'failed';
+
+export type NotificationTestType = 'permissions' | 'token' | 'delivery' | 'sync';
+
+export interface NotificationTestResult {
+  id: string;
+  type: NotificationTestType;
+  status: NotificationTestStatus;
+  message: string;
+  timestamp: number;
+  deviceLabel?: string;
+}
+
+export interface NotificationDeviceRecord {
+  deviceId: string;
+  pushToken: string;
+  platform: 'ios' | 'android' | 'web';
+  appVersion?: string;
+  userId?: string;
+  permissions?: string;
+  lastSyncedAt: number;
+  lastTestedAt?: number;
+  testResults: NotificationTestResult[];
+}

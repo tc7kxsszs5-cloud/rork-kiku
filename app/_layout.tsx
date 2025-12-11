@@ -8,6 +8,7 @@ import { MonitoringProvider } from "@/constants/MonitoringContext";
 import { UserProvider } from "@/constants/UserContext";
 import { ParentalControlsProvider } from "@/constants/ParentalControlsContext";
 import { ThemeProvider } from "@/constants/ThemeContext";
+import { NotificationsProvider } from "@/constants/NotificationsContext";
 import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
 
@@ -103,11 +104,13 @@ function AppProviders({ children }: { children: ReactNode }) {
         <AppErrorBoundary>
           <ThemeProvider>
             <UserProvider>
-              <ParentalControlsProvider>
-                <MonitoringProvider>
-                  {children}
-                </MonitoringProvider>
-              </ParentalControlsProvider>
+              <NotificationsProvider>
+                <ParentalControlsProvider>
+                  <MonitoringProvider>
+                    {children}
+                  </MonitoringProvider>
+                </ParentalControlsProvider>
+              </NotificationsProvider>
             </UserProvider>
           </ThemeProvider>
         </AppErrorBoundary>
