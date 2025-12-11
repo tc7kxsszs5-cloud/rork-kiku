@@ -108,7 +108,7 @@ export default function MonitoringScreen() {
         style={styles.chatCard}
         onPress={() => {
           HapticFeedback.light();
-          router.push({ pathname: '/chat/[chatId]', params: { chatId: item.id } });
+          router.push(`/chat/${item.id}` as any);
         }}
       >
         <View style={styles.chatHeader}>
