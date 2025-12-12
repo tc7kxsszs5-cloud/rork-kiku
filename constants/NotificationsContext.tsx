@@ -23,13 +23,20 @@ const PUSH_TOKEN_STORAGE_KEY = '@kids_push_token';
 
 const createDeviceId = () => `device_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 
-const resolveProjectId = () => {
-  return (
+const isUuid = (value: unknown): value is string => {
+  if (typeof value !== 'string') {
+    return false;
+  }
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+};
+
+const resolveExpoProjectId = (): string | undefined => {
+  const candidate =
     (Constants.expoConfig as any)?.extra?.eas?.projectId ??
     (Constants as any)?.easConfig?.projectId ??
-    (Constants.expoConfig as any)?.extra?.projectId ??
-    'd8v7u672uumlfpscvnbps'
-  );
+    (Constants.expoConfig as any)?.extra?.projectId;
+
+  return isUuid(candidate) ? candidate : undefined;
 };
 
 export type PushPermissionState = Notifications.PermissionStatus | 'unavailable' | 'undetermined';
@@ -143,10 +150,16 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
       }
 
       const resolvedDeviceId = await ensureDeviceId();
-      const projectId = resolveProjectId();
+      const projectId = resolveExpoProjectId();
       if (!projectId) {
-        setLastError('Не удалось определить projectId приложения');
-        return;
+        console.warn(
+          '[NotificationsContext] Expo projectId is missing or not a UUID. Will request push token without projectId.',
+          {
+            easProjectId: (Constants.expoConfig as any)?.extra?.eas?.projectId,
+            easConfigProjectId: (Constants as any)?.easConfig?.projectId,
+            extraProjectId: (Constants.expoConfig as any)?.extra?.projectId,
+          },
+        );
       }
 
       setIsRegistering(true);
@@ -172,7 +185,9 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
           });
         }
 
-        const tokenResponse = await Notifications.getExpoPushTokenAsync({ projectId });
+        const tokenResponse = projectId
+          ? await Notifications.getExpoPushTokenAsync({ projectId })
+          : await (Notifications.getExpoPushTokenAsync as unknown as () => Promise<{ data: string }> )();
         setExpoPushToken(tokenResponse.data);
         await AsyncStorage.setItem(PUSH_TOKEN_STORAGE_KEY, tokenResponse.data);
 
