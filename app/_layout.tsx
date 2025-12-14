@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { StyleSheet, Platform, View, Text, TouchableOpacity } from "react-native";
+import { ChevronLeft } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MonitoringProvider } from "@/constants/MonitoringContext";
 import { UserProvider } from "@/constants/UserContext";
@@ -32,6 +33,32 @@ interface ErrorBoundaryProps {
 interface ErrorBoundaryState {
   hasError: boolean;
   message?: string;
+}
+
+function HeaderBackButton({ fallbackHref }: { fallbackHref: string }) {
+  const router = useRouter();
+
+  const handlePress = () => {
+    console.log('[HeaderBackButton] Back pressed. canGoBack=', router.canGoBack());
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace(fallbackHref as never);
+  };
+
+  return (
+    <TouchableOpacity
+      onPress={handlePress}
+      style={styles.headerBackButton}
+      testID="header-back-button"
+      accessibilityRole="button"
+      accessibilityLabel="Назад"
+    >
+      <ChevronLeft size={22} color={styles.headerBackIcon.color} />
+      <Text style={styles.headerBackText}>Назад</Text>
+    </TouchableOpacity>
+  );
 }
 
 class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
@@ -69,6 +96,12 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
 }
 
 function RootLayoutNav() {
+  const securityHeaderLeft = useMemo(() => {
+    const HeaderLeftComponent = () => <HeaderBackButton fallbackHref="/" />;
+    HeaderLeftComponent.displayName = 'SecuritySettingsHeaderLeft';
+    return HeaderLeftComponent;
+  }, []);
+
   return (
     <Stack screenOptions={{ headerBackTitle: "Назад" }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -82,8 +115,9 @@ function RootLayoutNav() {
       <Stack.Screen
         name="security-settings"
         options={{
-          title: "Настройки безопасности",
+          title: "Центр безопасности",
           presentation: 'card',
+          headerLeft: securityHeaderLeft,
         }}
       />
       <Stack.Screen
@@ -192,5 +226,23 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
     color: '#0f172a',
     textTransform: 'uppercase' as const,
+  },
+  headerBackButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 999,
+    marginLeft: 8,
+    gap: 4,
+    backgroundColor: 'rgba(148,163,184,0.16)',
+  },
+  headerBackIcon: {
+    color: '#0f172a',
+  },
+  headerBackText: {
+    fontSize: 14,
+    fontWeight: '700' as const,
+    color: '#0f172a',
   },
 });
