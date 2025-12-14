@@ -97,7 +97,7 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
 
 function RootLayoutNav() {
   const securityHeaderLeft = useMemo(() => {
-    const HeaderLeftComponent = () => <HeaderBackButton fallbackHref="/" />;
+    const HeaderLeftComponent = () => <HeaderBackButton fallbackHref="/(tabs)" />;
     HeaderLeftComponent.displayName = 'SecuritySettingsHeaderLeft';
     return HeaderLeftComponent;
   }, []);
