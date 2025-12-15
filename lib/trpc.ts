@@ -131,6 +131,19 @@ export const trpcClient = createTRPCClient<AppRouter>({
     httpBatchLink({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
+      fetch: async (url, options) => {
+        try {
+          const response = await fetch(url, options);
+          if (!response.ok) {
+            const text = await response.text();
+            console.error('[tRPC] HTTP error:', response.status, text);
+          }
+          return response;
+        } catch (error) {
+          console.error('[tRPC] Fetch error:', error);
+          throw error;
+        }
+      },
     }),
   ],
 });
@@ -140,6 +153,19 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
     httpBatchLink({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
+      fetch: async (url, options) => {
+        try {
+          const response = await fetch(url, options);
+          if (!response.ok) {
+            const text = await response.text();
+            console.error('[tRPC Vanilla] HTTP error:', response.status, text);
+          }
+          return response;
+        } catch (error) {
+          console.error('[tRPC Vanilla] Fetch error:', error);
+          throw error;
+        }
+      },
     }),
   ],
 });

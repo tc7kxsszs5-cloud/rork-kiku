@@ -13,11 +13,39 @@ app.use(
   trpcServer({
     router: appRouter,
     createContext,
+    onError: ({ error, path }) => {
+      console.error(`[tRPC] Error on ${path}:`, error);
+    },
   })
 );
 
 app.get("/", (c) => {
   return c.json({ status: "ok", message: "API is running" });
+});
+
+app.onError((err, c) => {
+  console.error('[Hono] Error:', err);
+  return c.json(
+    {
+      error: {
+        message: err.message || 'Internal server error',
+        status: 'error',
+      },
+    },
+    500
+  );
+});
+
+app.notFound((c) => {
+  return c.json(
+    {
+      error: {
+        message: 'Not Found',
+        status: 'error',
+      },
+    },
+    404
+  );
 });
 
 export default app;
