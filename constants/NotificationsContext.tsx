@@ -185,9 +185,7 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
           });
         }
 
-        const tokenResponse = projectId
-          ? await Notifications.getExpoPushTokenAsync({ projectId })
-          : await (Notifications.getExpoPushTokenAsync as unknown as () => Promise<{ data: string }> )();
+        const tokenResponse = await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : {});
         setExpoPushToken(tokenResponse.data);
         await AsyncStorage.setItem(PUSH_TOKEN_STORAGE_KEY, tokenResponse.data);
 
