@@ -14,6 +14,9 @@ const expoConfig = require('eslint-config-expo/flat').map((config) => ({
 }));
 
 module.exports = defineConfig([
+  {
+    ignores: [".expo/**", "**/.expo/**", "dist/**"],
+  },
   ...expoConfig,
   {
     files: lintTargets,
@@ -22,15 +25,9 @@ module.exports = defineConfig([
     },
   },
   {
-    files: lintTargets,
+    files: ["**/*"],
     linterOptions: {
-      reportUnusedDisableDirectives: "off",
+      reportUnusedDisableDirectives: false,
     },
   },
-  {
-    files: [".expo/types/router.d.ts", "**/.expo/types/router.d.ts"],
-    linterOptions: {
-      reportUnusedDisableDirectives: "off",
-    },
-  }
 ]);

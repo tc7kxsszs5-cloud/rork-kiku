@@ -35,12 +35,12 @@ interface ErrorBoundaryState {
   message?: string;
 }
 
-function HeaderBackButton({ fallbackHref }: { fallbackHref: string }) {
+function HeaderBackButton({ fallbackHref, forceFallback }: { fallbackHref: string; forceFallback?: boolean }) {
   const router = useRouter();
 
   const handlePress = () => {
-    console.log('[HeaderBackButton] Back pressed. canGoBack=', router.canGoBack());
-    if (router.canGoBack()) {
+    console.log('[HeaderBackButton] Back pressed. canGoBack=', router.canGoBack(), 'forceFallback=', forceFallback);
+    if (!forceFallback && router.canGoBack()) {
       router.back();
       return;
     }
@@ -97,7 +97,7 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
 
 function RootLayoutNav() {
   const securityHeaderLeft = useMemo(() => {
-    const HeaderLeftComponent = () => <HeaderBackButton fallbackHref="/(tabs)" />;
+    const HeaderLeftComponent = () => <HeaderBackButton fallbackHref="/(tabs)" forceFallback />;
     HeaderLeftComponent.displayName = 'SecuritySettingsHeaderLeft';
     return HeaderLeftComponent;
   }, []);
