@@ -135,8 +135,7 @@ export const trpcClient = createTRPCClient<AppRouter>({
         try {
           const response = await fetch(url, options);
           if (!response.ok) {
-            const text = await response.text();
-            console.error('[tRPC] HTTP error:', response.status, text);
+            console.error('[tRPC] HTTP error:', response.status, response.statusText);
           }
           return response;
         } catch (error) {
@@ -157,8 +156,7 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
         try {
           const response = await fetch(url, options);
           if (!response.ok) {
-            const text = await response.text();
-            console.error('[tRPC Vanilla] HTTP error:', response.status, text);
+            console.error('[tRPC Vanilla] HTTP error:', response.status, response.statusText);
           }
           return response;
         } catch (error) {
