@@ -23,8 +23,21 @@ app.get("/", (c) => {
   return c.json({ status: "ok", message: "API is running" });
 });
 
+app.get("/api", (c) => {
+  return c.json({ status: "ok", message: "API endpoint" });
+});
+
+app.get("/api/trpc", (c) => {
+  return c.json({ status: "ok", message: "tRPC endpoint - use POST for queries" });
+});
+
 app.onError((err, c) => {
   console.error('[Hono] Error:', err);
+  
+  if (c.req.path.startsWith('/api/trpc')) {
+    return c.text(`Error: ${err.message}`, 500);
+  }
+  
   return c.json(
     {
       error: {
@@ -42,6 +55,7 @@ app.notFound((c) => {
       error: {
         message: 'Not Found',
         status: 'error',
+        path: c.req.path,
       },
     },
     404

@@ -133,9 +133,24 @@ export const trpcClient = createTRPCClient<AppRouter>({
       transformer: superjson,
       fetch: async (url, options) => {
         try {
+          console.log('[tRPC] Request:', url);
           const response = await fetch(url, options);
+          
           if (!response.ok) {
-            console.error('[tRPC] HTTP error:', response.status, response.statusText);
+            const contentType = response.headers.get('content-type');
+            console.error('[tRPC] HTTP error:', {
+              status: response.status,
+              statusText: response.statusText,
+              url,
+              contentType,
+            });
+            
+            try {
+              const text = await response.text();
+              console.error('[tRPC] Response body:', text.substring(0, 200));
+            } catch {
+              console.error('[tRPC] Could not read response body');
+            }
           }
           return response;
         } catch (error) {
@@ -154,9 +169,24 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
       transformer: superjson,
       fetch: async (url, options) => {
         try {
+          console.log('[tRPC Vanilla] Request:', url);
           const response = await fetch(url, options);
+          
           if (!response.ok) {
-            console.error('[tRPC Vanilla] HTTP error:', response.status, response.statusText);
+            const contentType = response.headers.get('content-type');
+            console.error('[tRPC Vanilla] HTTP error:', {
+              status: response.status,
+              statusText: response.statusText,
+              url,
+              contentType,
+            });
+            
+            try {
+              const text = await response.clone().text();
+              console.error('[tRPC Vanilla] Response body:', text.substring(0, 200));
+            } catch {
+              console.error('[tRPC Vanilla] Could not read response body');
+            }
           }
           return response;
         } catch (error) {
