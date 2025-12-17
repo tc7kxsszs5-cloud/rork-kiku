@@ -32,6 +32,7 @@ const isUuid = (value: unknown): value is string => {
 
 const resolveExpoProjectId = (): string | undefined => {
   const candidate =
+    process.env.EXPO_PUBLIC_PROJECT_ID ??
     (Constants.expoConfig as any)?.extra?.eas?.projectId ??
     (Constants as any)?.easConfig?.projectId ??
     (Constants.expoConfig as any)?.extra?.projectId;
@@ -152,14 +153,14 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
       const resolvedDeviceId = await ensureDeviceId();
       const projectId = resolveExpoProjectId();
       if (!projectId) {
-        console.warn(
-          '[NotificationsContext] Expo projectId is missing or not a UUID. Will request push token without projectId.',
-          {
-            easProjectId: (Constants.expoConfig as any)?.extra?.eas?.projectId,
-            easConfigProjectId: (Constants as any)?.easConfig?.projectId,
-            extraProjectId: (Constants.expoConfig as any)?.extra?.projectId,
-          },
-        );
+        console.error('[NotificationsContext] Missing Expo projectId for push token registration', {
+          envProjectId: process.env.EXPO_PUBLIC_PROJECT_ID,
+          easProjectId: (Constants.expoConfig as any)?.extra?.eas?.projectId,
+          easConfigProjectId: (Constants as any)?.easConfig?.projectId,
+          extraProjectId: (Constants.expoConfig as any)?.extra?.projectId,
+        });
+        setLastError('Не найден projectId для push-уведомлений. Перезапустите приложение.');
+        return;
       }
 
       setIsRegistering(true);
@@ -185,7 +186,7 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
           });
         }
 
-        const tokenResponse = await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : {});
+        const tokenResponse = await Notifications.getExpoPushTokenAsync({ projectId });
         setExpoPushToken(tokenResponse.data);
         await AsyncStorage.setItem(PUSH_TOKEN_STORAGE_KEY, tokenResponse.data);
 
