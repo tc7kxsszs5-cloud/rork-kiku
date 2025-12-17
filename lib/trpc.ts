@@ -146,7 +146,7 @@ export const trpcClient = createTRPCClient<AppRouter>({
             });
             
             try {
-              const text = await response.text();
+              const text = await response.clone().text();
               console.error('[tRPC] Response body:', text.substring(0, 200));
             } catch {
               console.error('[tRPC] Could not read response body');
