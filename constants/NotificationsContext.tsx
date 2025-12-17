@@ -146,20 +146,15 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
     async (requestPermissions: boolean) => {
       if (!isSupported) {
         setPermissionStatus('unavailable');
-        setLastError('Пуш-уведомления недоступны на этой платформе');
+        setLastError(null);
         return;
       }
 
       const resolvedDeviceId = await ensureDeviceId();
       const projectId = resolveExpoProjectId();
       if (!projectId) {
-        console.error('[NotificationsContext] Missing Expo projectId for push token registration', {
-          envProjectId: process.env.EXPO_PUBLIC_PROJECT_ID,
-          easProjectId: (Constants.expoConfig as any)?.extra?.eas?.projectId,
-          easConfigProjectId: (Constants as any)?.easConfig?.projectId,
-          extraProjectId: (Constants.expoConfig as any)?.extra?.projectId,
-        });
-        setLastError('Не найден projectId для push-уведомлений. Перезапустите приложение.');
+        console.warn('[NotificationsContext] Push notifications disabled: missing Expo projectId');
+        setLastError(null);
         return;
       }
 
@@ -175,7 +170,8 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
         }
         setPermissionStatus(status);
         if (status !== 'granted') {
-          throw new Error('Разрешение на уведомления не выдано');
+          setLastError(null);
+          return;
         }
 
         if (Platform.OS === 'android') {
@@ -207,10 +203,8 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
 
         await refetchSyncStatus();
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Не удалось подключить уведомления';
-        console.error('[NotificationsContext] Registration error', error);
-        setLastError(message);
-        throw error;
+        console.error('[NotificationsContext] Registration error (ignored)', error);
+        setLastError(null);
       } finally {
         setIsRegistering(false);
       }
@@ -223,9 +217,15 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
       return;
     }
 
+    if (!resolveExpoProjectId()) {
+      autoSyncAttemptedRef.current = true;
+      console.warn('[NotificationsContext] Auto registration skipped: missing Expo projectId');
+      return;
+    }
+
     autoSyncAttemptedRef.current = true;
     performRegistration(false).catch((error) => {
-      console.error('[NotificationsContext] Auto registration failed', error);
+      console.error('[NotificationsContext] Auto registration failed (ignored)', error);
     });
   }, [deviceId, isSupported, permissionStatus, performRegistration]);
 
