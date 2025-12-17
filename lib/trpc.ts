@@ -93,31 +93,35 @@ const getBaseUrl = () => {
     return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
   }
 
-  if (typeof window !== 'undefined') {
+  const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : false;
+
+  if (isDev && typeof window !== 'undefined') {
     const { origin, hostname } = window.location;
     if (isLocalHost(hostname)) {
-      console.log('[tRPC] Using window origin:', origin);
+      console.log('[tRPC] Using window origin (dev):', origin);
       return origin;
     }
   }
 
-  const extraHost = getDevServerFromExtras();
-  if (extraHost) {
-    return extraHost;
-  }
+  if (isDev) {
+    const extraHost = getDevServerFromExtras();
+    if (extraHost) {
+      return extraHost;
+    }
 
-  const hostUri = Constants.expoConfig?.hostUri;
-  if (hostUri) {
-    const normalizedHost = normalizeDevServerUrl(hostUri);
-    if (normalizedHost) {
-      try {
-        const parsed = new URL(normalizedHost);
-        if (isLocalHost(parsed.hostname)) {
-          console.log('[tRPC] Using Expo hostUri:', normalizedHost);
-          return normalizedHost;
+    const hostUri = Constants.expoConfig?.hostUri;
+    if (hostUri) {
+      const normalizedHost = normalizeDevServerUrl(hostUri);
+      if (normalizedHost) {
+        try {
+          const parsed = new URL(normalizedHost);
+          if (isLocalHost(parsed.hostname)) {
+            console.log('[tRPC] Using Expo hostUri (dev):', normalizedHost);
+            return normalizedHost;
+          }
+        } catch (error) {
+          console.warn('[tRPC] Failed to parse hostUri:', hostUri, error);
         }
-      } catch (error) {
-        console.warn('[tRPC] Failed to parse hostUri:', hostUri, error);
       }
     }
   }
