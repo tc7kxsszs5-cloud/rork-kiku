@@ -1,46 +1,61 @@
 const { defineConfig } = require('eslint/config');
 
 const lintTargets = [
-  "app/**/*.{js,jsx,ts,tsx}",
-  "constants/**/*.{js,jsx,ts,tsx}",
-  "types/**/*.{js,jsx,ts,tsx}",
-  "*.{js,ts,tsx}",
+  'app/**/*.{js,jsx,ts,tsx}',
+  'constants/**/*.{js,jsx,ts,tsx}',
+  'types/**/*.{js,jsx,ts,tsx}',
+  '*.{js,ts,tsx}',
 ];
 
-const expoConfig = require('eslint-config-expo/flat').map((config) => ({
+const globalIgnores = [
+  '.expo/**',
+  '**/.expo/**',
+  '.expo/types/router.d.ts',
+  '**/.expo/types/router.d.ts',
+  'dist/**',
+  '**/*.d.ts',
+];
+
+const expoFlat = require('eslint-config-expo/flat').map((config) => ({
   ...config,
-  files: config.files ?? lintTargets,
-  ignores: [...(config.ignores ?? []), ".expo/**", "**/.expo/**", ".expo/types/**", "**/.expo/types/**", "dist/**", "**/*.d.ts"],
+  files: lintTargets,
+  ignores: [...(config.ignores ?? []), ...globalIgnores],
   linterOptions: {
     ...(config.linterOptions ?? {}),
-    reportUnusedDisableDirectives: "off",
+    reportUnusedDisableDirectives: false,
   },
 }));
 
 module.exports = defineConfig([
   {
-    files: [".expo/types/**/*.d.ts", "**/.expo/types/**/*.d.ts"],
-    rules: {
-      "eslint-comments/no-unused-disable": "off",
-    },
+    files: ['**/*'],
     linterOptions: {
-      reportUnusedDisableDirectives: "off",
+      reportUnusedDisableDirectives: false,
     },
   },
   {
-    ignores: [".expo/**", "**/.expo/**", "dist/**", "**/*.d.ts"],
+    ignores: globalIgnores,
     linterOptions: {
-      reportUnusedDisableDirectives: "off",
+      reportUnusedDisableDirectives: false,
     },
   },
-  ...expoConfig,
+  {
+    files: ['.expo/types/router.d.ts', '**/.expo/types/router.d.ts'],
+    rules: {
+      'eslint-comments/no-unused-disable': 'off',
+    },
+    linterOptions: {
+      reportUnusedDisableDirectives: false,
+    },
+  },
+  ...expoFlat,
   {
     files: lintTargets,
     rules: {
-      "eslint-comments/no-unused-disable": "off",
+      'eslint-comments/no-unused-disable': 'off',
     },
     linterOptions: {
-      reportUnusedDisableDirectives: "off",
+      reportUnusedDisableDirectives: false,
     },
   },
 ]);
