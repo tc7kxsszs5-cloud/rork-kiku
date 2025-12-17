@@ -1,4 +1,6 @@
 .expo
 .expo/**
+**/.expo/**
 .expo/types/router.d.ts
 **/.expo/types/router.d.ts
+dist
