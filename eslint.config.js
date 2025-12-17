@@ -28,22 +28,7 @@ const expoFlat = require('eslint-config-expo/flat').map((config) => ({
 
 module.exports = defineConfig([
   {
-    files: ['**/*'],
-    linterOptions: {
-      reportUnusedDisableDirectives: false,
-    },
-  },
-  {
     ignores: globalIgnores,
-    linterOptions: {
-      reportUnusedDisableDirectives: false,
-    },
-  },
-  {
-    files: ['.expo/types/router.d.ts', '**/.expo/types/router.d.ts'],
-    rules: {
-      'eslint-comments/no-unused-disable': 'off',
-    },
     linterOptions: {
       reportUnusedDisableDirectives: false,
     },
