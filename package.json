@@ -6,7 +6,11 @@
     "start": "bunx rork start -p d8v7u672uumlfpscvnbps --tunnel",
     "start-web": "bunx rork start -p d8v7u672uumlfpscvnbps --web --tunnel",
     "start-web-dev": "DEBUG=expo* bunx rork start -p d8v7u672uumlfpscvnbps --web --tunnel",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "ci:install": "bun install",
+    "ci:lint": "bun run lint",
+    "ci:tsc": "bunx tsc --noEmit",
+    "ci:all": "bun run ci:install && bun run ci:lint && bun run ci:tsc"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
