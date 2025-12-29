@@ -316,3 +316,108 @@ For mobile apps, you'll configure your app's deep linking scheme in `app.json`.
 Rork builds fully native mobile apps using React Native and Expo - the same technology stack used by Discord, Shopify, Coinbase, Instagram, and nearly 30% of the top 100 apps on the App Store.
 
 Your Rork app is production-ready and can be published to both the App Store and Google Play Store. You can also export your app to run on the web, making it truly cross-platform.
+
+## CI & iOS TestFlight (EAS)
+
+This project includes automated CI workflows for linting, type checking, and building iOS apps for TestFlight distribution using Expo Application Services (EAS).
+
+### GitHub Secrets Setup
+
+To use the CI workflows, you'll need to configure the following secrets in your GitHub repository settings (Settings → Secrets and variables → Actions):
+
+#### Required Secrets
+
+**EXPO_TOKEN** (Required for all workflows)
+- Create an Expo access token at [expo.dev/accounts/[account]/settings/access-tokens](https://expo.dev/accounts/)
+- Add it as a repository secret named `EXPO_TOKEN`
+
+#### Optional Secrets for TestFlight Submission
+
+Choose one of these authentication methods:
+
+**Option 1: App Store Connect API Key (Recommended)**
+- Create an API key in [App Store Connect](https://appstoreconnect.apple.com/access/api)
+- Download the `.p8` key file
+- Create a JSON file with the following structure:
+  ```json
+  {
+    "key_id": "YOUR_KEY_ID",
+    "issuer_id": "YOUR_ISSUER_ID",
+    "key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+  }
+  ```
+- Store the entire JSON as `APPLE_API_KEY_JSON` secret
+- Alternatively, base64-encode the JSON and decode in workflow: `echo "$APPLE_API_KEY_JSON" | base64 -d > /tmp/apple-api-key.json`
+
+**Option 2: Apple ID + App-Specific Password**
+- Set `APPLE_ID` to your Apple ID email
+- Generate an app-specific password at [appleid.apple.com](https://appleid.apple.com/account/manage)
+- Store it as `APPLE_SPECIFIC_PASSWORD` secret
+
+### Workflows
+
+#### CI Workflow (Lint & Type Check)
+- **Trigger**: Automatically runs on push to `main` or `prepare/*` branches, and on pull requests
+- **Purpose**: Validates code quality with ESLint and TypeScript checks
+- **Runner**: Ubuntu (fast and cost-effective)
+
+#### EAS Build & Submit Workflow (iOS)
+- **Trigger**: Manually via GitHub Actions UI, or automatically on push to `main` or `release/**` branches
+- **Purpose**: Builds iOS app and optionally submits to TestFlight
+- **Runner**: macOS (required for iOS builds)
+
+### Local Development & Testing
+
+Run these commands locally to test before pushing:
+
+```bash
+# Install dependencies
+bun install
+
+# Run linter
+bun run lint
+
+# Run TypeScript check
+bun run ci:tsc
+
+# Run all CI checks locally
+bun run ci:all
+
+# Start development server
+bun run start
+
+# Create a development build (requires EXPO_TOKEN or login)
+eas build --platform ios --profile development
+```
+
+### Triggering Manual Builds
+
+1. Go to your repository on GitHub
+2. Navigate to **Actions** tab
+3. Select **EAS Build & Submit (iOS)** workflow
+4. Click **Run workflow**
+5. Select the branch (e.g., `copilot/prepareapple-ci` or `main`)
+6. Click **Run workflow** button
+
+The build will be queued on Expo's servers. You can monitor progress in the GitHub Actions log or at [expo.dev](https://expo.dev).
+
+### Build Profiles
+
+This project includes two build profiles in `eas.json`:
+
+- **production**: Creates an optimized archive build for TestFlight and App Store distribution
+- **development**: Creates a development client with debugging capabilities
+
+To use a specific profile:
+```bash
+eas build --platform ios --profile production
+eas build --platform ios --profile development
+```
+
+### Troubleshooting CI
+
+- **Lint failures**: Run `bun run lint` locally to see and fix issues
+- **Type check failures**: Run `bunx tsc --noEmit` locally to see type errors
+- **Build failures**: Check the EAS build logs in GitHub Actions or at expo.dev
+- **Authentication issues**: Verify your `EXPO_TOKEN` is valid and not expired
+- **TestFlight submission issues**: Ensure your Apple credentials are correctly configured and your bundle identifier matches your App Store Connect app

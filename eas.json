@@ -1,0 +1,17 @@
+{
+  "build": {
+    "production": {
+      "ios": {
+        "workflow": "managed",
+        "buildType": "archive"
+      },
+      "env": {}
+    },
+    "development": {
+      "ios": {
+        "workflow": "managed",
+        "developmentClient": true
+      }
+    }
+  }
+}
