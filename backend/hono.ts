@@ -8,27 +8,19 @@ const app = new Hono();
 
 app.use("*", cors());
 
-const trpcHandler = trpcServer({
-  router: appRouter,
-  createContext,
-  onError: ({ error, path }) => {
-    console.error(`[tRPC] Error on ${path}:`, error);
-  },
-});
-
-app.use("/api/trpc", trpcHandler);
-app.use("/api/trpc/*", trpcHandler);
+app.use(
+  "/trpc/*",
+  trpcServer({
+    router: appRouter,
+    createContext,
+    onError: ({ error, path }) => {
+      console.error(`[tRPC] Error on ${path}:`, error);
+    },
+  })
+);
 
 app.get("/", (c) => {
   return c.json({ status: "ok", message: "API is running" });
-});
-
-app.get("/api", (c) => {
-  return c.json({ status: "ok", message: "API endpoint" });
-});
-
-app.get("/api/trpc", (c) => {
-  return c.json({ status: "ok", message: "tRPC endpoint - use POST for queries" });
 });
 
 app.onError((err, c) => {
