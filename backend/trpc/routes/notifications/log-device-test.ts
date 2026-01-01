@@ -4,19 +4,19 @@ import { publicProcedure } from '../../create-context';
 import { appendTestResults } from './store';
 
 const testResultSchema = z.object({
-  id: z.string().min(3),
+  id: z.string().min(3).max(100),
   type: z.enum(['permissions', 'token', 'delivery', 'sync']),
   status: z.enum(['passed', 'failed']),
-  message: z.string().min(1),
-  timestamp: z.number().int(),
-  deviceLabel: z.string().optional(),
+  message: z.string().min(1).max(500),
+  timestamp: z.number().int().positive(),
+  deviceLabel: z.string().max(200).optional(),
 });
 
 export const logDeviceTestProcedure = publicProcedure
   .input(
     z.object({
-      deviceId: z.string().min(3),
-      results: z.array(testResultSchema).min(1),
+      deviceId: z.string().min(3).max(100).regex(/^[a-zA-Z0-9_-]+$/, 'Invalid deviceId format'),
+      results: z.array(testResultSchema).min(1).max(20), // Limit to prevent abuse
     }),
   )
   .mutation(({ input }) => {

@@ -3,7 +3,9 @@ import { publicProcedure } from '../../create-context';
 import { getDeviceRecord, listDeviceRecords } from './store';
 
 export const getSyncStatusProcedure = publicProcedure
-  .input(z.object({ deviceId: z.string().optional() }).optional())
+  .input(z.object({ 
+    deviceId: z.string().min(3).max(100).regex(/^[a-zA-Z0-9_-]+$/, 'Invalid deviceId format').optional() 
+  }).optional())
   .query(({ input }) => {
     if (input?.deviceId) {
       const device = getDeviceRecord(input.deviceId);
