@@ -10,10 +10,13 @@ export const registerDeviceProcedure = publicProcedure
       pushToken: z.string().min(10).max(500),
       platform: z.enum(['ios', 'android', 'web']),
       appVersion: z.string().optional(),
-      userId: z.string().min(1).max(100).optional().refine(
-        isValidUserId,
-        { message: 'userId cannot be empty or whitespace' }
-      ),
+      userId: z.union([
+        z.string().min(1).max(100).refine(
+          isValidUserId,
+          { message: 'userId cannot be empty or whitespace' }
+        ),
+        z.undefined(),
+      ]),
       permissions: z.string().optional(),
     }),
   )
