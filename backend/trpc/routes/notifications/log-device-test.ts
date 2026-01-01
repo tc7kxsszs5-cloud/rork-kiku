@@ -8,7 +8,7 @@ const testResultSchema = z.object({
   type: z.enum(['permissions', 'token', 'delivery', 'sync']),
   status: z.enum(['passed', 'failed']),
   message: z.string().min(1).max(500),
-  timestamp: z.number().int().nonnegative(),
+  timestamp: z.number().int().min(946684800000), // Min: Jan 1, 2000 in milliseconds
   deviceLabel: z.string().max(200).optional(),
 });
 
