@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { publicProcedure } from '../../create-context';
 import { upsertDeviceRecord } from './store';
+import { isValidUserId } from '@/lib/error-utils';
 
 export const registerDeviceProcedure = publicProcedure
   .input(
@@ -10,7 +11,7 @@ export const registerDeviceProcedure = publicProcedure
       platform: z.enum(['ios', 'android', 'web']),
       appVersion: z.string().optional(),
       userId: z.string().min(1).max(100).refine(
-        (val) => !val || val.trim().length > 0,
+        isValidUserId,
         { message: 'userId cannot be empty or whitespace' }
       ).optional(),
       permissions: z.string().optional(),

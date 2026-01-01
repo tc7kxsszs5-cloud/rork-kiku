@@ -35,3 +35,18 @@ export const formatError = (error: unknown): string => {
   }
   return String(error);
 };
+
+/**
+ * Validates a userId string
+ * @param userId - The userId to validate (can be undefined for optional fields)
+ * @returns true if the userId is valid (either undefined or a non-empty, non-whitespace string)
+ */
+export const isValidUserId = (userId: string | undefined): boolean => {
+  // undefined is valid for optional fields
+  if (userId == null) {
+    return true;
+  }
+  
+  // userId must be a non-empty string after trimming
+  return typeof userId === 'string' && userId.trim().length > 0;
+};

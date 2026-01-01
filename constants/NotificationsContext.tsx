@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { NotificationDeviceRecord, NotificationTestResult } from './types';
 import { useUser } from './UserContext';
-import { isNetworkError, formatError } from '@/lib/error-utils';
+import { isNetworkError, formatError, isValidUserId } from '@/lib/error-utils';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -247,10 +247,8 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
             ? 'android'
             : 'web';
 
-        // Validate userId if present
-        const validatedUserId = user?.id && typeof user.id === 'string' && user.id.length > 0 
-          ? user.id 
-          : undefined;
+        // Validate userId if present - must not be empty or whitespace
+        const validatedUserId = isValidUserId(user?.id) ? user?.id : undefined;
 
         try {
           await registerMutation.mutateAsync({
