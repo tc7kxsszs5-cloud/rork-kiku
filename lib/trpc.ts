@@ -3,6 +3,7 @@ import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import Constants from "expo-constants";
 import type { AppRouter } from "@/backend/trpc/app-router";
 import superjson from "superjson";
+import { formatError } from "./error-utils";
 
 export const trpc = createTRPCReact<AppRouter>();
 
@@ -121,7 +122,7 @@ const getBaseUrl = () => {
             return normalizedHost;
           }
         } catch (error) {
-          console.warn('[tRPC] Failed to parse hostUri:', hostUri, error instanceof Error ? error.message : String(error));
+          console.warn('[tRPC] Failed to parse hostUri:', hostUri, formatError(error));
         }
       }
     }
@@ -176,7 +177,7 @@ export const trpcClient = createTRPCClient<AppRouter>({
           return response;
         } catch (error) {
           clearTimeout(timeoutId);
-          const errorMessage = error instanceof Error ? error.message : String(error);
+          const errorMessage = formatError(error);
           const isAbortError = errorMessage.includes('abort');
           
           console.error('[tRPC] Fetch error:', {
@@ -237,7 +238,7 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
           return response;
         } catch (error) {
           clearTimeout(timeoutId);
-          const errorMessage = error instanceof Error ? error.message : String(error);
+          const errorMessage = formatError(error);
           const isAbortError = errorMessage.includes('abort');
           
           console.error('[tRPC Vanilla] Fetch error:', {
