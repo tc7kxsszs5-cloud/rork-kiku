@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { NotificationDeviceRecord, NotificationTestResult } from './types';
 import { useUser } from './UserContext';
+import { isNetworkError, formatError, isValidUserId } from '@/lib/error-utils';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -20,6 +21,7 @@ Notifications.setNotificationHandler({
 
 const DEVICE_ID_STORAGE_KEY = '@kids_device_id';
 const PUSH_TOKEN_STORAGE_KEY = '@kids_push_token';
+const MIN_DEVICE_ID_LENGTH = 10;
 
 const createDeviceId = () => `device_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 
@@ -73,12 +75,21 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
 
   const registerMutation = trpc.notifications.registerDevice.useMutation({
     onError: (error) => {
-      console.error('[NotificationsContext] Register mutation error (ignored):', error);
+      console.error('[NotificationsContext] Register mutation failed:', {
+        error: formatError(error),
+        deviceId: deviceId ?? 'unknown',
+        userId: user?.id ?? 'none',
+        timestamp: new Date().toISOString(),
+      });
     },
   });
   const logTestMutation = trpc.notifications.logDeviceTest.useMutation({
     onError: (error) => {
-      console.error('[NotificationsContext] Log test mutation error (ignored):', error);
+      console.error('[NotificationsContext] Log test mutation failed:', {
+        error: formatError(error),
+        deviceId: deviceId ?? 'unknown',
+        timestamp: new Date().toISOString(),
+      });
     },
   });
   const {
@@ -88,17 +99,29 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
     error: syncError,
   } = trpc.notifications.getSyncStatus.useQuery(deviceId ? { deviceId } : undefined, {
     enabled: Boolean(deviceId) && isSupported,
-    staleTime: 15_000,
-    retry: false,
+    staleTime: 30_000, // Increased from 15s to 30s to reduce unnecessary polling
+    retry: (failureCount, error) => {
+      // Only retry on network errors, not on expected failures
+      if (failureCount >= 2) return false;
+      return isNetworkError(error);
+    },
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+    refetchOnReconnect: true, // Only refetch when network reconnects
   });
 
   useEffect(() => {
     if (syncError) {
-      console.error('[NotificationsContext] Sync status query error (ignored):', syncError);
+      // Only log sync errors if they're network-related to avoid log clutter
+      if (isNetworkError(syncError)) {
+        console.error('[NotificationsContext] Sync status query failed (network error):', {
+          error: formatError(syncError),
+          deviceId: deviceId ?? 'unknown',
+          timestamp: new Date().toISOString(),
+        });
+      }
     }
-  }, [syncError]);
+  }, [syncError, deviceId]);
 
   const serverRecord = syncData?.device ?? null;
 
@@ -146,7 +169,10 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
           setPermissionStatus(permissions.status);
         }
       } catch (error) {
-        console.error('[NotificationsContext] Bootstrap error', error);
+        console.error('[NotificationsContext] Bootstrap error:', {
+          error: formatError(error),
+          timestamp: new Date().toISOString(),
+        });
         if (isMounted) {
           setLastError('Не удалось инициализировать уведомления');
         }
@@ -169,6 +195,17 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
       }
 
       const resolvedDeviceId = await ensureDeviceId();
+      
+      // Validate deviceId format
+      if (!resolvedDeviceId || resolvedDeviceId.length < MIN_DEVICE_ID_LENGTH) {
+        console.error('[NotificationsContext] Invalid device ID generated:', {
+          deviceId: resolvedDeviceId,
+          timestamp: new Date().toISOString(),
+        });
+        setLastError('Ошибка создания идентификатора устройства');
+        return;
+      }
+      
       const projectId = resolveExpoProjectId();
       if (!projectId) {
         console.warn('[NotificationsContext] Push notifications disabled: missing Expo projectId');
@@ -210,27 +247,45 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
             ? 'android'
             : 'web';
 
+        // Validate userId if present - must not be empty or whitespace
+        const validatedUserId = isValidUserId(user?.id) ? user?.id : undefined;
+
         try {
           await registerMutation.mutateAsync({
             deviceId: resolvedDeviceId,
             pushToken: tokenResponse.data,
             platform: platformValue,
             appVersion: Constants.expoConfig?.version,
-            userId: user?.id,
+            userId: validatedUserId,
             permissions: status,
           });
         } catch (mutationError) {
-          console.error('[NotificationsContext] Register mutation failed (ignored):', mutationError);
+          console.error('[NotificationsContext] Register mutation failed:', {
+            error: formatError(mutationError),
+            deviceId: resolvedDeviceId,
+            userId: validatedUserId ?? 'none',
+            timestamp: new Date().toISOString(),
+          });
+          // Don't throw - registration failure shouldn't break the app
         }
 
         try {
           await refetchSyncStatus();
         } catch (refetchError) {
-          console.error('[NotificationsContext] Refetch sync status failed (ignored):', refetchError);
+          console.error('[NotificationsContext] Refetch sync status failed:', {
+            error: formatError(refetchError),
+            deviceId: resolvedDeviceId,
+            timestamp: new Date().toISOString(),
+          });
         }
       } catch (error) {
-        console.error('[NotificationsContext] Registration error (ignored)', error);
-        setLastError(null);
+        console.error('[NotificationsContext] Registration error:', {
+          error: formatError(error),
+          deviceId: resolvedDeviceId,
+          userId: user?.id ?? 'none',
+          timestamp: new Date().toISOString(),
+        });
+        setLastError('Ошибка регистрации уведомлений');
       } finally {
         setIsRegistering(false);
       }
@@ -251,7 +306,11 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
 
     autoSyncAttemptedRef.current = true;
     performRegistration(false).catch((error) => {
-      console.error('[NotificationsContext] Auto registration failed (ignored)', error);
+      console.error('[NotificationsContext] Auto registration failed:', {
+        error: formatError(error),
+        deviceId: deviceId ?? 'unknown',
+        timestamp: new Date().toISOString(),
+      });
     });
   }, [deviceId, isSupported, permissionStatus, performRegistration]);
 
@@ -262,7 +321,11 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
     try {
       await refetchSyncStatus();
     } catch (error) {
-      console.error('[NotificationsContext] Refresh status failed (ignored):', error);
+      console.error('[NotificationsContext] Refresh status failed:', {
+        error: formatError(error),
+        deviceId: deviceId ?? 'unknown',
+        timestamp: new Date().toISOString(),
+      });
     }
   }, [deviceId, isSupported, refetchSyncStatus]);
 
@@ -338,7 +401,11 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
           deviceLabel,
         });
       } catch (error) {
-        console.error('[NotificationsContext] Delivery test failed', error);
+        console.error('[NotificationsContext] Delivery test failed:', {
+          error: formatError(error),
+          deviceId,
+          timestamp: new Date().toISOString(),
+        });
         tests.push({
           id: `delivery_${now + 3}`,
           type: 'delivery',
@@ -357,13 +424,21 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
           results: tests,
         });
       } catch (logError) {
-        console.error('[NotificationsContext] Log test mutation failed (ignored):', logError);
+        console.error('[NotificationsContext] Log test mutation failed:', {
+          error: formatError(logError),
+          deviceId,
+          timestamp: new Date().toISOString(),
+        });
       }
       setLastDiagnostics(tests);
       try {
         await refetchSyncStatus();
       } catch (refetchError) {
-        console.error('[NotificationsContext] Refetch after diagnostics failed (ignored):', refetchError);
+        console.error('[NotificationsContext] Refetch after diagnostics failed:', {
+          error: formatError(refetchError),
+          deviceId,
+          timestamp: new Date().toISOString(),
+        });
       }
       return tests;
     } finally {

@@ -1,15 +1,22 @@
 import { z } from 'zod';
 import { publicProcedure } from '../../create-context';
 import { upsertDeviceRecord } from './store';
+import { isValidUserId } from '@/lib/error-utils';
 
 export const registerDeviceProcedure = publicProcedure
   .input(
     z.object({
-      deviceId: z.string().min(3),
-      pushToken: z.string().min(10),
+      deviceId: z.string().min(3).max(100).regex(/^[a-zA-Z0-9_-]+$/, 'Invalid deviceId format'),
+      pushToken: z.string().min(10).max(500),
       platform: z.enum(['ios', 'android', 'web']),
       appVersion: z.string().optional(),
-      userId: z.string().optional(),
+      userId: z.union([
+        z.string().min(1).max(100).refine(
+          isValidUserId,
+          { message: 'userId cannot be empty or whitespace' }
+        ),
+        z.undefined(),
+      ]),
       permissions: z.string().optional(),
     }),
   )

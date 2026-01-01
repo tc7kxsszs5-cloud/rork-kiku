@@ -3,6 +3,7 @@ import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import Constants from "expo-constants";
 import type { AppRouter } from "@/backend/trpc/app-router";
 import superjson from "superjson";
+import { formatError } from "./error-utils";
 
 export const trpc = createTRPCReact<AppRouter>();
 
@@ -89,8 +90,9 @@ const getDevServerFromExtras = () => {
 
 const getBaseUrl = () => {
   if (process.env.EXPO_PUBLIC_RORK_API_BASE_URL) {
-    console.log('[tRPC] Using base URL from env:', process.env.EXPO_PUBLIC_RORK_API_BASE_URL);
-    return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+    const url = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+    console.log('[tRPC] Using base URL from env:', url);
+    return url;
   }
 
   const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : false;
@@ -120,7 +122,7 @@ const getBaseUrl = () => {
             return normalizedHost;
           }
         } catch (error) {
-          console.warn('[tRPC] Failed to parse hostUri:', hostUri, error);
+          console.warn('[tRPC] Failed to parse hostUri:', hostUri, formatError(error));
         }
       }
     }
@@ -143,7 +145,12 @@ export const trpcClient = createTRPCClient<AppRouter>({
         const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         try {
-          console.log('[tRPC] Request:', url);
+          // Only log requests in development mode to reduce log clutter
+          const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : false;
+          if (isDev) {
+            console.log('[tRPC] Request:', url);
+          }
+          
           const response = await fetch(url, {
             ...options,
             signal: controller.signal,
@@ -157,6 +164,7 @@ export const trpcClient = createTRPCClient<AppRouter>({
               statusText: response.statusText,
               url,
               contentType,
+              timestamp: new Date().toISOString(),
             });
             
             try {
@@ -169,7 +177,15 @@ export const trpcClient = createTRPCClient<AppRouter>({
           return response;
         } catch (error) {
           clearTimeout(timeoutId);
-          console.error('[tRPC] Fetch error:', error);
+          const errorMessage = formatError(error);
+          const isAbortError = errorMessage.includes('abort');
+          
+          console.error('[tRPC] Fetch error:', {
+            error: errorMessage,
+            url,
+            isTimeout: isAbortError,
+            timestamp: new Date().toISOString(),
+          });
           throw error;
         }
       },
@@ -190,7 +206,12 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
         const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         try {
-          console.log('[tRPC Vanilla] Request:', url);
+          // Only log requests in development mode to reduce log clutter
+          const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : false;
+          if (isDev) {
+            console.log('[tRPC Vanilla] Request:', url);
+          }
+          
           const response = await fetch(url, {
             ...options,
             signal: controller.signal,
@@ -204,6 +225,7 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
               statusText: response.statusText,
               url,
               contentType,
+              timestamp: new Date().toISOString(),
             });
             
             try {
@@ -216,7 +238,15 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
           return response;
         } catch (error) {
           clearTimeout(timeoutId);
-          console.error('[tRPC Vanilla] Fetch error:', error);
+          const errorMessage = formatError(error);
+          const isAbortError = errorMessage.includes('abort');
+          
+          console.error('[tRPC Vanilla] Fetch error:', {
+            error: errorMessage,
+            url,
+            isTimeout: isAbortError,
+            timestamp: new Date().toISOString(),
+          });
           throw error;
         }
       },
