@@ -71,16 +71,34 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
   const isSupported = Platform.OS !== 'web';
   const deviceLabel = useMemo(() => Constants.deviceName ?? Platform.OS, []);
 
-  const registerMutation = trpc.notifications.registerDevice.useMutation();
-  const logTestMutation = trpc.notifications.logDeviceTest.useMutation();
+  const registerMutation = trpc.notifications.registerDevice.useMutation({
+    onError: (error) => {
+      console.error('[NotificationsContext] Register mutation error (ignored):', error);
+    },
+  });
+  const logTestMutation = trpc.notifications.logDeviceTest.useMutation({
+    onError: (error) => {
+      console.error('[NotificationsContext] Log test mutation error (ignored):', error);
+    },
+  });
   const {
     data: syncData,
     refetch: refetchSyncStatus,
     isFetching: isSyncing,
+    error: syncError,
   } = trpc.notifications.getSyncStatus.useQuery(deviceId ? { deviceId } : undefined, {
-    enabled: Boolean(deviceId),
+    enabled: Boolean(deviceId) && isSupported,
     staleTime: 15_000,
+    retry: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (syncError) {
+      console.error('[NotificationsContext] Sync status query error (ignored):', syncError);
+    }
+  }, [syncError]);
 
   const serverRecord = syncData?.device ?? null;
 
@@ -192,16 +210,24 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
             ? 'android'
             : 'web';
 
-        await registerMutation.mutateAsync({
-          deviceId: resolvedDeviceId,
-          pushToken: tokenResponse.data,
-          platform: platformValue,
-          appVersion: Constants.expoConfig?.version,
-          userId: user?.id,
-          permissions: status,
-        });
+        try {
+          await registerMutation.mutateAsync({
+            deviceId: resolvedDeviceId,
+            pushToken: tokenResponse.data,
+            platform: platformValue,
+            appVersion: Constants.expoConfig?.version,
+            userId: user?.id,
+            permissions: status,
+          });
+        } catch (mutationError) {
+          console.error('[NotificationsContext] Register mutation failed (ignored):', mutationError);
+        }
 
-        await refetchSyncStatus();
+        try {
+          await refetchSyncStatus();
+        } catch (refetchError) {
+          console.error('[NotificationsContext] Refetch sync status failed (ignored):', refetchError);
+        }
       } catch (error) {
         console.error('[NotificationsContext] Registration error (ignored)', error);
         setLastError(null);
@@ -230,11 +256,15 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
   }, [deviceId, isSupported, permissionStatus, performRegistration]);
 
   const refreshStatus = useCallback(async () => {
-    if (!deviceId) {
+    if (!deviceId || !isSupported) {
       return;
     }
-    await refetchSyncStatus();
-  }, [deviceId, refetchSyncStatus]);
+    try {
+      await refetchSyncStatus();
+    } catch (error) {
+      console.error('[NotificationsContext] Refresh status failed (ignored):', error);
+    }
+  }, [deviceId, isSupported, refetchSyncStatus]);
 
   const registerDevice = useCallback(async () => {
     autoSyncAttemptedRef.current = true;
@@ -321,12 +351,20 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
     }
 
     try {
-      await logTestMutation.mutateAsync({
-        deviceId,
-        results: tests,
-      });
+      try {
+        await logTestMutation.mutateAsync({
+          deviceId,
+          results: tests,
+        });
+      } catch (logError) {
+        console.error('[NotificationsContext] Log test mutation failed (ignored):', logError);
+      }
       setLastDiagnostics(tests);
-      await refetchSyncStatus();
+      try {
+        await refetchSyncStatus();
+      } catch (refetchError) {
+        console.error('[NotificationsContext] Refetch after diagnostics failed (ignored):', refetchError);
+      }
       return tests;
     } finally {
       setIsRunningDiagnostics(false);

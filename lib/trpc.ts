@@ -135,10 +135,20 @@ export const trpcClient = createTRPCClient<AppRouter>({
     httpBatchLink({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
+      headers: () => ({
+        'Content-Type': 'application/json',
+      }),
       fetch: async (url, options) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
         try {
           console.log('[tRPC] Request:', url);
-          const response = await fetch(url, options);
+          const response = await fetch(url, {
+            ...options,
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
           
           if (!response.ok) {
             const contentType = response.headers.get('content-type');
@@ -158,6 +168,7 @@ export const trpcClient = createTRPCClient<AppRouter>({
           }
           return response;
         } catch (error) {
+          clearTimeout(timeoutId);
           console.error('[tRPC] Fetch error:', error);
           throw error;
         }
@@ -171,10 +182,20 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
     httpBatchLink({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
+      headers: () => ({
+        'Content-Type': 'application/json',
+      }),
       fetch: async (url, options) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
         try {
           console.log('[tRPC Vanilla] Request:', url);
-          const response = await fetch(url, options);
+          const response = await fetch(url, {
+            ...options,
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
           
           if (!response.ok) {
             const contentType = response.headers.get('content-type');
@@ -194,6 +215,7 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
           }
           return response;
         } catch (error) {
+          clearTimeout(timeoutId);
           console.error('[tRPC Vanilla] Fetch error:', error);
           throw error;
         }
