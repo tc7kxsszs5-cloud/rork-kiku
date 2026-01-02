@@ -40,5 +40,6 @@ ios/
 android/
 .rork
 .env
-rork-eslint.config.jsnode_modules/
+rork-eslint.config.js
+node_modules/
 package-lock.json
