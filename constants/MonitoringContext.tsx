@@ -3,7 +3,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Chat, Message, Alert, RiskLevel, RiskAnalysis } from '@/constants/types';
 import { MOCK_CHATS, INITIAL_MESSAGES } from '@/constants/mockData';
 import { HapticFeedback } from '@/constants/haptics';
-import { AgeGroup } from './UserContext';
+import { AgeGroup, useUser } from './UserContext';
 
 const LEVEL_ORDER: RiskLevel[] = ['safe', 'low', 'medium', 'high', 'critical'];
 
@@ -154,11 +154,15 @@ const evaluateImageRisk = (imageUri: string): { blocked: boolean; reasons: strin
   };
 };
 
-export const [MonitoringProvider, useMonitoring] = createContextHook(({ ageGroup }: { ageGroup?: AgeGroup } = {}) => {
+export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   const [chats, setChats] = useState<Chat[]>(MOCK_CHATS);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const isMountedRef = useRef(true);
+  
+  // Get age group from UserContext for age-aware filtering
+  const { user } = useUser();
+  const ageGroup = user?.ageGroup;
 
   useEffect(() => {
     return () => {

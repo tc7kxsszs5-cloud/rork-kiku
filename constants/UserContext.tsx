@@ -123,8 +123,14 @@ export const [UserProvider, useUser] = createContextHook(() => {
         }
       }
 
+      // Generate secure random ID
+      // NOTE: In production, use expo-crypto's getRandomBytes or uuid library
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substr(2, 9);
+      const random2 = Math.random().toString(36).substr(2, 9);
+
       const newUser: User = {
-        id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: `user_${timestamp}_${random}_${random2}`,
         createdAt: Date.now(),
         lastAuthenticationTime: Date.now(),
         ...userData,
