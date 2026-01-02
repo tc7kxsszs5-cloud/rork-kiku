@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "KIKU",
+    "name": "KIKU - Kids Safety Monitor",
     "slug": "greeting-project-58uufiz",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -21,11 +21,17 @@
           "audio",
           "location"
         ],
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to use your location.",
-        "NSLocationAlwaysUsageDescription": "Allow $(PRODUCT_NAME) to use your location.",
-        "NSLocationWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to use your location."
-      }
+        "NSMicrophoneUsageDescription": "KIKU needs microphone access to record and analyze voice messages for child safety.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "KIKU needs your location only for emergency SOS alerts to notify guardians of your child's location in case of emergency.",
+        "NSLocationAlwaysUsageDescription": "KIKU needs your location only for emergency SOS alerts to notify guardians of your child's location in case of emergency.",
+        "NSLocationWhenInUseUsageDescription": "KIKU needs your location only for emergency SOS alerts to notify guardians of your child's location in case of emergency.",
+        "NSFaceIDUsageDescription": "KIKU uses Face ID to securely authenticate parents when accessing sensitive parental controls.",
+        "NSCameraUsageDescription": "KIKU needs camera access to allow profile photos and image sharing for AI safety analysis.",
+        "NSPhotoLibraryUsageDescription": "KIKU needs photo library access to allow image sharing for AI safety analysis.",
+        "NSContactsUsageDescription": "KIKU needs access to contacts to help you set up your child's contact whitelist.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
@@ -42,8 +48,11 @@
         "FOREGROUND_SERVICE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
         "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.SCHEDULE_EXACT_ALARM"
-      ]
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT"
+      ],
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -60,7 +69,7 @@
       [
         "expo-av",
         {
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone"
+          "microphonePermission": "KIKU needs microphone access to record and analyze voice messages for child safety."
         }
       ],
       [
@@ -69,7 +78,13 @@
           "isAndroidForegroundServiceEnabled": true,
           "isAndroidBackgroundLocationEnabled": true,
           "isIosBackgroundLocationEnabled": true,
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+          "locationAlwaysAndWhenInUsePermission": "KIKU needs your location only for emergency SOS alerts to notify guardians of your child's location in case of emergency."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "KIKU uses Face ID to securely authenticate parents when accessing sensitive parental controls."
         }
       ],
       [
@@ -87,6 +102,7 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "privacy": "public"
   }
 }
