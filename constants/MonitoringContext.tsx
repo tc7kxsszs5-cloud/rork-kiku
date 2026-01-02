@@ -1,8 +1,9 @@
 import createContextHook from '@nkzw/create-context-hook';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { Chat, Message, Alert, RiskLevel, RiskAnalysis } from '@/constants/types';
+import { Chat, Message, Alert, RiskLevel, RiskAnalysis, AISensitivity, ContentCategory } from '@/constants/types';
 import { MOCK_CHATS, INITIAL_MESSAGES } from '@/constants/mockData';
 import { HapticFeedback } from '@/constants/haptics';
+import { AgeGroup } from './UserContext';
 
 const LEVEL_ORDER: RiskLevel[] = ['safe', 'low', 'medium', 'high', 'critical'];
 
@@ -10,69 +11,169 @@ type KeywordRule = {
   level: RiskLevel;
   pattern: RegExp;
   reason: string;
-  category: string;
+  category: ContentCategory;
+  minAgeGroup?: AgeGroup; // Rule only applies to this age group and younger
+  sensitivity?: AISensitivity; // Rule only applies at this sensitivity or higher
 };
 
+// Age-appropriate keyword rules - more strict for younger children
 const KEYWORD_RULES: KeywordRule[] = [
+  // Critical threats - all ages, all sensitivities
   {
     level: 'critical',
-    pattern: /(убью|убей|поконч|самоуб|умереть|взорв|бомб)/i,
+    pattern: /(убью|убей|поконч|самоуб|умереть|взорв|бомб|kill|suicide|bomb)/i,
     reason: 'Угроза жизни или суицидальные мотивы',
     category: 'threats',
   },
+  
+  // High risk - privacy and safety
   {
     level: 'high',
-    pattern: /(адрес|домашн|парол|паспорт|номер карты|cvv|секретный код)/i,
+    pattern: /(адрес|домашн|парол|паспорт|номер карты|cvv|секретный код|password|address|ssn)/i,
     reason: 'Запрос личных данных',
     category: 'privacy',
   },
   {
     level: 'high',
-    pattern: /(перевед[ие]|деньг|карта|плати|5000|срочно оплат)/i,
+    pattern: /(перевед[ие]|деньг|карта|плати|5000|срочно оплат|money|payment|cash)/i,
     reason: 'Финансовое давление',
-    category: 'fraud',
+    category: 'threats',
   },
   {
     level: 'high',
-    pattern: /(оруж|пистолет|нож|наркот|взрывчат)/i,
+    pattern: /(оруж|пистолет|нож|наркот|взрывчат|weapon|gun|drug|cocaine)/i,
     reason: 'Упоминание оружия или запрещённых веществ',
-    category: 'safety',
+    category: 'drugs',
   },
+  
+  // Grooming and inappropriate meetings
   {
-    level: 'medium',
-    pattern: /(никому не говори|встреча без взрослых|секретная встреча|ночью|приди один)/i,
+    level: 'high',
+    pattern: /(никому не говори|встреча без взрослых|секретная встреча|ночью|приди один|secret meeting|don't tell)/i,
     reason: 'Секретные встречи без взрослых',
-    category: 'grooming',
+    category: 'threats',
+    minAgeGroup: 'pre-teen', // More important for younger children
   },
+  
+  // Bullying - severity varies by age
   {
-    level: 'medium',
-    pattern: /(дурак|тупой|ненавижу тебя|жирный|урод|никчем)/i,
+    level: 'high',
+    pattern: /(дурак|тупой|ненавижу тебя|жирный|урод|никчем|stupid|hate you|loser|ugly)/i,
     reason: 'Травля и унижения',
     category: 'bullying',
+    minAgeGroup: 'middle-childhood', // Stricter for younger
   },
   {
     level: 'medium',
-    pattern: /(страшно|мне плохо|я боюсь|меня преследуют|издеваются)/i,
+    pattern: /(дурак|тупой|ненавижу тебя|жирный|урод|никчем|stupid|hate you|loser|ugly)/i,
+    reason: 'Травля и унижения',
+    category: 'bullying',
+    minAgeGroup: 'teen', // Less strict for older teens
+    sensitivity: 'low',
+  },
+  
+  // Distress signals
+  {
+    level: 'medium',
+    pattern: /(страшно|мне плохо|я боюсь|меня преследуют|издеваются|scared|hurt|help me)/i,
     reason: 'Запрос помощи или признаки давления',
-    category: 'distress',
+    category: 'threats',
+  },
+  
+  // Suspicious requests - age dependent
+  {
+    level: 'medium',
+    pattern: /(ночью играть|спорим не расскажешь|скинь фотку|отправь фото|send pic|send photo)/i,
+    reason: 'Подозрительные просьбы',
+    category: 'sexual',
+    minAgeGroup: 'pre-teen',
   },
   {
     level: 'low',
-    pattern: /(ночью играть|спорим не расскажешь|скинь фотку|отправь фото)/i,
+    pattern: /(ночью играть|спорим не расскажешь|скинь фотку|отправь фото|send pic|send photo)/i,
     reason: 'Подозрительные просьбы',
-    category: 'boundaries',
+    category: 'sexual',
+    minAgeGroup: 'teen',
+  },
+  
+  // Profanity - stricter for younger children
+  {
+    level: 'medium',
+    pattern: /(черт|блин|дьявол|damn|hell|crap)/i,
+    reason: 'Ненормативная лексика',
+    category: 'profanity',
+    minAgeGroup: 'early-childhood',
+    sensitivity: 'high',
+  },
+  {
+    level: 'low',
+    pattern: /(черт|блин|дьявол|damn|hell|crap)/i,
+    reason: 'Ненормативная лексика',
+    category: 'profanity',
+    minAgeGroup: 'middle-childhood',
+    sensitivity: 'medium',
   },
 ];
 
-const IMAGE_RISK_KEYWORDS = ['weapon', 'blood', 'nsfw', 'violence', 'gun', 'knife'];
+const IMAGE_RISK_KEYWORDS = ['weapon', 'blood', 'nsfw', 'violence', 'gun', 'knife', 'nude', 'drug'];
 
 const SIMULATED_DELAY_MS = 120;
 
 const simulateLatency = () => new Promise<void>((resolve) => setTimeout(resolve, SIMULATED_DELAY_MS));
 
-const evaluateMessageRisk = (message: Message): RiskAnalysis => {
+// Age group ordering for comparison (earlier = younger)
+const AGE_GROUP_ORDER: AgeGroup[] = ['early-childhood', 'middle-childhood', 'pre-teen', 'teen'];
+
+// Sensitivity ordering for comparison
+const SENSITIVITY_ORDER: AISensitivity[] = ['low', 'medium', 'high', 'strict'];
+
+// Helper to check if rule applies based on age group
+const ruleAppliesForAge = (rule: KeywordRule, userAgeGroup?: AgeGroup): boolean => {
+  if (!rule.minAgeGroup || !userAgeGroup) return true;
+  
+  const ruleAgeIndex = AGE_GROUP_ORDER.indexOf(rule.minAgeGroup);
+  const userAgeIndex = AGE_GROUP_ORDER.indexOf(userAgeGroup);
+  
+  // Rule applies if user is at or below the min age group
+  return userAgeIndex <= ruleAgeIndex;
+};
+
+// Helper to check if rule applies based on sensitivity
+const ruleAppliesForSensitivity = (rule: KeywordRule, sensitivity: AISensitivity): boolean => {
+  if (!rule.sensitivity) return true;
+  
+  const ruleSensIndex = SENSITIVITY_ORDER.indexOf(rule.sensitivity);
+  const userSensIndex = SENSITIVITY_ORDER.indexOf(sensitivity);
+  
+  // Rule applies if user sensitivity is at or above rule sensitivity
+  return userSensIndex >= ruleSensIndex;
+};
+
+// Helper to check if category is blocked
+const isCategoryBlocked = (category: ContentCategory, blockedCategories?: ContentCategory[]): boolean => {
+  if (!blockedCategories || blockedCategories.length === 0) return false;
+  return blockedCategories.includes(category);
+};
+
+const evaluateMessageRisk = (
+  message: Message, 
+  options?: {
+    ageGroup?: AgeGroup;
+    sensitivity?: AISensitivity;
+    blockedCategories?: ContentCategory[];
+  }
+): RiskAnalysis => {
+  const { ageGroup, sensitivity = 'medium', blockedCategories } = options || {};
   const normalized = message.text.toLowerCase();
-  const matches = KEYWORD_RULES.filter((rule) => rule.pattern.test(normalized));
+  
+  // Filter rules based on age, sensitivity, and blocked categories
+  const applicableRules = KEYWORD_RULES.filter((rule) => 
+    ruleAppliesForAge(rule, ageGroup) &&
+    ruleAppliesForSensitivity(rule, sensitivity) &&
+    (!blockedCategories || blockedCategories.length === 0 || isCategoryBlocked(rule.category, blockedCategories))
+  );
+  
+  const matches = applicableRules.filter((rule) => rule.pattern.test(normalized));
 
   if (!matches.length) {
     const emphasisScore = Math.min(0.4, (message.text.match(/!/g)?.length ?? 0) * 0.05);
@@ -91,7 +192,10 @@ const evaluateMessageRisk = (message: Message): RiskAnalysis => {
   const reasons = Array.from(new Set(matches.map((match) => match.reason)));
   const categories = Array.from(new Set(matches.map((match) => match.category)));
   const numericPatterns = normalized.match(/\d{4,}/g)?.length ?? 0;
-  const confidenceBoost = matches.length * 0.1 + (/[A-ZА-Я]{4,}/.test(message.text) ? 0.05 : 0) + numericPatterns * 0.04;
+  
+  // Adjust confidence based on sensitivity level
+  const sensitivityBoost = sensitivity === 'strict' ? 0.1 : sensitivity === 'high' ? 0.05 : 0;
+  const confidenceBoost = matches.length * 0.1 + (/[A-ZА-Я]{4,}/.test(message.text) ? 0.05 : 0) + numericPatterns * 0.04 + sensitivityBoost;
 
   return {
     riskLevel: highest,
@@ -119,6 +223,15 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const isMountedRef = useRef(true);
+  
+  // Store analysis options for age-based filtering
+  const [analysisOptions, setAnalysisOptions] = useState<{
+    ageGroup?: AgeGroup;
+    sensitivity?: AISensitivity;
+    blockedCategories?: ContentCategory[];
+  }>({
+    sensitivity: 'medium',
+  });
 
   useEffect(() => {
     return () => {
@@ -126,10 +239,20 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
     };
   }, []);
 
+  // Update analysis options (called by parent controls)
+  const updateAnalysisOptions = useCallback((options: {
+    ageGroup?: AgeGroup;
+    sensitivity?: AISensitivity;
+    blockedCategories?: ContentCategory[];
+  }) => {
+    setAnalysisOptions((prev) => ({ ...prev, ...options }));
+    console.log('Analysis options updated:', options);
+  }, []);
+
   const analyzeMessage = useCallback(async (message: Message): Promise<RiskAnalysis> => {
     try {
       await simulateLatency();
-      return evaluateMessageRisk(message);
+      return evaluateMessageRisk(message, analysisOptions);
     } catch (error) {
       console.error('Error analyzing message:', error);
       return {
@@ -139,7 +262,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
         categories: [],
       };
     }
-  }, []);
+  }, [analysisOptions]);
 
   const analyzeImage = useCallback(async (imageUri: string): Promise<{ blocked: boolean; reasons: string[] }> => {
     try {
@@ -315,7 +438,9 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
       addMessage,
       initializeChatMessages,
       resolveAlert,
+      updateAnalysisOptions,
+      analysisOptions,
     }),
-    [chats, alerts, unresolvedAlerts, criticalAlerts, isAnalyzing, addMessage, initializeChatMessages, resolveAlert]
+    [chats, alerts, unresolvedAlerts, criticalAlerts, isAnalyzing, addMessage, initializeChatMessages, resolveAlert, updateAnalysisOptions, analysisOptions]
   );
 });
