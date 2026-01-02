@@ -1,43 +1,59 @@
-# kiku - AI-Powered Child Safety Messenger Monitor
+# KIKU - AI-Powered Child Safety Platform
 
-## Обзор проекта
+## Project Overview
 
-kiku - инновационное приложение для мониторинга и защиты безопасности детских чатов с использованием искусственного интеллекта.
+KIKU is an innovative, comprehensive child safety monitoring application powered by artificial intelligence. Designed specifically for protecting children in digital communications, KIKU combines advanced AI moderation, robust parental controls, and strict compliance with global child protection laws including COPPA, GDPR, and Texas HB 18.
 
-## Основные функции
+## Core Mission
 
-### 🛡️ Безопасность и мониторинг
+**"Protecting children in the digital world through intelligent monitoring, parental empowerment, and legal compliance."**
 
-✅ **AI Анализ сообщений** - Автоматическая модерация текстовых сообщений на угрозы, травлю, насилие, мошенничество  
-✅ **Фильтрация изображений** - AI-анализ изображений для обнаружения неприемлемого контента  
-✅ **Кнопка SOS** - Экстренная помощь с геолокацией одним нажатием  
-✅ **Оценка рисков** - 5-уровневая система оценки (безопасно, низкий, средний, высокий, критический)  
-✅ **Реал-тайм уведомления** - Мгновенные алерты для родителей при обнаружении опасного контента  
-✅ **Голосовые сообщения** - Транскрипция с последующим AI-анализом
+KIKU provides parents and guardians with the tools they need to ensure their children's safety online while respecting privacy, promoting healthy digital habits, and complying with all applicable laws.
 
-### 👨‍👩‍👧 Родительский контроль
+## Key Features
 
-✅ **Временные ограничения** - Настраиваемые расписания использования по дням недели  
-✅ **Лимиты использования** - Ограничение экранного времени (мин/день)  
-✅ **Белый список контактов** - Управление разрешенными контактами  
-✅ **Блокировка неизвестных** - Автоматическая блокировка незнакомых собеседников  
-✅ **Email опекунов** - Множественные email для уведомлений  
-✅ **Панель управления** - Полный контроль всех настроек безопасности
+### 🛡️ Safety & Monitoring
 
-### 🔒 Приватность и соответствие
+✅ **AI Message Analysis** - Automatic moderation of text messages for threats, bullying, violence, and fraud  
+✅ **Image Filtering** - AI-powered image analysis to detect inappropriate content  
+✅ **SOS Button** - Emergency help with geolocation at the press of a button  
+✅ **Risk Assessment** - 5-level risk evaluation system (safe, low, medium, high, critical)  
+✅ **Real-time Notifications** - Instant alerts to parents when dangerous content is detected  
+✅ **Voice Messages** - Transcription with subsequent AI analysis  
+✅ **Anti-Bullying Detection** - Enhanced detection and intervention for bullying behavior  
+✅ **Auto-Intervention** - Automatic responses for critical risk scenarios
 
-✅ **Локальное хранение** - Все данные хранятся на устройстве (AsyncStorage)  
-✅ **Шифрование** - End-to-end шифрование сообщений и изображений  
-✅ **COPPA/GDPR-K** - Полное соответствие законам защиты данных детей  
-✅ **Логирование согласий** - Детальный аудит родительских согласий  
-✅ **Разделение метаданных** - Логи безопасности отдельно от содержимого
+### 👨‍👩‍👧 Parental Control
 
-### 📊 Аналитика и рекомендации
+✅ **Time Restrictions** - Customizable usage schedules by day of week  
+✅ **Usage Limits** - Daily screen time limits (minutes/day)  
+✅ **Contact Whitelist** - Management of approved contacts  
+✅ **Block Unknown** - Automatic blocking of unknown contacts  
+✅ **Guardian Emails** - Multiple email addresses for notifications  
+✅ **Control Dashboard** - Complete control of all safety settings  
+✅ **Age-Based Filtering** - Automatic content filtering based on verified age  
+✅ **Parent-Child Linking** - Secure account linking for family management  
+✅ **Educational Resources** - Safety education for parents and children
 
-✅ **Статистика безопасности** - Детальная аналитика рисков и активности  
-✅ **AI Рекомендации** - Персонализированные советы по безопасности  
-✅ **Распределение рисков** - Визуализация опасных взаимодействий  
-✅ **Прогресс решения** - Отслеживание решенных тревог
+### 🔒 Privacy & Compliance
+
+✅ **Local Storage** - All data stored on device (AsyncStorage)  
+✅ **Encryption** - End-to-end encryption of messages and images  
+✅ **COPPA Compliance** - Full compliance with Children's Online Privacy Protection Act  
+✅ **GDPR Compliance** - Full compliance with General Data Protection Regulation  
+✅ **Texas HB 18 Compliance** - Meets Texas social media safety requirements  
+✅ **Consent Logging** - Detailed audit trail of parental consents  
+✅ **Metadata Separation** - Security logs separate from content  
+✅ **Age Verification** - Robust age verification and content filtering system  
+✅ **Data Minimization** - Collects only essential data for safety
+
+### 📊 Analytics & Recommendations
+
+✅ **Safety Statistics** - Detailed analytics of risks and activity  
+✅ **AI Recommendations** - Personalized safety advice  
+✅ **Risk Distribution** - Visualization of dangerous interactions  
+✅ **Resolution Progress** - Tracking of resolved alerts  
+✅ **Usage Reports** - Comprehensive activity reports for parents
 
 ## Технологический стек
 
@@ -129,7 +145,133 @@ StackNavigator
 - Безопасность и приватность
 - Контакты поддержки
 
-## Compliance (COPPA/GDPR-K)
+## Legal Compliance & Child Protection
+
+KIKU is designed from the ground up to comply with all major child protection and data privacy laws. For complete details, see [COMPLIANCE.md](./COMPLIANCE.md), [PRIVACY_POLICY.md](./PRIVACY_POLICY.md), and [TERMS_OF_SERVICE.md](./TERMS_OF_SERVICE.md).
+
+### COPPA (Children's Online Privacy Protection Act)
+
+✅ **Verifiable Parental Consent** - Required for children under 13  
+✅ **Minimal Data Collection** - Only essential safety information  
+✅ **Parental Rights** - Review, modify, and delete child data  
+✅ **No Third-Party Sharing** - Data never sold or shared  
+✅ **Consent Tracking** - All consent timestamped and versioned
+
+**Implementation**:
+```typescript
+// UserContext.tsx
+- recordParentalConsent(): Logs consent with version
+- requiresParentalConsent(): Checks if consent needed
+- Age verification for children under 13
+```
+
+### GDPR (General Data Protection Regulation)
+
+✅ **Enhanced Protection for Children Under 16** - Special safeguards  
+✅ **Right to Access** - Users can view all their data  
+✅ **Right to Erasure** - Complete data deletion  
+✅ **Right to Data Portability** - Export user data  
+✅ **Privacy by Default** - Maximum privacy settings enabled  
+✅ **Local Storage** - Data remains on device
+
+**Implementation**:
+```typescript
+// Data storage approach minimizes GDPR burden
+- Local-first architecture
+- No cloud sync without explicit consent
+- Complete data deletion on logout
+```
+
+### Texas HB 18 (Social Media Safety for Children)
+
+✅ **Mandatory Age Verification** - Date of birth collection  
+✅ **Age-Based Content Filtering** - Automatic filtering by age  
+✅ **Parental Access** - Full activity visibility for parents  
+✅ **Default Privacy** - Private by default, restrictive settings  
+✅ **Contact Restrictions** - Unknown contacts blocked  
+✅ **Time Controls** - Usage limits and scheduling
+
+**Implementation**:
+```typescript
+// UserContext.tsx
+- verifyAge(): Verifies age and sets filter level
+- getContentFilterLevel(): Age-based filtering
+  - Under 13: 'strict'
+  - 13-15: 'moderate'  
+  - 16+: 'minimal'
+```
+
+### Apple App Store Guidelines
+
+✅ **Age Rating** - Proper age rating (4+/9+/12+)  
+✅ **Privacy Nutrition Labels** - Complete data disclosure  
+✅ **Parental Gates** - Protected adult features  
+✅ **No Third-Party Ads** - No advertising to children  
+✅ **Content Standards** - Age-appropriate content only
+
+### Key Compliance Features
+
+#### Age Verification System
+```typescript
+// Automatic age calculation and filter assignment
+calculateAge(dateOfBirth: string): number
+  - Accurate age from date of birth
+  - Handles leap years and edge cases
+
+verifyAge(dateOfBirth: string)
+  - Verifies and stores age
+  - Sets appropriate content filter
+  - Updates user profile
+```
+
+#### Parent-Child Account Linking
+```typescript
+// Secure family account management
+linkChildToParent(childId: string, parentId: string)
+  - Links child account to parent
+  - Enables parental oversight
+  - Tracks relationships for compliance
+```
+
+#### Content Filtering Levels
+
+**Strict (Under 13 - COPPA):**
+- Maximum AI sensitivity
+- All unknown contacts blocked
+- Parental approval for all contacts
+- Comprehensive filtering
+
+**Moderate (13-15):**
+- Enhanced AI moderation
+- Restricted contact approval
+- Age-appropriate filtering
+
+**Minimal (16+):**
+- Standard AI moderation
+- User-controlled settings
+- Parental oversight available
+
+#### Compliance Logging
+```typescript
+interface ComplianceLog {
+  id: string;
+  action: string;
+  userId: string;
+  timestamp: number;
+  details: Record<string, any>;
+  parentalConsent?: boolean;
+}
+```
+
+**Logged Actions:**
+- User registration and age verification
+- Parental consent grant/revoke
+- Settings modifications
+- SOS alerts
+- Content moderation actions
+- Data access/deletion requests
+
+## Compliance (COPPA/GDPR/Texas HB 18)
 
 Приложение полностью соответствует требованиям защиты данных детей:
 
@@ -139,6 +281,8 @@ StackNavigator
 4. **Минимизация данных** - Сбор только необходимых данных
 5. **Локальное хранение** - Данные не отправляются на внешние серверы
 6. **Audit Trail** - Полный лог всех действий с отметкой согласия
+7. **Верификация возраста** - Обязательная проверка возраста пользователей
+8. **Связь родитель-ребенок** - Безопасное связывание аккаунтов
 
 ## Типы данных
 

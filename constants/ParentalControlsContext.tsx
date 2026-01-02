@@ -28,6 +28,12 @@ const DEFAULT_SETTINGS: ParentalSettings = {
   sosNotificationsEnabled: true,
   guardianEmails: [],
   guardianPhones: [],
+  // Enhanced safety settings defaults
+  ageBasedFiltering: true,
+  antiBullyingEnabled: true,
+  autoInterventionEnabled: true,
+  educationalResourcesEnabled: true,
+  reportingEnabled: true,
 };
 
 export const [ParentalControlsProvider, useParentalControls] = createContextHook(() => {
