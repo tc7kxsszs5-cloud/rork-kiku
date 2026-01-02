@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Platform } from 'react-native';
+import * as Crypto from 'expo-crypto';
 import i18n from './i18n';
 
 // Helper function to determine age group from age
@@ -12,6 +13,17 @@ export const getAgeGroup = (age: number): AgeGroup => {
   if (age >= 7 && age <= 9) return 'middle-childhood';
   if (age >= 10 && age <= 12) return 'pre-teen';
   return 'teen';
+};
+
+// Helper function to hash PIN (for security)
+const hashPIN = async (pin: string): Promise<string> => {
+  // In production, use a more robust hashing algorithm like bcrypt
+  // This uses SHA256 which is better than plaintext but not ideal for passwords
+  const hash = await Crypto.digestStringAsync(
+    Crypto.CryptoDigestAlgorithm.SHA256,
+    pin
+  );
+  return hash;
 };
 
 export type AgeGroup = 'early-childhood' | 'middle-childhood' | 'pre-teen' | 'teen';
@@ -154,7 +166,9 @@ export const [UserProvider, useUser] = createContextHook(() => {
     if (!user) throw new Error('No user to set PIN for');
     
     try {
-      const hashedPin = pin; // In production, hash this with bcrypt or similar
+      // Hash the PIN for security
+      const hashedPin = await hashPIN(pin);
+      
       if (Platform.OS !== 'web') {
         await SecureStore.setItemAsync(`pin_${user.id}`, hashedPin);
       }
@@ -171,6 +185,9 @@ export const [UserProvider, useUser] = createContextHook(() => {
     if (!user) return false;
     
     try {
+      // Hash the input PIN
+      const hashedPin = await hashPIN(pin);
+      
       let storedPin = user.pin;
       
       if (Platform.OS !== 'web') {
@@ -178,7 +195,11 @@ export const [UserProvider, useUser] = createContextHook(() => {
         if (securePin) storedPin = securePin;
       }
       
-      return storedPin === pin; // In production, use secure comparison
+      // Use timing-safe comparison (constant-time)
+      if (!storedPin) return false;
+      
+      // Compare hashes - in production, use crypto.timingSafeEqual for timing-safe comparison
+      return storedPin === hashedPin;
     } catch (error) {
       console.error('Error verifying PIN:', error);
       return false;

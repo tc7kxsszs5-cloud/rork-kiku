@@ -83,7 +83,9 @@ export const exportAndShareData = async (): Promise<void> => {
     const dataPackage = await exportAllUserData();
     const jsonString = JSON.stringify(dataPackage, null, 2);
     
-    const fileName = `KIKU_data_export_${Date.now()}.json`;
+    // Generate unique filename with timestamp and random component
+    const randomId = Math.random().toString(36).substring(2, 9);
+    const fileName = `KIKU_data_export_${Date.now()}_${randomId}.json`;
     const file = new FileSystem.File(FileSystem.Paths.cache, fileName);
 
     // Write to file

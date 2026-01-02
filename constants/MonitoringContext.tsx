@@ -166,12 +166,22 @@ const evaluateMessageRisk = (
   const { ageGroup, sensitivity = 'medium', blockedCategories } = options || {};
   const normalized = message.text.toLowerCase();
   
-  // Filter rules based on age, sensitivity, and blocked categories
-  const applicableRules = KEYWORD_RULES.filter((rule) => 
-    ruleAppliesForAge(rule, ageGroup) &&
-    ruleAppliesForSensitivity(rule, sensitivity) &&
-    (!blockedCategories || blockedCategories.length === 0 || isCategoryBlocked(rule.category, blockedCategories))
-  );
+  // Filter rules based on age and sensitivity
+  // Then further filter to only include rules for blocked categories (if specified)
+  const applicableRules = KEYWORD_RULES.filter((rule) => {
+    // Check age and sensitivity
+    const ageMatch = ruleAppliesForAge(rule, ageGroup);
+    const sensitivityMatch = ruleAppliesForSensitivity(rule, sensitivity);
+    
+    // If no blocked categories specified, apply all rules
+    if (!blockedCategories || blockedCategories.length === 0) {
+      return ageMatch && sensitivityMatch;
+    }
+    
+    // If blocked categories specified, only apply rules for those categories
+    const categoryMatch = isCategoryBlocked(rule.category, blockedCategories);
+    return ageMatch && sensitivityMatch && categoryMatch;
+  });
   
   const matches = applicableRules.filter((rule) => rule.pattern.test(normalized));
 
