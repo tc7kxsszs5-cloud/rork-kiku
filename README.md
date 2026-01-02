@@ -1,11 +1,38 @@
-# Welcome to your Rork app
+# KIKU - Child Safety Platform
 
-## Project info
+## Project Info
 
-This is a native cross-platform mobile app created with [Rork](https://rork.com)
+**KIKU** is a comprehensive, AI-powered child safety monitoring application designed to protect children in digital communications while maintaining full compliance with global child protection laws.
 
-**Platform**: Native iOS & Android app, exportable to web
-**Framework**: Expo Router + React Native
+**Platform**: Native iOS & Android app, exportable to web  
+**Framework**: Expo Router + React Native  
+**Focus**: Child Safety, Parental Controls, Legal Compliance
+
+> **Mission**: Protecting children in the digital world through intelligent monitoring, parental empowerment, and strict legal compliance with COPPA, GDPR, and Texas HB 18.
+
+## 🛡️ Child Safety & Compliance
+
+KIKU is built from the ground up to prioritize child safety and comply with all major child protection regulations:
+
+### Legal Compliance
+- ✅ **COPPA Compliant** - Children's Online Privacy Protection Act
+- ✅ **GDPR Compliant** - General Data Protection Regulation  
+- ✅ **Texas HB 18 Compliant** - Social Media Safety for Children
+- ✅ **Apple App Store Guidelines** - Kids Category compliant
+
+### Key Safety Features
+- 🤖 **AI-Powered Moderation** - Real-time content analysis
+- 👨‍👩‍👧 **Parent-Child Account Linking** - Secure family management
+- 🔞 **Age Verification & Filtering** - Age-appropriate content controls
+- 🚨 **Emergency SOS** - One-touch emergency alerts with location
+- 📊 **Activity Monitoring** - Comprehensive safety dashboards
+- 🚫 **Anti-Bullying Detection** - Enhanced protection against harassment
+
+For complete details, see:
+- [COMPLIANCE.md](./COMPLIANCE.md) - Full compliance documentation
+- [PRIVACY_POLICY.md](./PRIVACY_POLICY.md) - Privacy policy
+- [TERMS_OF_SERVICE.md](./TERMS_OF_SERVICE.md) - Terms of service
+- [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) - Detailed feature overview
 
 ## How can I edit this code?
 
@@ -168,15 +195,47 @@ Alternative web deployment options:
 
 ## App Features
 
-This template includes:
+KIKU is a comprehensive child safety monitoring platform with:
 
+### Core Safety Features
+- **AI-Powered Content Moderation** - Automatic detection of threats, bullying, violence, and inappropriate content
+- **Real-time Risk Assessment** - 5-level risk evaluation system (safe, low, medium, high, critical)
+- **Image Filtering** - AI analysis of shared images for inappropriate content
+- **Emergency SOS** - One-touch emergency alert with optional location sharing
+- **Anti-Bullying Detection** - Enhanced AI detection specifically for bullying behavior
+- **Auto-Intervention** - Automatic responses for critical risk scenarios
+
+### Parental Control Features
+- **Age-Based Content Filtering** - Automatic filtering based on verified age (strict/moderate/minimal)
+- **Time Restrictions** - Customizable usage schedules and daily limits
+- **Contact Management** - Whitelist approved contacts, block unknown users
+- **Activity Monitoring** - Real-time chat monitoring with instant alerts
+- **Guardian Notifications** - Multi-channel notifications (email, push)
+- **Parent-Child Account Linking** - Secure family account management
+
+### Privacy & Compliance
+- **COPPA Compliant** - Full compliance with Children's Online Privacy Protection Act
+- **GDPR Compliant** - Full compliance with General Data Protection Regulation
+- **Texas HB 18 Compliant** - Meets Texas social media safety requirements
+- **Local-First Storage** - All data stored securely on device
+- **Age Verification** - Mandatory age verification for appropriate content filtering
+- **Parental Consent Tracking** - Comprehensive consent management and audit logging
+- **No Third-Party Sharing** - User data never sold or shared with third parties
+
+See detailed compliance documentation:
+- [COMPLIANCE.md](./COMPLIANCE.md) - Comprehensive compliance overview
+- [PRIVACY_POLICY.md](./PRIVACY_POLICY.md) - Full privacy policy
+- [TERMS_OF_SERVICE.md](./TERMS_OF_SERVICE.md) - Terms of service
+
+### Technical Features
 - **Cross-platform compatibility** - Works on iOS, Android, and Web
 - **File-based routing** with Expo Router
 - **Tab navigation** with customizable tabs
 - **Modal screens** for overlays and dialogs
-- **TypeScript support** for better development experience
-- **Async storage** for local data persistence
+- **TypeScript support** for type safety and better development experience
+- **Local data persistence** with AsyncStorage
 - **Vector icons** with Lucide React Native
+- **AI Integration** - Built-in AI toolkit for content analysis
 
 ## Project Structure
 

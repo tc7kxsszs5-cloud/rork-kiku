@@ -13,6 +13,10 @@ export interface Message {
   imageAnalyzed?: boolean;
   imageBlocked?: boolean;
   imageRiskReasons?: string[];
+  // Enhanced safety fields
+  reportedByUser?: boolean; // User-reported content
+  interventionApplied?: boolean; // Auto-intervention triggered
+  educationalResourceShown?: boolean; // Educational content shown
 }
 
 export interface Chat {
@@ -98,6 +102,13 @@ export interface ParentalSettings {
   sosNotificationsEnabled: boolean;
   guardianEmails: string[];
   guardianPhones: string[];
+  // Enhanced safety settings
+  ageBasedFiltering: boolean; // Enable/disable age-based content filtering
+  contentFilterLevel?: 'strict' | 'moderate' | 'minimal'; // Override automatic filtering
+  antiBullyingEnabled: boolean; // Enhanced detection for bullying behavior
+  autoInterventionEnabled: boolean; // Automatic intervention for critical risks
+  educationalResourcesEnabled: boolean; // Show educational resources for safety
+  reportingEnabled: boolean; // Allow reporting inappropriate content
 }
 
 export interface ComplianceLog {
