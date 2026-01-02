@@ -102,7 +102,7 @@ export interface ParentalSettings {
   guardianEmails: string[];
   guardianPhones: string[];
   contentFilteringEnabled?: boolean;
-  blockedCategories?: ContentCategory[];
+  monitoredCategories?: ContentCategory[]; // Categories to actively monitor/filter
   aiSensitivity?: AISensitivity;
   ageBasedFilteringEnabled?: boolean;
 }

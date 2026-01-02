@@ -198,7 +198,12 @@ export const [UserProvider, useUser] = createContextHook(() => {
       // Use timing-safe comparison (constant-time)
       if (!storedPin) return false;
       
-      // Compare hashes - in production, use crypto.timingSafeEqual for timing-safe comparison
+      // Compare hashes
+      // TODO: For production, implement timing-safe comparison using crypto.timingSafeEqual
+      // or a similar constant-time comparison function to prevent timing attacks
+      // Current implementation: storedPin === hashedPin (vulnerable to timing attacks)
+      // Production recommendation: Use a library like `buffer-equal-constant-time` or
+      // implement constant-time comparison natively
       return storedPin === hashedPin;
     } catch (error) {
       console.error('Error verifying PIN:', error);

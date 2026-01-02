@@ -9,9 +9,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import * as Crypto from 'expo-crypto';
 import { Platform } from 'react-native';
 import { User } from './UserContext';
 import { ComplianceLog } from './types';
+
+// Generate cryptographically secure random ID
+const generateSecureId = async (): Promise<string> => {
+  const randomBytes = await Crypto.getRandomBytesAsync(16);
+  return Array.from(randomBytes)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+};
 
 export interface DataExportPackage {
   exportDate: string;
@@ -83,9 +92,9 @@ export const exportAndShareData = async (): Promise<void> => {
     const dataPackage = await exportAllUserData();
     const jsonString = JSON.stringify(dataPackage, null, 2);
     
-    // Generate unique filename with timestamp and random component
-    const randomId = Math.random().toString(36).substring(2, 9);
-    const fileName = `KIKU_data_export_${Date.now()}_${randomId}.json`;
+    // Generate unique filename with timestamp and cryptographically secure random ID
+    const randomId = await generateSecureId();
+    const fileName = `KIKU_data_export_${Date.now()}_${randomId.substring(0, 8)}.json`;
     const file = new FileSystem.File(FileSystem.Paths.cache, fileName);
 
     // Write to file
@@ -253,8 +262,9 @@ export const recordParentalConsent = async (
   details?: Record<string, any>
 ): Promise<void> => {
   try {
+    const randomId = await generateSecureId();
     const consentLog: ComplianceLog = {
-      id: `consent_${Date.now()}_${Math.random()}`,
+      id: `consent_${Date.now()}_${randomId.substring(0, 12)}`,
       action: `CONSENT_${consentType.toUpperCase()}`,
       userId,
       timestamp: Date.now(),

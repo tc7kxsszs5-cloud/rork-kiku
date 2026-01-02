@@ -149,10 +149,10 @@ const ruleAppliesForSensitivity = (rule: KeywordRule, sensitivity: AISensitivity
   return userSensIndex >= ruleSensIndex;
 };
 
-// Helper to check if category is blocked
-const isCategoryBlocked = (category: ContentCategory, blockedCategories?: ContentCategory[]): boolean => {
-  if (!blockedCategories || blockedCategories.length === 0) return false;
-  return blockedCategories.includes(category);
+// Helper to check if category should be monitored
+const isCategoryMonitored = (category: ContentCategory, monitoredCategories?: ContentCategory[]): boolean => {
+  if (!monitoredCategories || monitoredCategories.length === 0) return false;
+  return monitoredCategories.includes(category);
 };
 
 const evaluateMessageRisk = (
@@ -160,26 +160,26 @@ const evaluateMessageRisk = (
   options?: {
     ageGroup?: AgeGroup;
     sensitivity?: AISensitivity;
-    blockedCategories?: ContentCategory[];
+    monitoredCategories?: ContentCategory[];
   }
 ): RiskAnalysis => {
-  const { ageGroup, sensitivity = 'medium', blockedCategories } = options || {};
+  const { ageGroup, sensitivity = 'medium', monitoredCategories } = options || {};
   const normalized = message.text.toLowerCase();
   
   // Filter rules based on age and sensitivity
-  // Then further filter to only include rules for blocked categories (if specified)
+  // Then further filter to only include rules for monitored categories (if specified)
   const applicableRules = KEYWORD_RULES.filter((rule) => {
     // Check age and sensitivity
     const ageMatch = ruleAppliesForAge(rule, ageGroup);
     const sensitivityMatch = ruleAppliesForSensitivity(rule, sensitivity);
     
-    // If no blocked categories specified, apply all rules
-    if (!blockedCategories || blockedCategories.length === 0) {
+    // If no monitored categories specified, apply all rules
+    if (!monitoredCategories || monitoredCategories.length === 0) {
       return ageMatch && sensitivityMatch;
     }
     
-    // If blocked categories specified, only apply rules for those categories
-    const categoryMatch = isCategoryBlocked(rule.category, blockedCategories);
+    // If monitored categories specified, only apply rules for those categories
+    const categoryMatch = isCategoryMonitored(rule.category, monitoredCategories);
     return ageMatch && sensitivityMatch && categoryMatch;
   });
   
@@ -238,7 +238,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   const [analysisOptions, setAnalysisOptions] = useState<{
     ageGroup?: AgeGroup;
     sensitivity?: AISensitivity;
-    blockedCategories?: ContentCategory[];
+    monitoredCategories?: ContentCategory[];
   }>({
     sensitivity: 'medium',
   });
@@ -253,7 +253,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   const updateAnalysisOptions = useCallback((options: {
     ageGroup?: AgeGroup;
     sensitivity?: AISensitivity;
-    blockedCategories?: ContentCategory[];
+    monitoredCategories?: ContentCategory[];
   }) => {
     setAnalysisOptions((prev) => ({ ...prev, ...options }));
     console.log('Analysis options updated:', options);
