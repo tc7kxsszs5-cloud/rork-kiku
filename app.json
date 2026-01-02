@@ -21,10 +21,15 @@
           "audio",
           "location"
         ],
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to use your location.",
-        "NSLocationAlwaysUsageDescription": "Allow $(PRODUCT_NAME) to use your location.",
-        "NSLocationWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to use your location."
+        "NSMicrophoneUsageDescription": "KIKU uses your microphone to analyze voice messages for child safety and detect inappropriate content or threats.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "KIKU uses your location to provide emergency SOS alerts with precise location data to parents and guardians in critical situations.",
+        "NSLocationAlwaysUsageDescription": "KIKU uses background location to enable emergency SOS functionality, ensuring child safety even when the app is not actively in use.",
+        "NSLocationWhenInUseUsageDescription": "KIKU uses your location for emergency SOS alerts to help parents respond quickly to safety concerns.",
+        "NSCameraUsageDescription": "KIKU uses your camera to capture and analyze images for inappropriate content, helping protect children from harmful visual material.",
+        "NSPhotoLibraryUsageDescription": "KIKU accesses your photo library to analyze shared images for child safety, detecting potentially harmful or inappropriate content.",
+        "NSContactsUsageDescription": "KIKU accesses your contacts to help parents create whitelists of approved contacts for their children.",
+        "NSFaceIDUsageDescription": "KIKU uses Face ID to provide secure biometric authentication, protecting sensitive parental controls and child safety settings.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -60,7 +65,7 @@
       [
         "expo-av",
         {
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone"
+          "microphonePermission": "KIKU uses your microphone to analyze voice messages for child safety and detect inappropriate content or threats."
         }
       ],
       [
@@ -69,7 +74,8 @@
           "isAndroidForegroundServiceEnabled": true,
           "isAndroidBackgroundLocationEnabled": true,
           "isIosBackgroundLocationEnabled": true,
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+          "locationAlwaysAndWhenInUsePermission": "KIKU uses your location to provide emergency SOS alerts with precise location data to parents and guardians in critical situations.",
+          "locationWhenInUsePermission": "KIKU uses your location for emergency SOS alerts to help parents respond quickly to safety concerns."
         }
       ],
       [

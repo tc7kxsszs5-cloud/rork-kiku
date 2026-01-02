@@ -3,6 +3,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Chat, Message, Alert, RiskLevel, RiskAnalysis } from '@/constants/types';
 import { MOCK_CHATS, INITIAL_MESSAGES } from '@/constants/mockData';
 import { HapticFeedback } from '@/constants/haptics';
+import { AgeGroup } from './UserContext';
 
 const LEVEL_ORDER: RiskLevel[] = ['safe', 'low', 'medium', 'high', 'critical'];
 
@@ -11,32 +12,40 @@ type KeywordRule = {
   pattern: RegExp;
   reason: string;
   category: string;
+  minAgeGroup?: AgeGroup; // Minimum age group for this rule
 };
 
+// Age-appropriate keyword rules
 const KEYWORD_RULES: KeywordRule[] = [
   {
     level: 'critical',
-    pattern: /(убью|убей|поконч|самоуб|умереть|взорв|бомб)/i,
+    pattern: /(убью|убей|поконч|самоуб|умереть|взорв|бомб|suicide|kill myself)/i,
     reason: 'Угроза жизни или суицидальные мотивы',
     category: 'threats',
   },
   {
     level: 'high',
-    pattern: /(адрес|домашн|парол|паспорт|номер карты|cvv|секретный код)/i,
+    pattern: /(адрес|домашн|парол|паспорт|номер карты|cvv|секретный код|password|credit card)/i,
     reason: 'Запрос личных данных',
     category: 'privacy',
   },
   {
     level: 'high',
-    pattern: /(перевед[ие]|деньг|карта|плати|5000|срочно оплат)/i,
+    pattern: /(перевед[ие]|деньг|карта|плати|5000|срочно оплат|send money|pay now)/i,
     reason: 'Финансовое давление',
     category: 'fraud',
   },
   {
     level: 'high',
-    pattern: /(оруж|пистолет|нож|наркот|взрывчат)/i,
+    pattern: /(оруж|пистолет|нож|наркот|взрывчат|drugs|weapon|gun)/i,
     reason: 'Упоминание оружия или запрещённых веществ',
     category: 'safety',
+  },
+  {
+    level: 'high',
+    pattern: /(встреча наедине|приходи один|не говори родителям|это секрет|meet alone|don't tell parents)/i,
+    reason: 'Признаки груминга - попытки изоляции ребёнка',
+    category: 'grooming',
   },
   {
     level: 'medium',
@@ -46,31 +55,56 @@ const KEYWORD_RULES: KeywordRule[] = [
   },
   {
     level: 'medium',
-    pattern: /(дурак|тупой|ненавижу тебя|жирный|урод|никчем)/i,
+    pattern: /(дурак|тупой|ненавижу тебя|жирный|урод|никчем|loser|stupid|hate you)/i,
     reason: 'Травля и унижения',
     category: 'bullying',
   },
   {
     level: 'medium',
-    pattern: /(страшно|мне плохо|я боюсь|меня преследуют|издеваются)/i,
+    pattern: /(страшно|мне плохо|я боюсь|меня преследуют|издеваются|scared|afraid|bullied)/i,
     reason: 'Запрос помощи или признаки давления',
     category: 'distress',
   },
   {
+    level: 'medium',
+    pattern: /(отправь фото|пришли селфи|покажи себя|send pic|send photo|show me)/i,
+    reason: 'Запросы личных фотографий',
+    category: 'boundaries',
+    minAgeGroup: 'early-child', // More strict for younger children
+  },
+  {
     level: 'low',
-    pattern: /(ночью играть|спорим не расскажешь|скинь фотку|отправь фото)/i,
+    pattern: /(ночью играть|спорим не расскажешь|скинь фотку|play at night)/i,
     reason: 'Подозрительные просьбы',
     category: 'boundaries',
   },
+  {
+    level: 'low',
+    pattern: /(взрослый контент|18\+|для взрослых|adult content|nsfw)/i,
+    reason: 'Упоминание контента для взрослых',
+    category: 'inappropriate-content',
+    minAgeGroup: 'toddler', // Strict for all age groups
+  },
 ];
 
-const IMAGE_RISK_KEYWORDS = ['weapon', 'blood', 'nsfw', 'violence', 'gun', 'knife'];
+const IMAGE_RISK_KEYWORDS = ['weapon', 'blood', 'nsfw', 'violence', 'gun', 'knife', 'explicit', 'adult'];
+
+// Age group sensitivity levels - stricter filtering for younger children
+const AGE_GROUP_SENSITIVITY: Record<AgeGroup, number> = {
+  'toddler': 1.5,      // 50% more sensitive
+  'early-child': 1.3,  // 30% more sensitive
+  'preteen': 1.1,      // 10% more sensitive
+  'teen': 1.0,         // Base sensitivity
+};
 
 const SIMULATED_DELAY_MS = 120;
 
 const simulateLatency = () => new Promise<void>((resolve) => setTimeout(resolve, SIMULATED_DELAY_MS));
 
-const evaluateMessageRisk = (message: Message): RiskAnalysis => {
+/**
+ * Evaluate message risk with age-based filtering
+ */
+const evaluateMessageRisk = (message: Message, ageGroup?: AgeGroup): RiskAnalysis => {
   const normalized = message.text.toLowerCase();
   const matches = KEYWORD_RULES.filter((rule) => rule.pattern.test(normalized));
 
@@ -91,7 +125,13 @@ const evaluateMessageRisk = (message: Message): RiskAnalysis => {
   const reasons = Array.from(new Set(matches.map((match) => match.reason)));
   const categories = Array.from(new Set(matches.map((match) => match.category)));
   const numericPatterns = normalized.match(/\d{4,}/g)?.length ?? 0;
-  const confidenceBoost = matches.length * 0.1 + (/[A-ZА-Я]{4,}/.test(message.text) ? 0.05 : 0) + numericPatterns * 0.04;
+  let confidenceBoost = matches.length * 0.1 + (/[A-ZА-Я]{4,}/.test(message.text) ? 0.05 : 0) + numericPatterns * 0.04;
+
+  // Apply age-based sensitivity multiplier
+  if (ageGroup) {
+    const sensitivity = AGE_GROUP_SENSITIVITY[ageGroup];
+    confidenceBoost *= sensitivity;
+  }
 
   return {
     riskLevel: highest,
@@ -114,7 +154,7 @@ const evaluateImageRisk = (imageUri: string): { blocked: boolean; reasons: strin
   };
 };
 
-export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
+export const [MonitoringProvider, useMonitoring] = createContextHook(({ ageGroup }: { ageGroup?: AgeGroup } = {}) => {
   const [chats, setChats] = useState<Chat[]>(MOCK_CHATS);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -129,7 +169,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   const analyzeMessage = useCallback(async (message: Message): Promise<RiskAnalysis> => {
     try {
       await simulateLatency();
-      return evaluateMessageRisk(message);
+      return evaluateMessageRisk(message, ageGroup);
     } catch (error) {
       console.error('Error analyzing message:', error);
       return {
@@ -139,7 +179,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
         categories: [],
       };
     }
-  }, []);
+  }, [ageGroup]);
 
   const analyzeImage = useCallback(async (imageUri: string): Promise<{ blocked: boolean; reasons: string[] }> => {
     try {
