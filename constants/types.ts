@@ -88,6 +88,9 @@ export interface UsageStats {
   riskyInteractions: number;
 }
 
+export type ContentCategory = 'violence' | 'profanity' | 'sexual' | 'drugs' | 'bullying' | 'threats' | 'privacy';
+export type AISensitivity = 'low' | 'medium' | 'high' | 'strict';
+
 export interface ParentalSettings {
   timeRestrictionsEnabled: boolean;
   dailyUsageLimit: number;
@@ -98,6 +101,10 @@ export interface ParentalSettings {
   sosNotificationsEnabled: boolean;
   guardianEmails: string[];
   guardianPhones: string[];
+  contentFilteringEnabled?: boolean;
+  blockedCategories?: ContentCategory[];
+  aiSensitivity?: AISensitivity;
+  ageBasedFilteringEnabled?: boolean;
 }
 
 export interface ComplianceLog {
