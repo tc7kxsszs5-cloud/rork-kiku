@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9B59B6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="url(#brandGradient)" opacity="0.1"/>
+  
+  <!-- Shield shape (safety symbol) -->
+  <path d="M 100 30 L 140 50 L 140 100 Q 140 140 100 160 Q 60 140 60 100 L 60 50 Z" 
+        fill="url(#brandGradient)" stroke="#333" stroke-width="2"/>
+  
+  <!-- Checkmark inside shield -->
+  <path d="M 80 95 L 95 110 L 120 75" 
+        stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  
+  <!-- Text "RK" below -->
+  <text x="100" y="185" font-family="Arial, sans-serif" font-size="28" font-weight="bold" 
+        text-anchor="middle" fill="#333">RK</text>
+  
+  <!-- Placeholder notice -->
+  <text x="100" y="15" font-family="Arial, sans-serif" font-size="10" 
+        text-anchor="middle" fill="#666">PLACEHOLDER LOGO</text>
+</svg>
