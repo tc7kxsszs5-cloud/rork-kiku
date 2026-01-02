@@ -1,0 +1,5 @@
+PLACEHOLDER: This should be a white PNG version of the Rork-Kiku logo for dark backgrounds.
+Replace with final logo design from designer.
+Recommended size: 512x512px or larger
+Format: PNG with transparency
+Background: Transparent (logo in white)
