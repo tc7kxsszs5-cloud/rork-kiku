@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <style>
+      .title { font: bold 24px sans-serif; fill: #2c3e50; }
+      .subtitle { font: 16px sans-serif; fill: #34495e; }
+      .box { fill: #ecf0f1; stroke: #2c3e50; stroke-width: 2; }
+      .box-primary { fill: #3498db; stroke: #2c3e50; stroke-width: 2; }
+      .box-success { fill: #2ecc71; stroke: #2c3e50; stroke-width: 2; }
+      .box-warning { fill: #f39c12; stroke: #2c3e50; stroke-width: 2; }
+      .box-danger { fill: #e74c3c; stroke: #2c3e50; stroke-width: 2; }
+      .box-info { fill: #9b59b6; stroke: #2c3e50; stroke-width: 2; }
+      .text { font: 14px sans-serif; fill: #2c3e50; text-anchor: middle; }
+      .text-white { font: 14px sans-serif; fill: white; text-anchor: middle; }
+      .arrow { stroke: #7f8c8d; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#7f8c8d" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="30" class="title">Архитектура системы Rork-Kiku (kiku)</text>
+  <text x="600" y="55" class="subtitle">AI-powered мониторинг и защита детей в мессенджерах</text>
+  
+  <!-- Mobile App Layer -->
+  <rect x="50" y="100" width="200" height="150" class="box-primary" rx="5"/>
+  <text x="150" y="130" class="text-white">Mobile App</text>
+  <text x="150" y="155" class="text-white">(React Native + Expo)</text>
+  <text x="150" y="185" class="text-white">• iOS/Android/Web</text>
+  <text x="150" y="205" class="text-white">• MonitoringContext</text>
+  <text x="150" y="225" class="text-white">• ParentalControlsContext</text>
+  
+  <!-- API Gateway -->
+  <rect x="350" y="100" width="200" height="150" class="box-success" rx="5"/>
+  <text x="450" y="130" class="text-white">API Gateway</text>
+  <text x="450" y="160" class="text-white">• REST API</text>
+  <text x="450" y="180" class="text-white">• WebSocket</text>
+  <text x="450" y="200" class="text-white">• Rate Limiting</text>
+  <text x="450" y="220" class="text-white">• Load Balancer</text>
+  
+  <!-- Backend Services -->
+  <rect x="650" y="80" width="180" height="90" class="box" rx="5"/>
+  <text x="740" y="110" class="text">Auth Service</text>
+  <text x="740" y="130" class="text">User Service</text>
+  <text x="740" y="150" class="text">Monitoring Service</text>
+  
+  <rect x="650" y="180" width="180" height="70" class="box" rx="5"/>
+  <text x="740" y="210" class="text">Alert Service</text>
+  <text x="740" y="230" class="text">Analytics Service</text>
+  
+  <!-- AI/ML Pipeline -->
+  <rect x="900" y="100" width="250" height="150" class="box-warning" rx="5"/>
+  <text x="1025" y="130" class="text-white">AI/ML Pipeline</text>
+  <text x="1025" y="160" class="text-white">• Text Analysis (LLM)</text>
+  <text x="1025" y="180" class="text-white">• Image Analysis (Vision)</text>
+  <text x="1025" y="200" class="text-white">• Audio Transcription</text>
+  <text x="1025" y="220" class="text-white">• Risk Scoring</text>
+  
+  <!-- Data Storage Layer -->
+  <rect x="300" y="350" width="180" height="100" class="box-info" rx="5"/>
+  <text x="390" y="380" class="text-white">PostgreSQL</text>
+  <text x="390" y="405" class="text-white">• Users</text>
+  <text x="390" y="425" class="text-white">• Messages</text>
+  <text x="390" y="445" class="text-white">• Alerts</text>
+  
+  <rect x="520" y="350" width="180" height="100" class="box-info" rx="5"/>
+  <text x="610" y="380" class="text-white">Object Storage</text>
+  <text x="610" y="400" class="text-white">(S3/GCS/Azure)</text>
+  <text x="610" y="425" class="text-white">• Images</text>
+  <text x="610" y="445" class="text-white">• Audio</text>
+  
+  <rect x="740" y="350" width="180" height="100" class="box-info" rx="5"/>
+  <text x="830" y="380" class="text-white">Redis Cache</text>
+  <text x="830" y="405" class="text-white">• Sessions</text>
+  <text x="830" y="425" class="text-white">• AI Results</text>
+  <text x="830" y="445" class="text-white">• Statistics</text>
+  
+  <!-- Security & Infrastructure -->
+  <rect x="50" y="550" width="250" height="120" class="box-danger" rx="5"/>
+  <text x="175" y="580" class="text-white">Security</text>
+  <text x="175" y="605" class="text-white">• OAuth2/JWT</text>
+  <text x="175" y="625" class="text-white">• E2E Encryption</text>
+  <text x="175" y="645" class="text-white">• KMS (Key Management)</text>
+  <text x="175" y="665" class="text-white">• RBAC</text>
+  
+  <rect x="350" y="550" width="250" height="120" class="box" rx="5"/>
+  <text x="475" y="580" class="text">Kubernetes</text>
+  <text x="475" y="605" class="text">• Auto-scaling</text>
+  <text x="475" y="625" class="text">• Load Balancing</text>
+  <text x="475" y="645" class="text">• Service Mesh</text>
+  <text x="475" y="665" class="text">• AWS/GCP/Azure</text>
+  
+  <rect x="650" y="550" width="250" height="120" class="box" rx="5"/>
+  <text x="775" y="580" class="text">Monitoring</text>
+  <text x="775" y="605" class="text">• Prometheus/Grafana</text>
+  <text x="775" y="625" class="text">• ELK/Loki Logging</text>
+  <text x="775" y="645" class="text">• SIEM</text>
+  <text x="775" y="665" class="text">• Incident Response</text>
+  
+  <rect x="950" y="550" width="200" height="120" class="box" rx="5"/>
+  <text x="1050" y="580" class="text">CI/CD</text>
+  <text x="1050" y="605" class="text">• GitHub Actions</text>
+  <text x="1050" y="625" class="text">• ArgoCD/Flux</text>
+  <text x="1050" y="645" class="text">• Terraform</text>
+  <text x="1050" y="665" class="text">• Docker/Kubernetes</text>
+  
+  <!-- Arrows -->
+  <path d="M 250 175 L 350 175" class="arrow"/>
+  <path d="M 550 175 L 650 175" class="arrow"/>
+  <path d="M 550 200 L 900 200" class="arrow"/>
+  <path d="M 450 250 L 390 350" class="arrow"/>
+  <path d="M 450 250 L 610 350" class="arrow"/>
+  <path d="M 550 225 L 830 350" class="arrow"/>
+  <path d="M 740 250 L 740 350" class="arrow"/>
+  
+  <!-- Legend -->
+  <text x="50" y="730" class="subtitle">Примечание: Диаграмма показывает высокоуровневую архитектуру системы.</text>
+  <text x="50" y="755" class="subtitle">Детали реализации могут измениться в процессе разработки.</text>
+  <text x="50" y="780" class="subtitle">PLACEHOLDER - Требуется детальная диаграмма с Lucidchart/Draw.io</text>
+</svg>
