@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import i18n from './i18n';
 
+export type AgeGroup = 'toddler' | 'early-child' | 'preteen' | 'teen';
+
 export interface User {
   id: string;
   name: string;
@@ -13,9 +15,49 @@ export interface User {
   createdAt: number;
   deviceId?: string;
   language?: string;
+  dateOfBirth?: number;
+  ageGroup?: AgeGroup;
+  parentalConsentGiven?: boolean;
+  parentalConsentDate?: number;
+  linkedParentId?: string;
+  biometricEnabled?: boolean;
+  lastAuthenticationTime?: number;
 }
 
 const USER_STORAGE_KEY = '@user_data';
+const DEVICE_SESSIONS_KEY = '@device_sessions';
+
+/**
+ * Calculate age from date of birth timestamp
+ */
+const calculateAge = (dateOfBirth: number): number => {
+  const today = new Date();
+  const birthDate = new Date(dateOfBirth);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+/**
+ * Determine age group from date of birth
+ */
+const determineAgeGroup = (dateOfBirth: number): AgeGroup => {
+  const age = calculateAge(dateOfBirth);
+  if (age <= 5) return 'toddler';
+  if (age <= 9) return 'early-child';
+  if (age <= 12) return 'preteen';
+  return 'teen';
+};
+
+/**
+ * Verify if user requires parental consent (under 13 in US/COPPA)
+ */
+const requiresParentalConsent = (dateOfBirth: number): boolean => {
+  return calculateAge(dateOfBirth) < 13;
+};
 
 export const [UserProvider, useUser] = createContextHook(() => {
   const [user, setUser] = useState<User | null>(null);
@@ -63,10 +105,32 @@ export const [UserProvider, useUser] = createContextHook(() => {
 
   const identifyUser = useCallback(async (userData: Omit<User, 'id' | 'createdAt'>) => {
     try {
+      // Calculate age group if date of birth is provided
+      let ageGroup: AgeGroup | undefined;
+      let parentalConsentGiven: boolean | undefined;
+      let parentalConsentDate: number | undefined;
+
+      if (userData.dateOfBirth) {
+        ageGroup = determineAgeGroup(userData.dateOfBirth);
+        
+        // For children under 13, verify parental consent is provided
+        if (userData.role === 'child' && requiresParentalConsent(userData.dateOfBirth)) {
+          if (!userData.parentalConsentGiven) {
+            throw new Error('Parental consent required for users under 13');
+          }
+          parentalConsentGiven = true;
+          parentalConsentDate = Date.now();
+        }
+      }
+
       const newUser: User = {
         id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         createdAt: Date.now(),
+        lastAuthenticationTime: Date.now(),
         ...userData,
+        ageGroup,
+        parentalConsentGiven,
+        parentalConsentDate,
       };
 
       await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(newUser));
@@ -76,6 +140,8 @@ export const [UserProvider, useUser] = createContextHook(() => {
         id: newUser.id,
         name: newUser.name,
         role: newUser.role,
+        ageGroup: newUser.ageGroup,
+        requiresConsent: newUser.dateOfBirth ? requiresParentalConsent(newUser.dateOfBirth) : false,
       });
 
       return newUser;
@@ -91,7 +157,18 @@ export const [UserProvider, useUser] = createContextHook(() => {
     }
 
     try {
-      const updatedUser = { ...user, ...updates };
+      // Recalculate age group if date of birth is updated
+      let ageGroup = user.ageGroup;
+      if (updates.dateOfBirth) {
+        ageGroup = determineAgeGroup(updates.dateOfBirth);
+      }
+
+      const updatedUser = { 
+        ...user, 
+        ...updates, 
+        ageGroup,
+        lastAuthenticationTime: Date.now(),
+      };
       await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
       setUser(updatedUser);
 
@@ -118,8 +195,42 @@ export const [UserProvider, useUser] = createContextHook(() => {
     }
   }, []);
 
+  /**
+   * Enable biometric authentication for the current user
+   */
+  const enableBiometric = useCallback(async () => {
+    if (!user) {
+      throw new Error('No user to enable biometric for');
+    }
+    await updateUser({ biometricEnabled: true });
+    console.log('Biometric authentication enabled');
+  }, [user, updateUser]);
+
+  /**
+   * Disable biometric authentication for the current user
+   */
+  const disableBiometric = useCallback(async () => {
+    if (!user) {
+      throw new Error('No user to disable biometric for');
+    }
+    await updateUser({ biometricEnabled: false });
+    console.log('Biometric authentication disabled');
+  }, [user, updateUser]);
+
+  /**
+   * Update last authentication time
+   */
+  const refreshAuthenticationTime = useCallback(async () => {
+    if (!user) {
+      return;
+    }
+    await updateUser({ lastAuthenticationTime: Date.now() });
+  }, [user, updateUser]);
+
   const isParent = user?.role === 'parent';
   const isChild = user?.role === 'child';
+  const userAge = user?.dateOfBirth ? calculateAge(user.dateOfBirth) : null;
+  const needsParentalConsent = user?.dateOfBirth ? requiresParentalConsent(user.dateOfBirth) : false;
 
   return useMemo(() => ({
     user,
@@ -127,8 +238,13 @@ export const [UserProvider, useUser] = createContextHook(() => {
     isAuthenticated: !!user,
     isParent,
     isChild,
+    userAge,
+    needsParentalConsent,
     identifyUser,
     updateUser,
     logoutUser,
-  }), [user, isLoading, isParent, isChild, identifyUser, updateUser, logoutUser]);
+    enableBiometric,
+    disableBiometric,
+    refreshAuthenticationTime,
+  }), [user, isLoading, isParent, isChild, userAge, needsParentalConsent, identifyUser, updateUser, logoutUser, enableBiometric, disableBiometric, refreshAuthenticationTime]);
 });
