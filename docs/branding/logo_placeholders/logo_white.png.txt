@@ -1,0 +1,3 @@
+This is a placeholder file for logo_white.png
+Create a white version of the logo (for dark backgrounds)
+Size: 1024x1024px, transparent background.

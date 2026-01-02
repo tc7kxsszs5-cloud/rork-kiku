@@ -1,0 +1,3 @@
+This is a placeholder file for logo_color.png
+Create a color PNG logo (1024x1024px recommended) and replace this file.
+The logo should be on a transparent background.
