@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <style>
+      .logo-text { 
+        font: bold 48px sans-serif; 
+        fill: #4A90E2; 
+        text-anchor: middle; 
+      }
+      .subtitle {
+        font: 12px sans-serif;
+        fill: #666;
+        text-anchor: middle;
+      }
+    </style>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#F0F8FF" stroke="#4A90E2" stroke-width="3"/>
+  
+  <!-- Placeholder icon (parent + child symbol) -->
+  <circle cx="75" cy="80" r="20" fill="#4A90E2"/>
+  <circle cx="125" cy="100" r="15" fill="#50C878"/>
+  
+  <!-- Logo text -->
+  <text x="100" y="150" class="logo-text">RK</text>
+  <text x="100" y="170" class="subtitle">LOGO PLACEHOLDER</text>
+</svg>
