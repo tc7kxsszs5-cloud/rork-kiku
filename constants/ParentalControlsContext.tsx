@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS: ParentalSettings = {
   guardianEmails: [],
   guardianPhones: [],
   contentFilteringEnabled: true,
-  blockedCategories: ['violence', 'sexual', 'drugs', 'threats'],
+  monitoredCategories: ['violence', 'sexual', 'drugs', 'threats'],
   aiSensitivity: 'medium',
   ageBasedFilteringEnabled: true,
 };
