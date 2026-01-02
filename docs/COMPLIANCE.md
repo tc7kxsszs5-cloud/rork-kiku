@@ -343,7 +343,7 @@ This document is reviewed and updated:
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 1.0 | 2024-01-02 | Initial compliance documentation |
+| 1.0 | 2026-01-02 | Initial compliance documentation |
 
 ---
 
