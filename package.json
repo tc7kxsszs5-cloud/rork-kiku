@@ -1,7 +1,16 @@
 {
-  "name": "expo-app",
+  "name": "kiku-kids-safety",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "license": "MIT",
+  "description": "KIKU - AI-Powered Child Safety & Education Application",
+  "keywords": [
+    "child-safety",
+    "parental-controls",
+    "ai-monitoring",
+    "coppa-compliant",
+    "kids-app"
+  ],
   "scripts": {
     "start": "bunx rork start -p d8v7u672uumlfpscvnbps --tunnel",
     "start-web": "bunx rork start -p d8v7u672uumlfpscvnbps --web --tunnel",
@@ -31,6 +40,7 @@
     "expo-clipboard": "~8.0.7",
     "expo-constants": "~18.0.10",
     "expo-contacts": "~15.0.10",
+    "expo-crypto": "^15.0.8",
     "expo-file-system": "~19.0.19",
     "expo-font": "~14.0.9",
     "expo-haptics": "~15.0.7",
@@ -38,6 +48,7 @@
     "expo-image-picker": "~17.0.8",
     "expo-linear-gradient": "~15.0.7",
     "expo-linking": "~8.0.8",
+    "expo-local-authentication": "~17.0.8",
     "expo-location": "~19.0.7",
     "expo-notifications": "~0.32.13",
     "expo-router": "~6.0.13",
