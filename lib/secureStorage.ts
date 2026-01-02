@@ -18,11 +18,13 @@ const obfuscate = (text: string, key: string): string => {
   for (let i = 0; i < text.length; i++) {
     result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
   }
-  return Buffer.from(result, 'binary').toString('base64');
+  // Use btoa for base64 encoding (available in both web and React Native)
+  return btoa(result);
 };
 
 const deobfuscate = (encoded: string, key: string): string => {
-  const text = Buffer.from(encoded, 'base64').toString('binary');
+  // Use atob for base64 decoding (available in both web and React Native)
+  const text = atob(encoded);
   let result = '';
   for (let i = 0; i < text.length; i++) {
     result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
@@ -224,12 +226,22 @@ export class SessionManager {
  */
 export class DataEncryption {
   /**
-   * Hash a password or PIN (simple implementation, use bcrypt in production)
+   * Hash a password or PIN
+   * NOTE: This is a simple demonstration. In production, use expo-crypto's digest
+   * with proper salt and iterations, or a library like bcrypt.
    * @param password Password to hash
    * @returns Hashed password
    */
   static async hashPassword(password: string): Promise<string> {
-    // Simple hash for demonstration - use proper password hashing in production
+    // WARNING: This is NOT cryptographically secure!
+    // For production, use:
+    // import * as Crypto from 'expo-crypto';
+    // const salt = await Crypto.getRandomBytes(16);
+    // const hash = await Crypto.digestStringAsync(
+    //   Crypto.CryptoDigestAlgorithm.SHA256,
+    //   password + salt.toString()
+    // );
+    
     let hash = 0;
     for (let i = 0; i < password.length; i++) {
       const char = password.charCodeAt(i);
@@ -258,12 +270,20 @@ export class DataEncryption {
   static generateToken(length: number = 32): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let token = '';
+    
+    // Use crypto.getRandomValues for secure random generation
     const randomValues = new Uint8Array(length);
     
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.crypto) {
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      // Web and modern React Native with crypto polyfill
+      crypto.getRandomValues(randomValues);
+    } else if (Platform.OS === 'web' && typeof window !== 'undefined' && window.crypto) {
+      // Web fallback
       window.crypto.getRandomValues(randomValues);
     } else {
-      // Fallback for non-web platforms
+      // Final fallback - NOT SECURE, only for development
+      // In production, use expo-crypto's getRandomBytes
+      console.warn('[DataEncryption] Using insecure random generation. Install expo-crypto for production.');
       for (let i = 0; i < length; i++) {
         randomValues[i] = Math.floor(Math.random() * 256);
       }
