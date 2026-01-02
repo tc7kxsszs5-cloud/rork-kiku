@@ -1,4 +1,17 @@
-# Welcome to your Rork app
+# KIKU - Global Child Safety Platform
+
+## 🛡️ Mission Statement
+
+KIKU is a cutting-edge platform designed to protect children globally from cyberbullying, harassment, inappropriate content, and other online dangers while fostering safe communication and development. Built with enterprise-grade security and full compliance with international child protection regulations.
+
+## 🌍 Key Objectives
+
+1. **Exclusive Access Protocol** - Only children and parents can sign up globally
+2. **Robust Cybersecurity** - End-to-end encryption, multi-level parental controls
+3. **AI-based Moderation** - Real-time threat detection and content filtering
+4. **Age-appropriate Customization** - Automatically adapted features by age
+5. **Platform Compliance** - COPPA, GDPR, CCPA compliant and app store ready
+6. **Investor & Platform Ready** - Production-grade, scalable, universal
 
 ## Project info
 
@@ -166,17 +179,126 @@ Alternative web deployment options:
 - **Vercel**: Deploy directly from your GitHub repository
 - **Netlify**: Connect your GitHub repo to Netlify for automatic deployments
 
-## App Features
+## 🔐 Security & Compliance Features
 
-This template includes:
+### Authentication & Access Control
+- **Exclusive Access Protocol** - Parent-verified child accounts only
+- **Age Verification** - Automatic age-group detection and restrictions
+- **Multi-factor Authentication** - Email/phone verification for parents
+- **Role-based Access Control** - Parent and child roles with appropriate permissions
+- **Session Management** - Secure session handling with automatic timeout
+
+### Data Protection
+- **End-to-End Encryption** - Messages encrypted for maximum privacy
+- **Data Encryption at Rest** - All local data encrypted
+- **Secure Key Management** - Hardware-backed keystores when available
+- **Privacy by Design** - Minimal data collection, maximum protection
+- **Local-First Storage** - Data stays on device by default
+
+### Compliance & Regulations
+- ✅ **COPPA Compliant** - Full Children's Online Privacy Protection Act compliance
+- ✅ **GDPR Compliant** - General Data Protection Regulation adherence
+- ✅ **CCPA Compliant** - California Consumer Privacy Act compliance
+- ✅ **Age-appropriate Design Code** - UK standards implementation
+- ✅ **International Standards** - UN Convention on Rights of the Child
+
+### Documentation
+- 📄 [Privacy Policy](docs/PRIVACY_POLICY.md)
+- 📄 [Terms of Service](docs/TERMS_OF_SERVICE.md)
+- 📄 [Compliance Documentation](docs/COMPLIANCE.md)
+- 📄 [Security Documentation](docs/SECURITY.md)
+
+## 🤖 AI-Powered Safety Features
+
+### Content Monitoring
+- **Text Analysis** - AI detection of cyberbullying, threats, and inappropriate content
+- **Image Moderation** - Automated scanning for inappropriate images
+- **Voice Transcription** - Speech-to-text with safety analysis
+- **Risk Assessment** - 5-level risk classification (safe, low, medium, high, critical)
+- **Pattern Recognition** - Identifies concerning behavioral patterns
+
+### Threat Detection
+- **Real-time Monitoring** - Continuous analysis of communications
+- **Proactive Alerts** - Instant notifications for high-risk situations
+- **Predator Detection** - Identifies potential grooming behaviors
+- **Self-harm Prevention** - Flags concerning mental health indicators
+- **Scam Detection** - Identifies fraud and phishing attempts
+
+### Age-Appropriate Content
+- **Automatic Customization** - Features adapt to child's age
+- **Age Groups** - Toddler (3-7), Child (8-11), Preteen (12-14), Teen (15-17)
+- **Content Filtering** - Age-appropriate content restrictions
+- **Feature Restrictions** - Access controls based on developmental stage
+- **Educational Content** - Age-specific safety education
+
+## 👨‍👩‍👧 Parental Control Features
+
+### Monitoring & Oversight
+- **Real-time Dashboard** - Monitor all child communications
+- **Safety Alerts** - Immediate notifications of risks
+- **Usage Statistics** - Screen time and activity reports
+- **Contact Management** - Whitelist trusted contacts
+- **Time Restrictions** - Schedule usage by day and time
+
+### Control Settings
+- **Multi-level Controls** - Granular permission settings
+- **Emergency Features** - SOS button with location sharing
+- **Content Blocking** - Automatic blocking of harmful content
+- **Approval Workflows** - Parent approval for new contacts
+- **Remote Management** - Control settings from parent device
+
+### Transparency & Rights
+- **Data Access** - View all child data anytime
+- **Data Export** - Download all information
+- **Right to Delete** - One-click account and data deletion
+- **Consent Management** - Clear consent tracking and withdrawal
+- **Audit Trail** - Complete log of all actions
+
+## 🌈 Age-Appropriate Customization
+
+### Toddler (3-7 years)
+- Simple, playful interface
+- Maximum parental supervision
+- Basic messaging only
+- Strict content filtering
+- Large text and buttons
+
+### Child (8-11 years)
+- Vibrant, engaging design
+- Strong safety features
+- Image sharing enabled
+- Educational prompts
+- Group chats available
+
+### Preteen (12-14 years)
+- Modern interface
+- Balanced freedom and safety
+- Video sharing enabled
+- Social features available
+- Privacy awareness training
+
+### Teen (15-17 years)
+- Mature, professional design
+- Age-appropriate independence
+- Full feature set
+- Advanced privacy controls
+- Digital citizenship education
+
+## 🏆 App Features
+
+This production-ready platform includes:
 
 - **Cross-platform compatibility** - Works on iOS, Android, and Web
 - **File-based routing** with Expo Router
 - **Tab navigation** with customizable tabs
 - **Modal screens** for overlays and dialogs
 - **TypeScript support** for better development experience
-- **Async storage** for local data persistence
+- **Encrypted storage** for sensitive data
 - **Vector icons** with Lucide React Native
+- **Internationalization** - Multi-language support (Russian, English)
+- **Theme support** - Light and dark modes
+- **Haptic feedback** - Enhanced user experience
+- **Push notifications** - Real-time safety alerts
 
 ## Project Structure
 
