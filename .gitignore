@@ -31,9 +31,62 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
+.env.production
+.env.development
 
 # typescript
 *.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+*.ipa
+*.apk
+*.aab
+build/
+android/app/build/
+ios/build/
+
+# Secrets and sensitive files
+secrets/
+*.secret
+credentials.json
+service-account.json
+
+# App-specific
+/local/
+*.log
+
+# Testing
+coverage/
+.nyc_output/
+
+# OS generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Security
+*.pem
+*.key
+*.cert
+*.csr
+
+# Backup files
+*.bak
+*.backup
 .vercel
 
 ios/

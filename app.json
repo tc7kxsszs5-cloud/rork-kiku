@@ -1,30 +1,41 @@
 {
   "expo": {
-    "name": "KIKU",
-    "slug": "greeting-project-58uufiz",
+    "name": "KIKU - Child Safety",
+    "slug": "kiku-child-safety",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "rork-app",
+    "scheme": "kiku-app",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "description": "Global child safety platform protecting children from cyberbullying, harassment, and online dangers with AI-powered monitoring and parental controls.",
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "privacy": "unlisted",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.rork.greeting-project-58uufiz",
+      "bundleIdentifier": "com.kiku.childsafety",
+      "buildNumber": "1.0.0",
+      "config": {
+        "usesNonExemptEncryption": true
+      },
       "infoPlist": {
         "UIBackgroundModes": [
           "audio",
           "location"
         ],
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to use your location.",
-        "NSLocationAlwaysUsageDescription": "Allow $(PRODUCT_NAME) to use your location.",
-        "NSLocationWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to use your location."
+        "NSMicrophoneUsageDescription": "KIKU needs microphone access to analyze voice messages for safety threats and inappropriate content.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "KIKU uses your location only during SOS emergencies to help parents locate their child quickly.",
+        "NSLocationAlwaysUsageDescription": "KIKU uses your location only during SOS emergencies to help parents locate their child quickly.",
+        "NSLocationWhenInUseUsageDescription": "KIKU uses your location only during SOS emergencies to help parents locate their child quickly.",
+        "NSCameraUsageDescription": "KIKU needs camera access to allow image sharing which is then analyzed for safety.",
+        "NSPhotoLibraryUsageDescription": "KIKU needs photo library access to allow image sharing which is then analyzed for safety.",
+        "NSContactsUsageDescription": "KIKU can access contacts to help you add trusted contacts to your child's whitelist.",
+        "NSUserTrackingUsageDescription": "KIKU does not track you for advertising. This is only for safety monitoring.",
+        "ITSAppUsesNonExemptEncryption": true
       }
     },
     "android": {
@@ -32,7 +43,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "app.rork.greeting_project_58uufiz",
+      "package": "com.kiku.childsafety",
+      "versionCode": 1,
       "permissions": [
         "android.permission.VIBRATE",
         "RECORD_AUDIO",
@@ -42,7 +54,14 @@
         "FOREGROUND_SERVICE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
         "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.SCHEDULE_EXACT_ALARM"
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_CONTACTS"
+      ],
+      "blockedPermissions": [
+        "android.permission.INTERNET"
       ]
     },
     "web": {
