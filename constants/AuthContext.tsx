@@ -92,6 +92,8 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
 
   // Generate verification code (simulated for demo)
   const generateVerificationCode = useCallback(async (identifier: string, type: 'email' | 'phone'): Promise<string> => {
+    // SECURITY NOTE: Using Math.random() for demo only
+    // Production MUST use: crypto.getRandomValues() or expo-crypto
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const verificationData: VerificationCode = {
       code,
@@ -104,8 +106,8 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     newCodes.set(identifier, verificationData);
     setVerificationCodes(newCodes);
 
-    console.log(`[AuthContext] Verification code generated for ${identifier}: ${code}`);
-    // In production, this would send an email/SMS
+    console.log(`[AuthContext] DEMO verification code for ${identifier}: ${code} (INSECURE - use crypto.getRandomValues() in production)`);
+    // In production, this would send an email/SMS with a cryptographically secure code
     return code;
   }, [verificationCodes]);
 

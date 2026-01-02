@@ -1,11 +1,36 @@
 /**
  * Encryption utilities for end-to-end encryption
  * 
- * NOTE: This is a simplified implementation for demonstration purposes.
- * In production, use established encryption libraries like:
- * - @react-native-community/async-storage with encryption
- * - react-native-keychain for secure key storage
- * - crypto-js or libsodium for encryption
+ * ⚠️ CRITICAL SECURITY WARNING ⚠️
+ * This is a DEMO/PLACEHOLDER implementation only!
+ * The current implementation uses base64 encoding, which is NOT encryption.
+ * 
+ * FOR PRODUCTION, YOU MUST:
+ * 1. Install proper crypto libraries:
+ *    - expo-crypto (for React Native)
+ *    - @react-native-community/async-storage with encryption
+ *    - react-native-keychain for secure key storage
+ * 
+ * 2. Use industry-standard encryption:
+ *    - AES-256-GCM for symmetric encryption
+ *    - RSA-4096 or ECDH for key exchange
+ *    - bcrypt/Argon2 for password hashing
+ *    - crypto.getRandomValues() for random number generation
+ * 
+ * 3. Implement proper key management:
+ *    - Hardware-backed key storage (Keychain/Keystore)
+ *    - Key derivation functions (PBKDF2, Argon2)
+ *    - Key rotation strategy
+ *    - Secure key backup/recovery
+ * 
+ * 4. Follow security best practices:
+ *    - NIST guidelines
+ *    - OWASP Mobile Security
+ *    - Regular security audits
+ *    - Penetration testing
+ * 
+ * Current status: DEMO ONLY - NOT SUITABLE FOR PRODUCTION
+ * See docs/SECURITY.md for detailed requirements
  */
 
 import { Platform } from 'react-native';
@@ -22,29 +47,36 @@ export interface EncryptedData {
 /**
  * Generate a simple encryption key (placeholder)
  * In production: Use secure key derivation (PBKDF2, Argon2)
+ * 
+ * SECURITY NOTE: This is a demo implementation
+ * Production must use: crypto.getRandomValues() or expo-crypto
  */
 export const generateEncryptionKey = async (): Promise<string> => {
-  // Placeholder: generate random key
+  // Demo implementation - DO NOT USE IN PRODUCTION
+  // TODO: Replace with crypto.getRandomValues() or expo-crypto
   const key = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  console.log('[Encryption] Generated encryption key');
+  console.log('[Encryption] WARNING: Demo key generation - not secure for production!');
   return key;
 };
 
 /**
  * Encrypt text data (simplified for demo)
  * In production: Use AES-256-GCM or similar
+ * 
+ * SECURITY WARNING: This is NOT real encryption - just base64 encoding for demo
+ * Production implementation MUST use proper cryptographic algorithms
  */
 export const encryptText = async (text: string, key: string): Promise<EncryptedData> => {
   try {
-    // Simplified encryption using base64 encoding
-    // In production, use proper encryption libraries
+    // DEMO ONLY - This is base64 encoding, NOT encryption!
+    // Production: Use expo-crypto or @react-native-community/crypto
     const iv = Math.random().toString(36).substring(2, 15);
     const combined = `${iv}:${key}:${text}`;
     const encrypted = Platform.OS === 'web' 
       ? btoa(combined)
       : Buffer.from(combined).toString('base64');
 
-    console.log('[Encryption] Text encrypted successfully');
+    console.log('[Encryption] Text encoded (DEMO - not secure for production)');
     
     return {
       data: encrypted,
@@ -91,16 +123,19 @@ export const decryptText = async (encryptedData: EncryptedData, key: string): Pr
 /**
  * Hash sensitive data for storage (one-way)
  * In production: Use bcrypt, scrypt, or Argon2
+ * 
+ * SECURITY WARNING: This is NOT cryptographic hashing - just base64 with salt
+ * Production MUST use proper password hashing algorithms
  */
 export const hashData = async (data: string): Promise<string> => {
   try {
-    // Simplified hashing
-    // In production, use proper cryptographic hash functions
+    // DEMO ONLY - This is NOT secure hashing!
+    // Production: Use expo-crypto with SHA-256 minimum, or bcrypt/Argon2 for passwords
     const hash = Platform.OS === 'web'
       ? btoa(data + 'salt')
       : Buffer.from(data + 'salt').toString('base64');
 
-    console.log('[Encryption] Data hashed successfully');
+    console.log('[Encryption] Data hashed (DEMO - use proper crypto in production)');
     return hash;
   } catch (error) {
     console.error('[Encryption] Error hashing data:', error);
