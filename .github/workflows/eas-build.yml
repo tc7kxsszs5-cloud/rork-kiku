@@ -58,11 +58,7 @@ jobs:
           eas build --platform ios --profile production --non-interactive
 
       - name: EAS submit (to TestFlight) - optional
-        if: >-
-          ${{
-            secrets.APPLE_API_KEY_JSON ||
-            secrets.APPLE_SPECIFIC_PASSWORD
-          }}
+        if: ${{ secrets.APPLE_API_KEY_JSON || secrets.APPLE_SPECIFIC_PASSWORD }}
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           APPLE_API_KEY_JSON: ${{ secrets.APPLE_API_KEY_JSON }}
@@ -72,10 +68,11 @@ jobs:
           set -e
           if [ -n "$APPLE_API_KEY_JSON" ]; then
             echo "Using Apple API Key for submission"
-            echo "$APPLE_API_KEY_JSON" > /tmp/apple-api-key.json
+            temp_key_file=$(mktemp -t apple-api-key.XXXXXX)
+            echo "$APPLE_API_KEY_JSON" > "$temp_key_file"
             eas submit --platform ios --non-interactive \
-              --apple-app-store-connection /tmp/apple-api-key.json
-            rm -f /tmp/apple-api-key.json
+              --apple-app-store-connection "$temp_key_file"
+            rm -f "$temp_key_file"
           elif [ -n "$APPLE_SPECIFIC_PASSWORD" ] && [ -n "$APPLE_ID" ]; then
             echo "Using Apple ID and App-Specific Password for submission"
             eas submit --platform ios --non-interactive \
