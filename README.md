@@ -1,5 +1,9 @@
 # Welcome to your Rork app
 
+> 📚 **New Contributors?** See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines  
+> 🔒 **Security?** See [SECURITY.md](SECURITY.md) for security policy and vulnerability reporting  
+> ⚙️ **Repository Setup?** See [GITHUB_CONFIGURATION.md](GITHUB_CONFIGURATION.md) for admin configuration guide
+
 ## Project info
 
 This is a native cross-platform mobile app created with [Rork](https://rork.com)
@@ -310,6 +314,12 @@ For mobile apps, you'll configure your app's deep linking scheme in `app.json`.
 - Check [Expo's documentation](https://docs.expo.dev/) for native APIs
 - Browse [React Native's documentation](https://reactnative.dev/docs/getting-started) for core components
 - Visit [Rork's FAQ](https://rork.com/faq) for platform-specific questions
+
+### **Contributing or security questions?**
+
+- **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow and guidelines
+- **Security**: See [SECURITY.md](SECURITY.md) for security policy and reporting vulnerabilities
+- **Repository Setup**: See [GITHUB_CONFIGURATION.md](GITHUB_CONFIGURATION.md) for admin configuration
 
 ## About Rork
 

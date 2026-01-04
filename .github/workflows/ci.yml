@@ -1,4 +1,4 @@
-name: CI - lint & typecheck
+name: CI - lint, typecheck & security
 
 on:
   push:
@@ -33,4 +33,9 @@ jobs:
         run: bun run lint
 
       - name: Type check
-        run: bunx tsc --noEmit
+        run: bun x tsc --noEmit
+
+      - name: Security audit
+        run: bun audit
+        # Continue on audit failures to not block CI, but log issues
+        continue-on-error: true
