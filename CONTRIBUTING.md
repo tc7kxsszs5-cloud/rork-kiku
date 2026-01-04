@@ -253,7 +253,7 @@ bun run test
 bun run lint
 
 # Run type checks
-bunx tsc --noEmit
+bun x tsc --noEmit
 ```
 
 ### Writing Tests
