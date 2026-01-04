@@ -7,6 +7,19 @@ This is a native cross-platform mobile app created with [Rork](https://rork.com)
 **Platform**: Native iOS & Android app, exportable to web
 **Framework**: Expo Router + React Native
 
+## 📋 GitHub Project Management
+
+This repository is configured with comprehensive GitHub project management tools:
+
+- **Issue Templates** - Standardized templates for bug reports, feature requests, and enhancements
+- **Pull Request Template** - Structured PR format with auto-closing keywords
+- **GitHub Copilot Guidelines** - Best practices for using Copilot in this project
+- **Label System** - Organized labels for type, priority, platform, and status
+- **CI/CD Workflows** - Automated linting, type checking, and builds
+- **GitHub Projects Guide** - Instructions for Kanban board setup
+
+📖 **See [GITHUB_SETUP.md](GITHUB_SETUP.md) for complete documentation**
+
 ## How can I edit this code?
 
 There are several ways of editing your native mobile application.
