@@ -1,4 +1,119 @@
-# Welcome to your Rork app
+# kiku - AI-Powered Child Safety Messenger Monitor
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android%20%7C%20Web-lightgrey.svg)
+![React Native](https://img.shields.io/badge/React%20Native-Expo-blue.svg)
+
+## 🎯 Миссия Проекта
+
+**kiku** - это революционная платформа для защиты детей в цифровом мире, использующая мощь искусственного интеллекта для проактивного обнаружения угроз, сохраняя при этом баланс между безопасностью и приватностью.
+
+Мы создаем **экосистему цифровой безопасности для детей**, которая:
+- 🛡️ **Защищает проактивно** - предотвращает угрозы до того, как они нанесут вред
+- 🔒 **Уважает приватность** - локальное хранение, end-to-end шифрование
+- 🤖 **Использует AI** - понимает контекст, тон, скрытые намерения
+- 🌍 **Доступна всем** - cross-platform (iOS, Android, Web)
+- 👨‍👩‍👧 **Family-centric** - инструмент для диалога, а не шпионажа
+
+> **"Каждый ребенок заслуживает безопасного цифрового детства. kiku делает это возможным."**
+
+📖 [Подробнее о миссии проекта](./MISSION.md)
+
+## 🚀 Почему kiku?
+
+Традиционные методы родительского контроля либо **неэффективны** (простые фильтры по ключевым словам), либо **нарушают доверие** (тотальная слежка). kiku предлагает третий путь:
+
+- **AI-first подход**: Современные NLP модели, понимающие контекст
+- **Privacy-first**: Данные хранятся локально, не отправляются на внешние серверы
+- **Real-time защита**: Мгновенный анализ текста, изображений, голосовых сообщений
+- **5-уровневая система рисков**: От безопасного до критического
+- **COPPA/GDPR-K compliant**: Полное соответствие законам защиты детей
+
+## ✨ Основные Функции
+
+### Безопасность и Мониторинг
+- ✅ AI анализ текстовых сообщений (угрозы, травля, насилие, мошенничество)
+- ✅ Анализ изображений на неприемлемый контент
+- ✅ Транскрипция и анализ голосовых сообщений
+- ✅ Кнопка SOS с геолокацией
+- ✅ Real-time уведомления для родителей
+
+### Родительский Контроль
+- ✅ Временные ограничения использования
+- ✅ Белый список контактов
+- ✅ Блокировка неизвестных собеседников
+- ✅ Настраиваемые email уведомления
+- ✅ Панель управления настройками
+
+### Приватность и Compliance
+- ✅ Локальное хранение данных (AsyncStorage)
+- ✅ End-to-end шифрование
+- ✅ COPPA/GDPR-K соответствие
+- ✅ Audit trail для родительских согласий
+
+### Аналитика
+- ✅ Детальная статистика безопасности
+- ✅ AI рекомендации по безопасности
+- ✅ Визуализация рисков и прогресса
+
+## 🤝 Как Присоединиться
+
+Мы ищем **талантливых энтузиастов**, которые разделяют нашу миссию защиты детей:
+
+### Для Разработчиков
+- AI/ML инженеры
+- Mobile разработчики (React Native, iOS, Android)
+- Backend инженеры
+- Security специалисты
+
+### Для Экспертов
+- Детские психологи
+- Специалисты по детской безопасности
+- Privacy/compliance юристы
+- UX/UI дизайнеры
+
+### Для Community
+- Маркетологи
+- Контент-криейторы
+- Амбассадоры проекта
+
+📋 [Правила участия и contribution guide](./PARTICIPATION-GUIDELINES.md)
+
+## 💰 Инвестиционные Возможности
+
+kiku - это не только социальный проект, но и **огромная бизнес-возможность**:
+
+- **Рынок**: $5+ млрд (детская безопасность онлайн)
+- **Рост**: 25%+ ежегодный рост
+- **Монетизация**: Freemium B2C, B2B (школы), API licensing
+- **Преимущество**: AI-first + privacy focus + cross-platform
+
+💡 [Подробнее об инвестировании](./INVESTMENT.md)
+
+## 📊 Project Management
+
+Мы используем GitHub для полной прозрачности разработки:
+
+- **Project Board**: Kanban board для отслеживания задач
+- **Issues**: Баги, feature requests, обсуждения
+- **Discussions**: Идеи, вопросы, инвестирование
+- **CI/CD**: Автоматизация проверки кода и сборки
+
+📌 [Инструкция по настройке Project Board](./PROJECT_BOARD_SETUP.md)
+
+## 📢 Маркетинг и Продвижение
+
+Наша стратегия привлечения пользователей и участников:
+
+- GitHub ecosystem (Discussions, Stars, Contributors)
+- Developer communities (Reddit, Dev.to, Hacker News)
+- Social media (Twitter, LinkedIn, YouTube)
+- Content marketing (Blog, guest posts, podcasts)
+- Partnerships (NGOs, schools, tech companies)
+
+📣 [Полная маркетинговая стратегия](./MARKETING.md)
+
+---
 
 ## Project info
 
@@ -311,6 +426,48 @@ For mobile apps, you'll configure your app's deep linking scheme in `app.json`.
 - Browse [React Native's documentation](https://reactnative.dev/docs/getting-started) for core components
 - Visit [Rork's FAQ](https://rork.com/faq) for platform-specific questions
 
+## 🌟 Contributing
+
+We welcome contributions from everyone! Whether you're a developer, designer, security expert, or passionate about child safety, there's a place for you in the kiku community.
+
+### Quick Start for Contributors
+
+1. **Read the mission**: Understand our [mission and values](./MISSION.md)
+2. **Check the guidelines**: Review [participation guidelines](./PARTICIPATION-GUIDELINES.md)
+3. **Find a task**: Look for issues with `good first issue` or `help wanted` labels
+4. **Join discussions**: Participate in [GitHub Discussions](https://github.com/tc7kxsszs5-cloud/rork-kiku/discussions)
+5. **Submit PR**: Follow our contribution workflow
+
+### Areas of Contribution
+
+- 🧠 **AI/ML**: Improve threat detection models
+- 📱 **Mobile Dev**: Enhance UI/UX, add features
+- 🔐 **Security**: Audit, improve privacy, compliance
+- 📚 **Documentation**: Improve guides, translations
+- 🎨 **Design**: UI/UX improvements, branding
+- 🧪 **Testing**: Write tests, find bugs
+
+### Recognition
+
+All contributors are recognized in our [Contributors](https://github.com/tc7kxsszs5-cloud/rork-kiku/graphs/contributors) page and significant contributions are highlighted in release notes!
+
+## 📬 Contact & Support
+
+- **Email**: team@kiku-app.com
+- **Investments**: invest@kiku-app.com
+- **Website**: www.kiku-app.com
+- **GitHub Discussions**: [Ask questions, share ideas](https://github.com/tc7kxsszs5-cloud/rork-kiku/discussions)
+
+## 📄 Documentation
+
+- [MISSION.md](./MISSION.md) - Project vision and mission
+- [PARTICIPATION-GUIDELINES.md](./PARTICIPATION-GUIDELINES.md) - How to contribute
+- [INVESTMENT.md](./INVESTMENT.md) - Investment opportunities
+- [PROJECT_BOARD_SETUP.md](./PROJECT_BOARD_SETUP.md) - Project management setup
+- [MARKETING.md](./MARKETING.md) - Marketing strategy
+- [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) - Technical summary
+- [QUICKSTART.md](./QUICKSTART.md) - Quick start guide
+
 ## About Rork
 
 Rork builds fully native mobile apps using React Native and Expo - the same technology stack used by Discord, Shopify, Coinbase, Instagram, and nearly 30% of the top 100 apps on the App Store.
@@ -421,3 +578,19 @@ eas build --platform ios --profile development
 - **Build failures**: Check the EAS build logs in GitHub Actions or at expo.dev
 - **Authentication issues**: Verify your `EXPO_TOKEN` is valid and not expired
 - **TestFlight submission issues**: Ensure your Apple credentials are correctly configured and your bundle identifier matches your App Store Connect app
+
+---
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## Star History
+
+If you find this project useful, please consider giving it a ⭐ star on GitHub! It helps others discover the project and motivates us to continue improving it.
+
+---
+
+**kiku** © 2024-2026 - Protecting children in the digital world 🛡️
+
+*Built with ❤️ by a community that cares about child safety*
