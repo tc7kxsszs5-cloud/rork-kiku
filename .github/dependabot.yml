@@ -1,0 +1,70 @@
+# Dependabot configuration for automated dependency updates
+# Documentation: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # Enable version updates for npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    # Group dependency updates to reduce PR noise
+    groups:
+      expo:
+        patterns:
+          - "expo*"
+          - "@expo/*"
+      react:
+        patterns:
+          - "react*"
+          - "@react*"
+      testing:
+        patterns:
+          - "*eslint*"
+          - "typescript"
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    # Only create PRs for security updates and version updates
+    open-pull-requests-limit: 10
+    # Add reviewers for dependency updates
+    reviewers:
+      - "tc7kxsszs5-cloud"
+    # Add labels to dependency update PRs
+    labels:
+      - "dependencies"
+      - "automated"
+    # Commit message prefix
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    # Rebase PRs to keep them up to date
+    rebase-strategy: "auto"
+    # Allow both direct and indirect dependencies
+    allow:
+      - dependency-type: "all"
+    # Ignore specific dependencies if needed (examples below)
+    # ignore:
+    #   - dependency-name: "package-name"
+    #     versions: ["x.x.x"]
+
+  # Enable security updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "tc7kxsszs5-cloud"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "automated"
+    commit-message:
+      prefix: "chore(ci)"
+      include: "scope"
