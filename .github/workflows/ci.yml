@@ -40,7 +40,7 @@ jobs:
       - name: Run ESLint
         run: |
           export PATH="$HOME/.bun/bin:$PATH"
-          npx expo lint -- --no-error-on-unmatched-pattern
+          bun run lint
 
       - name: Run TypeScript type check
         run: |

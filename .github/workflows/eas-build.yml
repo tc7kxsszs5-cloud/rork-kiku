@@ -60,8 +60,8 @@ jobs:
       - name: EAS submit (to TestFlight) - optional
         if: >-
           ${{
-            secrets.APPLE_API_KEY_JSON != '' ||
-            secrets.APPLE_SPECIFIC_PASSWORD != ''
+            secrets.APPLE_API_KEY_JSON ||
+            secrets.APPLE_SPECIFIC_PASSWORD
           }}
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
