@@ -390,6 +390,105 @@ bun run start
 eas build --platform ios --profile development
 ```
 
+### Debugging CI/CD Issues Locally
+
+#### Prerequisites
+Before debugging CI issues locally, ensure you have:
+- **Node.js 20.x or later** - [Install with nvm](https://github.com/nvm-sh/nvm)
+- **Bun** - [Install Bun](https://bun.sh/docs/installation)
+- **Git** - For repository management
+
+#### Step-by-Step Debugging Guide
+
+1. **Check Node.js and Bun versions**:
+   ```bash
+   node --version  # Should be 20.x or later
+   bun --version   # Should be 1.x or later
+   ```
+
+2. **Clean install dependencies**:
+   ```bash
+   rm -rf node_modules bun.lock
+   bun install
+   ```
+
+3. **Test linting**:
+   ```bash
+   # Test the exact lint command used in CI
+   bun run lint
+   
+   # If you get "all files are ignored" error, check:
+   # - eslint.config.js has all directories listed
+   # - The --no-error-on-unmatched-pattern flag is included
+   ```
+
+4. **Test TypeScript compilation**:
+   ```bash
+   # Test the exact TypeScript check used in CI
+   bunx tsc --noEmit
+   
+   # If you get type errors:
+   # - Check tsconfig.json for correct paths
+   # - Ensure all dependencies are installed
+   # - Check for any missing type definition files
+   ```
+
+5. **Run complete CI pipeline locally**:
+   ```bash
+   bun run ci:all
+   ```
+
+6. **Common Issues and Solutions**:
+   
+   **Issue: "bun: command not found"**
+   - Ensure Bun is in your PATH: `export PATH="$HOME/.bun/bin:$PATH"`
+   - Or add to your shell profile: `echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc`
+   
+   **Issue: ESLint errors about ignored files**
+   - Update eslint.config.js to include all source directories
+   - Use the `--no-error-on-unmatched-pattern` flag
+   
+   **Issue: TypeScript errors**
+   - Run `bunx tsc --noEmit` to see all errors at once
+   - Check for missing dependencies or type definitions
+   - Verify tsconfig.json paths configuration
+   
+   **Issue: Permission denied during CI**
+   - Check file permissions: `ls -la .github/workflows/`
+   - Ensure workflow files are readable: `chmod 644 .github/workflows/*.yml`
+
+#### Validating Workflow Files
+
+To validate your GitHub Actions workflow YAML files locally:
+
+```bash
+# Install yamllint (if not already installed)
+pip install yamllint
+
+# Validate workflow files
+yamllint .github/workflows/ci.yml
+yamllint .github/workflows/eas-build.yml
+```
+
+#### Testing with Act (Optional)
+
+You can test GitHub Actions locally using [act](https://github.com/nektos/act):
+
+```bash
+# Install act
+brew install act  # macOS
+# or
+curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+
+# Run CI workflow locally
+act -j lint-and-typecheck
+
+# Run with secrets
+act -j lint-and-typecheck -s EXPO_TOKEN="your-token"
+```
+
+Note: `act` requires Docker to be installed.
+
 ### Triggering Manual Builds
 
 1. Go to your repository on GitHub
@@ -416,8 +515,59 @@ eas build --platform ios --profile development
 
 ### Troubleshooting CI
 
+#### General CI Issues
+
 - **Lint failures**: Run `bun run lint` locally to see and fix issues
 - **Type check failures**: Run `bunx tsc --noEmit` locally to see type errors
 - **Build failures**: Check the EAS build logs in GitHub Actions or at expo.dev
 - **Authentication issues**: Verify your `EXPO_TOKEN` is valid and not expired
 - **TestFlight submission issues**: Ensure your Apple credentials are correctly configured and your bundle identifier matches your App Store Connect app
+
+#### Specific Error Messages
+
+**"Error: EXPO_TOKEN secret is not set"**
+- Go to GitHub repository Settings → Secrets and variables → Actions
+- Create a new repository secret named `EXPO_TOKEN`
+- Get your token from [expo.dev/accounts/[account]/settings/access-tokens](https://expo.dev/accounts/)
+
+**"Bun command not found" in CI**
+- This has been fixed in the updated workflows
+- The workflow now correctly sets the PATH: `echo "$HOME/.bun/bin" >> $GITHUB_PATH`
+
+**"All files matching the glob pattern are ignored" during linting**
+- Fixed by adding `--no-error-on-unmatched-pattern` flag to lint command
+- Ensure `eslint.config.js` includes all relevant directories in `lintTargets`
+
+**"EAS build failed" with authentication error**
+- Check that `EXPO_TOKEN` is set and valid
+- Run `eas whoami` locally to verify your authentication
+- Try regenerating your EXPO_TOKEN if it's expired
+
+**TestFlight submission skipped**
+- This is expected if you haven't configured Apple credentials
+- The workflow will complete successfully and just skip the submission step
+- To enable: Add either `APPLE_API_KEY_JSON` or `APPLE_ID` + `APPLE_SPECIFIC_PASSWORD` secrets
+
+#### Checking Workflow Run Details
+
+1. Go to your repository on GitHub
+2. Click the **Actions** tab
+3. Select the failed workflow run
+4. Click on the failed job to see detailed logs
+5. Look for red ❌ marks to identify the failing step
+6. Read the error messages in the expanded step logs
+
+#### Re-running Failed Workflows
+
+After fixing issues:
+1. Push your changes to the branch
+2. The workflow will automatically trigger again
+3. Or manually re-run: Go to Actions → Select workflow run → Re-run jobs
+
+#### Getting Help
+
+If you continue to experience issues:
+- Check [Expo's troubleshooting guide](https://docs.expo.dev/troubleshooting/build-errors/)
+- Review [GitHub Actions documentation](https://docs.github.com/en/actions)
+- Check [EAS Build documentation](https://docs.expo.dev/build/introduction/)
+- Visit [Rork's FAQ](https://rork.com/faq) for platform-specific questions

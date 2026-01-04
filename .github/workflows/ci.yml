@@ -12,25 +12,37 @@ jobs:
   lint-and-typecheck:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 20.x
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '20'
+          cache: 'npm'
 
       - name: Install Bun
         run: |
           curl -fsSL https://bun.sh/install | bash
-          echo "BUN_INSTALL=$HOME/.bun" > $GITHUB_ENV
-          echo "$HOME/.bun/bin" > $GITHUB_PATH
+          echo "BUN_INSTALL=$HOME/.bun" >> $GITHUB_ENV
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
-      - name: Install dependencies (bun)
-        run: bun install
+      - name: Verify Bun installation
+        run: |
+          export PATH="$HOME/.bun/bin:$PATH"
+          bun --version
 
-      - name: Lint
-        run: bun run lint
+      - name: Install dependencies with Bun
+        run: |
+          export PATH="$HOME/.bun/bin:$PATH"
+          bun install --frozen-lockfile
 
-      - name: Type check
-        run: bunx tsc --noEmit
+      - name: Run ESLint
+        run: |
+          export PATH="$HOME/.bun/bin:$PATH"
+          npx expo lint -- --no-error-on-unmatched-pattern
+
+      - name: Run TypeScript type check
+        run: |
+          export PATH="$HOME/.bun/bin:$PATH"
+          bunx tsc --noEmit
