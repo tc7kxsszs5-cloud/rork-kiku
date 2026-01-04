@@ -36,6 +36,6 @@ jobs:
         run: bunx tsc --noEmit
 
       - name: Security audit
-        run: bun audit || true
+        run: bun audit
         # Continue on audit failures to not block CI, but log issues
         continue-on-error: true
