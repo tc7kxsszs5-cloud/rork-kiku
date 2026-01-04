@@ -49,7 +49,7 @@
 
 ### Status Labels
 - name: status:in-progress
-  color: yellow
+  color: fbca04
   description: Currently being worked on
 
 - name: status:blocked
