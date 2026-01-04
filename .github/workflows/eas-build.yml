@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js 20.x
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.x'
           cache: 'npm'
 
       - name: Install Bun
@@ -37,7 +37,7 @@ jobs:
           bun install --frozen-lockfile
 
       - name: Install EAS CLI
-        run: npm install -g eas-cli@latest
+        run: npm install -g eas-cli@^7.0.0
 
       - name: Login to Expo
         env:
