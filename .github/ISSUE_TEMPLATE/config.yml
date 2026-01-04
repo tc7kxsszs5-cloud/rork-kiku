@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://rork.com/faq
+    about: Check the documentation for common questions and guides
+  - name: 💬 Community Discussion
+    url: https://github.com/tc7kxsszs5-cloud/rork-kiku/discussions
+    about: Ask questions and discuss ideas with the community

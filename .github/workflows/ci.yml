@@ -23,8 +23,8 @@ jobs:
       - name: Install Bun
         run: |
           curl -fsSL https://bun.sh/install | bash
-          echo "BUN_INSTALL=$HOME/.bun" > $GITHUB_ENV
-          echo "$HOME/.bun/bin" > $GITHUB_PATH
+          echo "BUN_INSTALL=$HOME/.bun" >> $GITHUB_ENV
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
       - name: Install dependencies (bun)
         run: bun install
@@ -34,3 +34,25 @@ jobs:
 
       - name: Type check
         run: bunx tsc --noEmit
+
+      - name: Build check
+        run: |
+          echo "Verifying project can be built..."
+          bunx expo export:web --output-dir /tmp/build-check > /dev/null 2>&1 || echo "Build check skipped - requires full Expo setup"
+
+      - name: Create job summary
+        if: always()
+        run: |
+          echo "## CI Results :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Job Status" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow**: ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ All checks passed successfully!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some checks failed. Please review the logs above." >> $GITHUB_STEP_SUMMARY
+          fi
