@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#0066CC"/>
+  
+  <!-- Shield icon (representing safety) -->
+  <path d="M256 80 L180 120 L180 240 C180 320 256 400 256 400 C256 400 332 320 332 240 L332 120 Z" 
+        fill="#FFFFFF" stroke="#FFFFFF" stroke-width="4"/>
+  
+  <!-- Checkmark inside shield -->
+  <path d="M220 240 L245 265 L295 215" 
+        fill="none" stroke="#00AA66" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Text: RK (Rork-Kiku initials) -->
+  <text x="256" y="470" font-family="Arial, sans-serif" font-size="60" font-weight="bold" 
+        text-anchor="middle" fill="#FFFFFF">RK</text>
+</svg>

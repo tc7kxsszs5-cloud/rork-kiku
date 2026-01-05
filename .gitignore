@@ -41,3 +41,15 @@ android/
 .rork
 .env
 rork-eslint.config.js
+
+# Secrets and credentials (DO NOT COMMIT)
+secrets/
+credentials/
+*.cert
+*.certSigningRequest
+*.cer
+*.csr
+.fastlane/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/test_output/
