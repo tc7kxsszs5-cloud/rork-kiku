@@ -1,0 +1,143 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .box { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; }
+      .title { fill: #1976d2; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; }
+      .text { fill: #333; font-family: Arial, sans-serif; font-size: 12px; }
+      .arrow { stroke: #666; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#666" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" class="title" font-size="20">Архитектура Rork-Kiku (PLACEHOLDER ДИАГРАММА)</text>
+  
+  <!-- Client Layer -->
+  <rect x="50" y="60" width="250" height="80" class="box" />
+  <text x="175" y="85" text-anchor="middle" class="title">Клиентские приложения</text>
+  <text x="175" y="105" text-anchor="middle" class="text">iOS / Android (React Native)</text>
+  <text x="175" y="125" text-anchor="middle" class="text">Web (PWA)</text>
+  
+  <!-- CDN Layer -->
+  <rect x="400" y="60" width="250" height="80" class="box" />
+  <text x="525" y="85" text-anchor="middle" class="title">CDN + Load Balancer</text>
+  <text x="525" y="105" text-anchor="middle" class="text">CloudFront / Cloud CDN</text>
+  <text x="525" y="125" text-anchor="middle" class="text">TLS 1.3</text>
+  
+  <!-- API Gateway -->
+  <rect x="750" y="60" width="250" height="80" class="box" />
+  <text x="875" y="85" text-anchor="middle" class="title">API Gateway</text>
+  <text x="875" y="105" text-anchor="middle" class="text">tRPC / REST API</text>
+  <text x="875" y="125" text-anchor="middle" class="text">JWT Validation</text>
+  
+  <!-- Microservices Layer -->
+  <rect x="50" y="200" width="950" height="200" class="box" fill="#fff3e0" stroke="#e65100" />
+  <text x="525" y="225" text-anchor="middle" class="title">Микросервисы (Kubernetes)</text>
+  
+  <!-- Auth Service -->
+  <rect x="80" y="240" width="140" height="140" class="box" />
+  <text x="150" y="260" text-anchor="middle" class="title">Auth Service</text>
+  <text x="150" y="280" text-anchor="middle" class="text">• OAuth2 / JWT</text>
+  <text x="150" y="300" text-anchor="middle" class="text">• Registration</text>
+  <text x="150" y="320" text-anchor="middle" class="text">• Login/Logout</text>
+  <text x="150" y="340" text-anchor="middle" class="text">• RBAC</text>
+  <text x="150" y="360" text-anchor="middle" class="text">• Refresh tokens</text>
+  
+  <!-- User Service -->
+  <rect x="240" y="240" width="140" height="140" class="box" />
+  <text x="310" y="260" text-anchor="middle" class="title">User Service</text>
+  <text x="310" y="280" text-anchor="middle" class="text">• Parent profiles</text>
+  <text x="310" y="300" text-anchor="middle" class="text">• Child profiles</text>
+  <text x="310" y="320" text-anchor="middle" class="text">• Family accounts</text>
+  <text x="310" y="340" text-anchor="middle" class="text">• Settings</text>
+  
+  <!-- Content Service -->
+  <rect x="400" y="240" width="140" height="140" class="box" />
+  <text x="470" y="260" text-anchor="middle" class="title">Content Service</text>
+  <text x="470" y="280" text-anchor="middle" class="text">• Media upload</text>
+  <text x="470" y="300" text-anchor="middle" class="text">• CDN distribution</text>
+  <text x="470" y="320" text-anchor="middle" class="text">• Metadata</text>
+  <text x="470" y="340" text-anchor="middle" class="text">• Versioning</text>
+  
+  <!-- Moderation Service -->
+  <rect x="560" y="240" width="140" height="140" class="box" />
+  <text x="630" y="260" text-anchor="middle" class="title">Moderation (ML)</text>
+  <text x="630" y="280" text-anchor="middle" class="text">• NSFW detection</text>
+  <text x="630" y="300" text-anchor="middle" class="text">• Auto moderation</text>
+  <text x="630" y="320" text-anchor="middle" class="text">• Queue mgmt</text>
+  <text x="630" y="340" text-anchor="middle" class="text">• Manual review</text>
+  
+  <!-- Notification Service -->
+  <rect x="720" y="240" width="140" height="140" class="box" />
+  <text x="790" y="260" text-anchor="middle" class="title">Notification</text>
+  <text x="790" y="280" text-anchor="middle" class="text">• Push (FCM/APNs)</text>
+  <text x="790" y="300" text-anchor="middle" class="text">• Email</text>
+  <text x="790" y="320" text-anchor="middle" class="text">• In-app</text>
+  <text x="790" y="340" text-anchor="middle" class="text">• Preferences</text>
+  
+  <!-- Analytics Service -->
+  <rect x="880" y="240" width="100" height="140" class="box" />
+  <text x="930" y="260" text-anchor="middle" class="title" font-size="14">Analytics</text>
+  <text x="930" y="280" text-anchor="middle" class="text">• Metrics</text>
+  <text x="930" y="300" text-anchor="middle" class="text">• Usage</text>
+  <text x="930" y="320" text-anchor="middle" class="text">• BI</text>
+  
+  <!-- Data Layer -->
+  <rect x="50" y="450" width="300" height="120" class="box" fill="#f3e5f5" stroke="#7b1fa2" />
+  <text x="200" y="475" text-anchor="middle" class="title">База данных</text>
+  <text x="200" y="495" text-anchor="middle" class="text">PostgreSQL (Aurora)</text>
+  <text x="200" y="515" text-anchor="middle" class="text">• User data</text>
+  <text x="200" y="535" text-anchor="middle" class="text">• Content metadata</text>
+  <text x="200" y="555" text-anchor="middle" class="text">• Audit logs</text>
+  
+  <!-- Object Storage -->
+  <rect x="380" y="450" width="200" height="120" class="box" fill="#f3e5f5" stroke="#7b1fa2" />
+  <text x="480" y="475" text-anchor="middle" class="title">Object Storage</text>
+  <text x="480" y="495" text-anchor="middle" class="text">AWS S3 / Cloud Storage</text>
+  <text x="480" y="515" text-anchor="middle" class="text">• Media files</text>
+  <text x="480" y="535" text-anchor="middle" class="text">• AES-256 encrypted</text>
+  
+  <!-- Cache & Queue -->
+  <rect x="610" y="450" width="180" height="120" class="box" fill="#f3e5f5" stroke="#7b1fa2" />
+  <text x="700" y="475" text-anchor="middle" class="title">Cache & Queue</text>
+  <text x="700" y="495" text-anchor="middle" class="text">Redis</text>
+  <text x="700" y="515" text-anchor="middle" class="text">RabbitMQ / SQS</text>
+  <text x="700" y="535" text-anchor="middle" class="text">• Sessions</text>
+  <text x="700" y="555" text-anchor="middle" class="text">• ML queue</text>
+  
+  <!-- Security & Monitoring -->
+  <rect x="820" y="450" width="180" height="120" class="box" fill="#e8f5e9" stroke="#388e3c" />
+  <text x="910" y="475" text-anchor="middle" class="title">Security & Monitor</text>
+  <text x="910" y="495" text-anchor="middle" class="text">• KMS (key mgmt)</text>
+  <text x="910" y="515" text-anchor="middle" class="text">• Prometheus/Grafana</text>
+  <text x="910" y="535" text-anchor="middle" class="text">• ELK Stack</text>
+  <text x="910" y="555" text-anchor="middle" class="text">• Audit trails</text>
+  
+  <!-- Arrows -->
+  <path d="M 175 140 L 175 180 L 525 180 L 525 200" class="arrow" />
+  <path d="M 525 140 L 525 200" class="arrow" />
+  <path d="M 875 140 L 875 180 L 525 180 L 525 200" class="arrow" />
+  
+  <path d="M 200 400 L 200 450" class="arrow" />
+  <path d="M 470 400 L 480 450" class="arrow" />
+  <path d="M 630 400 L 700 450" class="arrow" />
+  <path d="M 790 400 L 910 450" class="arrow" />
+  
+  <!-- Security Note -->
+  <rect x="50" y="620" width="950" height="60" class="box" fill="#ffebee" stroke="#c62828" />
+  <text x="525" y="640" text-anchor="middle" class="title" fill="#c62828">Безопасность</text>
+  <text x="525" y="660" text-anchor="middle" class="text">TLS 1.3 в транзите • AES-256 в покое • JWT + Refresh tokens • RBAC • KMS для ключей • Audit logging • Incident response</text>
+  
+  <!-- Footer -->
+  <text x="600" y="720" text-anchor="middle" class="text" font-style="italic">
+    PLACEHOLDER: Эта диаграмма должна быть заменена детальной архитектурной схемой
+  </text>
+  <text x="600" y="740" text-anchor="middle" class="text" font-style="italic">
+    Рекомендуется использовать draw.io, Lucidchart или аналогичные инструменты
+  </text>
+  <text x="600" y="780" text-anchor="middle" class="text" font-size="10" fill="#999">
+    Версия: 0.1 (черновик) • Последнее обновление: 2026-01-02
+  </text>
+</svg>

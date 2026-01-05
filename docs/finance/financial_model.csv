@@ -1,0 +1,65 @@
+year,scenario,users_total,users_premium,conversion_rate,revenue,capex,opex,team_costs,team_size,infra_costs,ml_costs,moderation_costs,marketing_costs,other_opex,total_costs,gross_profit,ebitda,notes
+2026,conservative,30000,900,0.03,45000,100000,500000,500000,5,20000,15000,10000,100000,50000,1195000,34000,-661000,"Slow pilot adoption. Higher than expected CAC. Limited marketing budget. Focus on product development."
+2026,base,50000,2500,0.05,125000,100000,500000,500000,5,30000,20000,15000,250000,75000,1390000,94000,-796000,"As planned. Pilot with 50-100 families. TestFlight launch Q2. Initial traction validated."
+2026,optimistic,75000,5250,0.07,260000,100000,500000,500000,5,45000,30000,20000,200000,85000,1380000,195000,-685000,"Strong pilot. Early viral growth. Good product-market fit signals. Lower CAC than expected."
+2027,conservative,250000,25000,0.10,1250000,200000,1800000,1800000,12,120000,80000,100000,1000000,200000,4500000,938000,-1512000,"Slower than expected growth post-launch. Need to optimize conversion funnel. Increased marketing spend."
+2027,base,500000,75000,0.15,3750000,200000,1800000,1800000,12,250000,150000,200000,3000000,350000,7550000,2813000,-1000000,"Public launch Q4 2026. Android development. Strong user acquisition. Premium tier validated."
+2027,optimistic,750000,150000,0.20,7500000,200000,1800000,1800000,12,400000,250000,350000,6000000,500000,11500000,5625000,125000,"Viral growth. High conversion. Strong partnerships. Early profitability. Series A raise possible earlier."
+2028,conservative,1000000,140000,0.14,7000000,300000,4000000,4000000,20,700000,400000,500000,2800000,600000,12300000,5250000,-1300000,"Growth slowing. Need to re-invest heavily in marketing. Competition increasing. Focus on retention."
+2028,base,2000000,400000,0.20,20000000,300000,4000000,4000000,20,1500000,800000,1200000,8000000,1000000,20800000,15000000,2200000,"Profitable! Strong traction. Series A raised. Android launched. International prep begins."
+2028,optimistic,3000000,780000,0.26,40000000,300000,4000000,4000000,20,2500000,1500000,2000000,12000000,1500000,27800000,30000000,9200000,"Exceptional growth. Market leader position. High profitability. Considering international expansion."
+2029,conservative,2500000,450000,0.18,22500000,500000,8000000,8000000,35,2000000,1000000,1500000,5625000,1500000,27625000,16875000,3375000,"Steady growth. Break-even achieved. Focus on unit economics optimization. Prepare for Series B."
+2029,base,5000000,1250000,0.25,68750000,500000,8000000,8000000,35,5000000,2500000,4125000,17188000,3438000,48751000,51563000,19312000,"Strong profitability. International expansion begins. B2B partnerships. Considering Series B or remain private."
+2029,optimistic,8000000,2560000,0.32,140000000,500000,8000000,8000000,35,8000000,4500000,7000000,35000000,5500000,76500000,105000000,44500000,"Dominant market position. Multiple geographies. Strong brand. Potential IPO track or strategic acquisition offers."
+2030,conservative,5000000,1000000,0.20,50000000,800000,13000000,13000000,50,4000000,2000000,3000000,12500000,3000000,38300000,37500000,11200000,"Stable growth. Mature market. Focus on retention and ARPU increase. Profitable and sustainable."
+2030,base,10000000,3000000,0.30,165000000,800000,13000000,13000000,50,10000000,6000000,9900000,41250000,8250000,89200000,123750000,74550000,"Market leader. Strong profitability. Multiple revenue streams (subscription + B2B). Exit opportunities."
+2030,optimistic,15000000,5250000,0.35,280000000,800000,13000000,13000000,50,15000000,10000000,14000000,70000000,12000000,147800000,210000000,132200000,"Clear market dominance. International presence. Strong exit valuation $500M-$1B. IPO consideration."
+
+Notes on CSV structure:
+- year: Calendar year
+- scenario: conservative/base/optimistic
+- users_total: Total registered families (free + premium)
+- users_premium: Paying subscribers (Premium + Family combined)
+- conversion_rate: Percentage of free users who convert to paid
+- revenue: Annual revenue from subscriptions (USD)
+- capex: Capital expenditures (infrastructure setup development tools)
+- opex: Operating expenses (total)
+- team_costs: Salaries and benefits for all employees
+- team_size: Number of full-time employees
+- infra_costs: Cloud infrastructure (AWS EKS S3 RDS ElastiCache etc.)
+- ml_costs: ML inference compute costs (model serving GPU/CPU)
+- moderation_costs: Human moderation team (contractors + tools)
+- marketing_costs: User acquisition (paid ads partnerships content)
+- other_opex: Office legal compliance customer support R&D misc
+- total_costs: capex + opex (sum of all costs)
+- gross_profit: revenue - COGS (infra + ml + moderation costs represent ~25% of revenue)
+- ebitda: revenue - total_costs (Earnings Before Interest Taxes Depreciation Amortization)
+- notes: Commentary and context for each year/scenario
+
+Calculation notes:
+- COGS = infra_costs + ml_costs + moderation_costs (approximately 25% of revenue at scale)
+- Gross Margin = (revenue - COGS) / revenue = ~75%
+- EBITDA = revenue - total_costs
+- Break-even when EBITDA > 0
+- CAC = marketing_costs / new_users (not shown in CSV but can be calculated)
+- LTV = ARPU * average_customer_lifetime (4 years assumed)
+- ARPU = revenue / users_premium
+
+Assumptions:
+- Premium tier: $49/year average (some pay monthly at $4.99*12=$60 some annual at $49)
+- Family plan: $99/year (30% of premium users upgrade)
+- Blended ARPU: ~$50-55/user depending on mix
+- Team costs assume average $100K-$150K blended (engineers higher support lower)
+- Marketing costs decrease as % of revenue as scale and organic growth improve
+- Infrastructure costs scale sub-linearly with users (economies of scale)
+- ML costs increase with uploads but optimize over time (better models lower inference time)
+- Moderation costs scale with content volume but automation improves (target 80% auto-approve)
+
+Risk factors reflected in scenarios:
+- Conservative: 50% slower user growth 30% lower conversion 20% higher CAC
+- Base: Realistic median case used for planning
+- Optimistic: 50% faster growth 30% higher conversion 20% lower CAC viral effects
+
+This CSV is a DRAFT and should be updated quarterly with actual performance data. All numbers are estimates and subject to change based on market conditions competition and execution.
+
+For detailed breakdown by month or quarter contact: [FOUNDERS_EMAIL]
