@@ -41,3 +41,51 @@ android/
 .rork
 .env
 rork-eslint.config.js
+
+# Security: Environment files and secrets (DO NOT COMMIT)
+.env
+.env.*
+!.env.example
+*.secret
+*.secrets
+secret.*
+secrets.*
+
+# Security: iOS/Fastlane secrets
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+*.p12
+*.cer
+*.certSigningRequest
+*.mobileprovision
+
+# Security: Terraform state files (use remote backend)
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Security: Kubernetes secrets
+*.kubeconfig
+kubeconfig
+kubeconfig.*
+
+# Security: Cloud provider credentials
+*credentials*
+*aws_access_key*
+*gcp_service_account*
+*.pem
+*.key
+
+# Security: Database dumps
+*.sql
+*.dump
+*.sqlite
+
+# Note: All secrets should be stored in:
+# - GitHub Secrets (for CI/CD)
+# - HashiCorp Vault (for production)
+# - AWS Secrets Manager (for cloud resources)
+# See docs/README.md for security guidelines

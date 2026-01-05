@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <style>
+      .title { font: bold 24px sans-serif; }
+      .label { font: 14px sans-serif; }
+      .box { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; }
+      .db { fill: #fff3e0; stroke: #f57c00; stroke-width: 2; }
+      .ml { fill: #f3e5f5; stroke: #7b1fa2; stroke-width: 2; }
+      .arrow { stroke: #424242; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#424242" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" class="title">Архитектура Rork-Kiku (Placeholder)</text>
+  
+  <!-- Client Layer -->
+  <rect x="50" y="60" width="180" height="80" class="box" rx="5"/>
+  <text x="140" y="90" text-anchor="middle" class="label">Клиентский слой</text>
+  <text x="140" y="110" text-anchor="middle" class="label">iOS / Android / Web</text>
+  
+  <!-- API Gateway -->
+  <rect x="310" y="60" width="180" height="80" class="box" rx="5"/>
+  <text x="400" y="90" text-anchor="middle" class="label">API Gateway</text>
+  <text x="400" y="110" text-anchor="middle" class="label">tRPC / REST</text>
+  
+  <!-- Microservices -->
+  <g>
+    <rect x="50" y="200" width="120" height="60" class="box" rx="5"/>
+    <text x="110" y="235" text-anchor="middle" class="label">Auth Service</text>
+  </g>
+  
+  <g>
+    <rect x="190" y="200" width="120" height="60" class="box" rx="5"/>
+    <text x="250" y="235" text-anchor="middle" class="label">User Service</text>
+  </g>
+  
+  <g>
+    <rect x="330" y="200" width="120" height="60" class="box" rx="5"/>
+    <text x="390" y="235" text-anchor="middle" class="label">Media Service</text>
+  </g>
+  
+  <g>
+    <rect x="470" y="200" width="140" height="60" class="box" rx="5"/>
+    <text x="540" y="225" text-anchor="middle" class="label">Moderation</text>
+    <text x="540" y="245" text-anchor="middle" class="label">Service</text>
+  </g>
+  
+  <g>
+    <rect x="630" y="200" width="140" height="60" class="box" rx="5"/>
+    <text x="700" y="225" text-anchor="middle" class="label">Notification</text>
+    <text x="700" y="245" text-anchor="middle" class="label">Service</text>
+  </g>
+  
+  <!-- ML Module -->
+  <rect x="470" y="320" width="140" height="80" class="ml" rx="5"/>
+  <text x="540" y="350" text-anchor="middle" class="label">ML Модуль</text>
+  <text x="540" y="370" text-anchor="middle" class="label">Модерации</text>
+  
+  <!-- Databases -->
+  <ellipse cx="110" cy="480" rx="80" ry="40" class="db"/>
+  <text x="110" y="485" text-anchor="middle" class="label">PostgreSQL</text>
+  
+  <ellipse cx="280" cy="480" rx="80" ry="40" class="db"/>
+  <text x="280" y="485" text-anchor="middle" class="label">Redis Cache</text>
+  
+  <ellipse cx="450" cy="480" rx="80" ry="40" class="db"/>
+  <text x="450" y="485" text-anchor="middle" class="label">S3 Storage</text>
+  
+  <ellipse cx="620" cy="480" rx="80" ry="40" class="db"/>
+  <text x="620" y="485" text-anchor="middle" class="label">Message Queue</text>
+  
+  <!-- Arrows -->
+  <path d="M 230 100 L 310 100" class="arrow"/>
+  <path d="M 400 140 L 400 200" class="arrow"/>
+  <path d="M 400 140 L 110 200" class="arrow"/>
+  <path d="M 400 140 L 250 200" class="arrow"/>
+  <path d="M 400 140 L 390 200" class="arrow"/>
+  <path d="M 400 140 L 540 200" class="arrow"/>
+  <path d="M 400 140 L 700 200" class="arrow"/>
+  
+  <path d="M 540 260 L 540 320" class="arrow"/>
+  
+  <path d="M 110 260 L 110 440" class="arrow"/>
+  <path d="M 250 260 L 280 440" class="arrow"/>
+  <path d="M 390 260 L 450 440" class="arrow"/>
+  <path d="M 540 260 L 620 440" class="arrow"/>
+  
+  <!-- Legend -->
+  <text x="50" y="560" class="label">Placeholder диаграмма - требуется детализация</text>
+</svg>
