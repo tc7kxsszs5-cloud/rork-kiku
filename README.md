@@ -1,24 +1,39 @@
 # Rork-Kiku
 
-Welcome to the **Rork-Kiku** project! Your contributions and involvement can make a significant impact on how this project evolves and grows.
+## О проекте
+Kids — безопасный и развивающий мессенджер специально для детей. Этот проект направлен на создание уникальной цифровой среды, которая способствует общению, обучению и развитию детей, защищая их от негативного влияния цифрового мира.
 
-## Why Contribute?
+Проект предлагает возможность:
+- Общаться в текстовых, голосовых и видеочатах.
+- Делиться медиа-контентом с использованием ИИ-фильтрации.
+- Участвовать в развивающих и образовательных активностях.
 
-### Mission
-Rork-Kiku is dedicated to [insert mission statement or goal]. By participating in this project, you'll be part of something that [specific value or benefit].
+## Цели проекта
+- **Обеспечение безопасности**: Гарантия защиты детей от токсичного контента, травли и угроз.
+- **Развитие детей**: Вовлечение в творческие и образовательные проекты, развитие IT-навыков.
+- **Комфортная образовательная среда**: Создание пространства для взаимодействия детей, родителей и педагогов.
+- **Интеграция с будущим**: Формирование навыков, необходимых для цифрового века.
 
-### Potential Impact
-Your input will help:
-- [Example: Improve lives of developers through better tooling.]
-- [Example: Foster a stronger collaboration in open-source communities.]
+## Целевая аудитория
+- Дети от 7 до 16 лет.
+- Родители, стремящиеся создать безопасную цифровую среду для своих детей.
+- Педагоги, использующие инновационные методы обучения.
 
-Contributions big or small, from code improvements to documentation updates, are invaluable. Together, we can achieve remarkable outcomes.
+## Ключевые особенности
+- Полная защита от нежелательного контента с помощью технологий ИИ.
+- Возможность участвовать в индивидуальных и групповых проектах.
+- Уникальные мини-игры и упражнения для развития: творческие конкурсы, IT-курсы.
+- Простой и дружелюбный интерфейс, оптимизированный для детей.
 
-## How to Get Involved
-1. Fork the repository.
-2. Pick an issue or suggest a new feature.
-3. Submit a pull request with your awesome changes.
+## Структура репозитория
+- **backend/**: Серверная логика и обработка данных.
+- **frontend/**: Пользовательский интерфейс.
+- **docs/**: Документация проекта.
+- **tests/**: Автоматизированные тесты для обеспечения качества.
 
-Join us on this exciting journey and let’s make Rork-Kiku extraordinary!
+## Установка и запуск
+Инструкции по установке и запуску будут добавлены в ближайшее время.
 
-If you're new to open source, check out our [CONTRIBUTING.md file] for tips to get started.
+---
+
+Проект находится в активной разработке. Приветствуются все желающие сделать вклад в развитие мессенджера Kids.
