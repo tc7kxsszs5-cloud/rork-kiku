@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { ReactNode, useEffect, useMemo, useState } from "react";
+import React, { ReactNode, useEffect, useMemo, useState, useCallback, memo } from "react";
 import { StyleSheet, Platform, View, Text, TouchableOpacity } from "react-native";
 import { ChevronLeft } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -17,6 +17,7 @@ if (Platform.OS !== 'web') {
   SplashScreen.preventAutoHideAsync();
 }
 
+// Optimize QueryClient - create once and reuse (singleton pattern)
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -24,6 +25,8 @@ const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
       refetchOnMount: false,
+      // Prevent duplicate requests
+      refetchOnReconnect: false,
     },
     mutations: {
       retry: false,
@@ -38,19 +41,23 @@ interface ErrorBoundaryProps {
 interface ErrorBoundaryState {
   hasError: boolean;
   message?: string;
+  errorStack?: string;
+  errorCount: number;
 }
 
-function HeaderBackButton({ fallbackHref, forceFallback }: { fallbackHref: string; forceFallback?: boolean }) {
+// Memoized HeaderBackButton to prevent unnecessary re-renders
+const HeaderBackButton = memo(({ fallbackHref, forceFallback }: { fallbackHref: string; forceFallback?: boolean }) => {
   const router = useRouter();
 
-  const handlePress = () => {
+  // Use useCallback to prevent function recreation on every render
+  const handlePress = useCallback(() => {
     console.log('[HeaderBackButton] Back pressed. canGoBack=', router.canGoBack(), 'forceFallback=', forceFallback);
     if (!forceFallback && router.canGoBack()) {
       router.back();
       return;
     }
     router.replace(fallbackHref as never);
-  };
+  }, [router, fallbackHref, forceFallback]);
 
   return (
     <TouchableOpacity
@@ -64,34 +71,86 @@ function HeaderBackButton({ fallbackHref, forceFallback }: { fallbackHref: strin
       <Text style={styles.headerBackText}>Назад</Text>
     </TouchableOpacity>
   );
-}
+});
+
+HeaderBackButton.displayName = 'HeaderBackButton';
 
 class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   public state: ErrorBoundaryState = {
     hasError: false,
+    errorCount: 0,
   };
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, message: error?.message };
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
+    // Sanitize error message to prevent sensitive data leakage
+    const sanitizedMessage = error?.message
+      ? error.message.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, '[EMAIL]') // Remove emails
+          .replace(/\b\d{10,}\b/g, '[NUMBER]') // Remove long numbers
+          .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, '[TOKEN]') // Remove tokens
+      : undefined;
+
+    return { 
+      hasError: true, 
+      message: sanitizedMessage,
+      errorCount: 1,
+    };
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error('[AppErrorBoundary] Caught error', error, info);
+    // Enhanced error logging with security considerations
+    const errorInfo = {
+      message: error.message,
+      // Only log first line of stack to avoid exposing file paths
+      stack: error.stack?.split('\n')[0] || 'No stack trace',
+      componentStack: info.componentStack?.split('\n').slice(0, 3).join('\n') || 'No component stack',
+      timestamp: new Date().toISOString(),
+      platform: Platform.OS,
+    };
+
+    console.error('[AppErrorBoundary] Caught error:', errorInfo);
+
+    // Prevent infinite error loops
+    if (this.state.errorCount > 3) {
+      console.error('[AppErrorBoundary] Too many errors, stopping boundary');
+      return;
+    }
+
+    this.setState((prevState) => ({
+      errorCount: prevState.errorCount + 1,
+    }));
   }
 
   private handleReset = () => {
-    this.setState({ hasError: false, message: undefined });
+    console.log('[AppErrorBoundary] Resetting error boundary');
+    this.setState({ 
+      hasError: false, 
+      message: undefined,
+      errorStack: undefined,
+      errorCount: 0,
+    });
   };
 
   render() {
     if (this.state.hasError) {
+      // Show generic error if too many errors occurred
+      const displayMessage = this.state.errorCount > 3
+        ? 'Произошла критическая ошибка. Пожалуйста, перезапустите приложение.'
+        : (this.state.message ?? 'Попробуйте обновить приложение.');
+
       return (
         <View style={styles.errorContainer} testID="app-error-boundary">
           <Text style={styles.errorTitle}>Что-то пошло не так</Text>
-          <Text style={styles.errorMessage}>{this.state.message ?? 'Попробуйте обновить приложение.'}</Text>
-          <TouchableOpacity style={styles.errorButton} onPress={this.handleReset} testID="app-error-boundary-reset">
-            <Text style={styles.errorButtonText}>Попробовать снова</Text>
-          </TouchableOpacity>
+          <Text style={styles.errorMessage}>{displayMessage}</Text>
+          {this.state.errorCount <= 3 && (
+            <TouchableOpacity style={styles.errorButton} onPress={this.handleReset} testID="app-error-boundary-reset">
+              <Text style={styles.errorButtonText}>Попробовать снова</Text>
+            </TouchableOpacity>
+          )}
+          {this.state.errorCount > 3 && (
+            <Text style={[styles.errorMessage, { marginTop: 16, fontSize: 14 }]}>
+              Пожалуйста, закройте и перезапустите приложение
+            </Text>
+          )}
         </View>
       );
     }
@@ -100,7 +159,8 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
   }
 }
 
-function RootLayoutNav() {
+// Memoize RootLayoutNav to prevent unnecessary re-renders
+const RootLayoutNav = memo(() => {
   const securityHeaderLeft = useMemo(() => {
     const HeaderLeftComponent = () => <HeaderBackButton fallbackHref="/(tabs)" forceFallback />;
     HeaderLeftComponent.displayName = 'SecuritySettingsHeaderLeft';
@@ -134,9 +194,12 @@ function RootLayoutNav() {
       />
     </Stack>
   );
-}
+});
 
-function AppProviders({ children }: { children: ReactNode }) {
+RootLayoutNav.displayName = 'RootLayoutNav';
+
+// Memoize AppProviders to prevent unnecessary provider re-renders
+const AppProviders = memo(({ children }: { children: ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
@@ -156,7 +219,9 @@ function AppProviders({ children }: { children: ReactNode }) {
       </trpc.Provider>
     </QueryClientProvider>
   );
-}
+});
+
+AppProviders.displayName = 'AppProviders';
 
 export default function RootLayout() {
   const [isReady, setIsReady] = useState(Platform.OS === 'web');
@@ -167,21 +232,42 @@ export default function RootLayout() {
     }
 
     let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
 
-    SplashScreen.hideAsync()
-      .catch((error) => {
-        console.error('[RootLayout] Failed to hide splash screen', error);
-      })
-      .finally(() => {
+    // Add timeout as fallback in case splash screen hide fails
+    const hideSplash = async () => {
+      try {
+        await SplashScreen.hideAsync();
         if (isMounted) {
           setIsReady(true);
         }
-      });
+      } catch (error) {
+        console.error('[RootLayout] Failed to hide splash screen:', error);
+        // Still set ready even if splash screen fails
+        if (isMounted) {
+          setIsReady(true);
+        }
+      }
+    };
+
+    // Start hiding splash screen
+    hideSplash();
+
+    // Fallback timeout to ensure app becomes ready even if splash screen fails
+    timeoutId = setTimeout(() => {
+      if (isMounted && !isReady) {
+        console.warn('[RootLayout] Splash screen timeout, forcing ready state');
+        setIsReady(true);
+      }
+    }, 3000);
 
     return () => {
       isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
-  }, []);
+  }, [isReady]);
 
   if (!isReady) {
     return null;

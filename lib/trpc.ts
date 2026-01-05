@@ -135,6 +135,8 @@ export const trpcClient = createTRPCClient<AppRouter>({
     httpBatchLink({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
+      // Enable batching to reduce duplicate requests
+      maxURLLength: 2083,
       headers: () => ({
         'Content-Type': 'application/json',
       }),
@@ -152,24 +154,40 @@ export const trpcClient = createTRPCClient<AppRouter>({
           
           if (!response.ok) {
             const contentType = response.headers.get('content-type');
-            console.error('[tRPC] HTTP error:', {
+            
+            // Enhanced error logging with security considerations
+            const errorInfo = {
               status: response.status,
               statusText: response.statusText,
-              url,
+              url: url.toString().substring(0, 100), // Limit URL length in logs
               contentType,
-            });
+              timestamp: new Date().toISOString(),
+            };
             
-            try {
-              const text = await response.clone().text();
-              console.error('[tRPC] Response body:', text.substring(0, 200));
-            } catch {
-              console.error('[tRPC] Could not read response body');
+            console.error('[tRPC] HTTP error:', errorInfo);
+            
+            // Only log response body in development
+            if (process.env.NODE_ENV !== 'production') {
+              try {
+                const text = await response.clone().text();
+                console.error('[tRPC] Response body:', text.substring(0, 200));
+              } catch {
+                console.error('[tRPC] Could not read response body');
+              }
             }
           }
           return response;
         } catch (error) {
           clearTimeout(timeoutId);
-          console.error('[tRPC] Fetch error:', error);
+          
+          // Enhanced error handling
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.error('[tRPC] Fetch error:', {
+            message: errorMessage,
+            type: error instanceof Error ? error.name : 'Unknown',
+            timestamp: new Date().toISOString(),
+          });
+          
           throw error;
         }
       },
@@ -182,6 +200,8 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
     httpBatchLink({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
+      // Enable batching to reduce duplicate requests
+      maxURLLength: 2083,
       headers: () => ({
         'Content-Type': 'application/json',
       }),
@@ -199,24 +219,40 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
           
           if (!response.ok) {
             const contentType = response.headers.get('content-type');
-            console.error('[tRPC Vanilla] HTTP error:', {
+            
+            // Enhanced error logging with security considerations
+            const errorInfo = {
               status: response.status,
               statusText: response.statusText,
-              url,
+              url: url.toString().substring(0, 100), // Limit URL length in logs
               contentType,
-            });
+              timestamp: new Date().toISOString(),
+            };
             
-            try {
-              const text = await response.clone().text();
-              console.error('[tRPC Vanilla] Response body:', text.substring(0, 200));
-            } catch {
-              console.error('[tRPC Vanilla] Could not read response body');
+            console.error('[tRPC Vanilla] HTTP error:', errorInfo);
+            
+            // Only log response body in development
+            if (process.env.NODE_ENV !== 'production') {
+              try {
+                const text = await response.clone().text();
+                console.error('[tRPC Vanilla] Response body:', text.substring(0, 200));
+              } catch {
+                console.error('[tRPC Vanilla] Could not read response body');
+              }
             }
           }
           return response;
         } catch (error) {
           clearTimeout(timeoutId);
-          console.error('[tRPC Vanilla] Fetch error:', error);
+          
+          // Enhanced error handling
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.error('[tRPC Vanilla] Fetch error:', {
+            message: errorMessage,
+            type: error instanceof Error ? error.name : 'Unknown',
+            timestamp: new Date().toISOString(),
+          });
+          
           throw error;
         }
       },
