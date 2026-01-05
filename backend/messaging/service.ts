@@ -159,10 +159,19 @@ export class MessagingService {
   
   /**
    * Broadcast message to recipients
+   * 
+   * ⚠️ SECURITY: This is a simplified implementation
+   * In production, messages should ONLY be sent to authorized chat participants
    */
   private broadcastMessage(message: Message): void {
-    // In production, we'd look up chat participants
-    // For now, broadcast to all connected users
+    // TODO: In production, look up chat participants from database
+    // and only send to authorized users
+    // Example:
+    // const participants = await chatService.getParticipants(message.chatId);
+    // wsManager.sendToUsers(participants, WS_EVENTS.MESSAGE_RECEIVE, message);
+    
+    // TEMPORARY: Broadcasting to all users (REMOVE IN PRODUCTION)
+    console.warn('[Security] Broadcasting to all users - implement proper participant filtering');
     wsManager.broadcast(WS_EVENTS.MESSAGE_RECEIVE, message);
   }
   

@@ -30,8 +30,17 @@ export function authenticateWebSocket(token: string): { userId: string } | null 
 }
 
 /**
- * Handle WebSocket upgrade (placeholder)
- * Note: Actual implementation depends on the runtime environment
+ * Handle WebSocket upgrade (informational endpoint)
+ * 
+ * ⚠️ IMPLEMENTATION NOTE: This is an informational endpoint only.
+ * Actual WebSocket upgrade requires platform-specific implementation:
+ * 
+ * - Node.js: Use 'ws' library with http.Server.on('upgrade')
+ * - Bun: Use Bun.serve() with websocket handler
+ * - Cloudflare Workers: Use Durable Objects
+ * - AWS: Use API Gateway WebSocket API
+ * 
+ * See docs/MESSAGING_SETUP.md for production implementation examples
  */
 export function handleWebSocketUpgrade(c: Context) {
   // Extract auth token from query or headers

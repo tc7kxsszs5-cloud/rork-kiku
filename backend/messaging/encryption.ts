@@ -1,15 +1,25 @@
 /**
  * Encryption Utilities
  * Provides encryption/decryption functions for secure messaging
- * Note: This is a basic implementation. In production, use established libraries.
+ * 
+ * ⚠️ SECURITY WARNING: This is a PLACEHOLDER implementation for development only!
+ * Base64 encoding is NOT encryption and provides NO security.
+ * 
+ * For production, you MUST replace this with proper encryption:
+ * - Use AES-256-GCM or ChaCha20-Poly1305
+ * - Use proper key management (AWS KMS, HashiCorp Vault)
+ * - Implement key rotation
+ * - Use crypto.subtle API or established libraries like libsodium
  */
 
 /**
- * Simple encryption using base64 encoding
+ * PLACEHOLDER: Base64 encoding (NOT ENCRYPTION - DEV ONLY)
+ * ⚠️ DO NOT USE IN PRODUCTION - Provides no security whatsoever
+ * 
  * In production, replace with proper encryption (AES-256-GCM, etc.)
  */
 export class MessageEncryption {
-  private static readonly ALGORITHM = 'base64';
+  private static readonly ALGORITHM = 'base64'; // PLACEHOLDER ONLY
   
   /**
    * Encrypt a message
