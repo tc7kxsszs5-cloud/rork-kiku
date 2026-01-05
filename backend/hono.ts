@@ -3,6 +3,7 @@ import { trpcServer } from "@hono/trpc-server";
 import { cors } from "hono/cors";
 import { appRouter } from "./trpc/app-router";
 import { createContext } from "./trpc/create-context";
+import { handleWebSocketUpgrade } from "./messaging/websocket-handler";
 
 const app = new Hono();
 
@@ -22,6 +23,9 @@ app.use(
 app.get("/", (c) => {
   return c.json({ status: "ok", message: "API is running" });
 });
+
+// WebSocket endpoint (informational)
+app.get("/api/ws", handleWebSocketUpgrade);
 
 app.onError((err, c) => {
   console.error('[Hono] Error:', err);
