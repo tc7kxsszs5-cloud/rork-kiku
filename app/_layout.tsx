@@ -13,6 +13,11 @@ import { NotificationsProvider } from "@/constants/NotificationsContext";
 import { AnalyticsProvider } from "@/constants/AnalyticsContext";
 import { AgeComplianceProvider } from "@/constants/AgeComplianceContext";
 import { ABTestingProvider } from "@/constants/ABTestingContext";
+import { PersonalizedAIProvider } from "@/constants/PersonalizedAIContext";
+import { GamificationProvider } from "@/constants/GamificationContext";
+import { PredictiveAnalyticsProvider } from "@/constants/PredictiveAnalyticsContext";
+import { AIParentingAssistantProvider } from "@/constants/AIParentingAssistantContext";
+import { ReferralProgramProvider } from "@/constants/ReferralProgramContext";
 import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
 
@@ -148,15 +153,25 @@ function AppProviders({ children }: { children: ReactNode }) {
             <AgeComplianceProvider>
               <AnalyticsProvider>
                 <ABTestingProvider>
-                  <UserProvider>
-                    <NotificationsProvider>
-                      <ParentalControlsProvider>
-                        <MonitoringProvider>
-                          {children}
-                        </MonitoringProvider>
-                      </ParentalControlsProvider>
-                    </NotificationsProvider>
-                  </UserProvider>
+                  <PersonalizedAIProvider>
+                    <GamificationProvider>
+                      <PredictiveAnalyticsProvider>
+                        <AIParentingAssistantProvider>
+                          <ReferralProgramProvider>
+                            <UserProvider>
+                              <NotificationsProvider>
+                                <ParentalControlsProvider>
+                                  <MonitoringProvider>
+                                    {children}
+                                  </MonitoringProvider>
+                                </ParentalControlsProvider>
+                              </NotificationsProvider>
+                            </UserProvider>
+                          </ReferralProgramProvider>
+                        </AIParentingAssistantProvider>
+                      </PredictiveAnalyticsProvider>
+                    </GamificationProvider>
+                  </PersonalizedAIProvider>
                 </ABTestingProvider>
               </AnalyticsProvider>
             </AgeComplianceProvider>

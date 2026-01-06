@@ -7,6 +7,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { useAnalytics } from './AnalyticsContext';
 import { analyzeMessageWithAI, analyzeImageWithAI } from './AIModerationService';
+import { usePersonalizedAI } from './PersonalizedAIContext';
 
 const LEVEL_ORDER: RiskLevel[] = ['safe', 'low', 'medium', 'high', 'critical'];
 
@@ -124,6 +125,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const isMountedRef = useRef(true);
   const { trackEvent } = useAnalytics();
+  const { personalizeAnalysis } = usePersonalizedAI();
 
   useEffect(() => {
     return () => {
@@ -201,7 +203,13 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
     setIsAnalyzing(true);
 
     try {
-      const analysis = await analyzeMessage(newMessage);
+      let analysis = await analyzeMessage(newMessage);
+
+      // Применяем персонализированный AI для снижения ложных срабатываний
+      // Используем senderId как childId (в реальном приложении нужна правильная связь)
+      // Применяем персонализированный AI для снижения ложных срабатываний
+      const personalizedAnalysis = personalizeAnalysis(senderId, analysis, newMessage.text);
+      analysis = personalizedAnalysis;
 
       if (!isMountedRef.current) {
         return;
@@ -318,13 +326,14 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
             }
 
             // Трекинг анализа сообщения
-            trackEvent('message_analyzed', {
-              messageId: newMessage.id,
-              chatId,
-              riskLevel: analysis.riskLevel,
-              hasImage: !!imageUri,
-              imageBlocked: imageAnalysis.blocked,
-            });
+      trackEvent('message_analyzed', {
+        messageId: newMessage.id,
+        chatId,
+        riskLevel: analysis.riskLevel,
+        hasImage: !!imageUri,
+        imageBlocked: imageAnalysis.blocked,
+      });
+    }, [personalizeAnalysis, trackEvent, chats]);
 
             return {
               ...chat,
