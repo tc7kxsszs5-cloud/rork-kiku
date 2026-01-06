@@ -5,11 +5,9 @@ import { createWebSocketServer } from './services/websocket-server';
 
 const PORT = Number(process.env.PORT) || 3000;
 
-// Create HTTP server with proper typing
-const server = createServer();
-
-// Add request handler from Hono
-server.on('request', serve(app) as any);
+// Create HTTP server with Hono app
+const handler = serve(app);
+const server = createServer(handler);
 
 // Initialize WebSocket server
 createWebSocketServer(server);
