@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { publicProcedure } from "@/backend/trpc/create-context";
-import { createTRPCRouter } from "@/backend/trpc/create-context";
+import { publicProcedure, createTRPCRouter } from "@/backend/trpc/create-context";
 
 // In-memory хранилище для синхронизации (в production использовать БД)
 const chatsStore = new Map<string, any>();
@@ -15,7 +14,7 @@ export const syncChatsProcedure = publicProcedure
     })
   )
   .mutation(({ input }) => {
-    const { deviceId, chats, lastSyncTimestamp } = input;
+    const { deviceId, chats } = input;
     const timestamp = Date.now();
 
     if (chats) {

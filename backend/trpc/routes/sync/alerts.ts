@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { publicProcedure } from "@/backend/trpc/create-context";
-import { createTRPCRouter } from "@/backend/trpc/create-context";
+import { publicProcedure, createTRPCRouter } from "@/backend/trpc/create-context";
 
 // In-memory хранилище для алертов
 const alertsStore = new Map<string, any[]>();
@@ -14,7 +13,7 @@ export const syncAlertsProcedure = publicProcedure
     })
   )
   .mutation(({ input }) => {
-    const { deviceId, userId, alerts } = input;
+    const { deviceId, alerts } = input;
     const timestamp = Date.now();
 
     if (alerts) {

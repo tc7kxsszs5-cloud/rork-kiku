@@ -42,7 +42,7 @@ export interface AnalyticsMetrics {
     critical: number;
   };
   eventsByType: Record<AnalyticsEvent, number>;
-  dailyActivity: Array<{ date: string; events: number }>;
+  dailyActivity: { date: string; events: number }[];
 }
 
 export interface AnalyticsContextValue {

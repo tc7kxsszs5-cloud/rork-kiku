@@ -3,7 +3,6 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from './UserContext';
 
-const AB_STORAGE_KEY = '@ab_tests';
 const AB_ASSIGNMENTS_KEY = '@ab_assignments';
 
 export type ExperimentName = 
@@ -66,7 +65,7 @@ const DEFAULT_EXPERIMENTS: Experiment[] = [
 
 export const [ABTestingProvider, useABTesting] = createContextHook<ABTestingContextValue>(() => {
   const { user } = useUser();
-  const [experiments, setExperiments] = useState<Experiment[]>(DEFAULT_EXPERIMENTS);
+  const [experiments] = useState<Experiment[]>(DEFAULT_EXPERIMENTS);
   const [assignments, setAssignments] = useState<ExperimentAssignment[]>([]);
 
   // Загрузка назначений при инициализации

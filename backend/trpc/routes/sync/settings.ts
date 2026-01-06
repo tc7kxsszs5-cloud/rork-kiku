@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { publicProcedure } from "@/backend/trpc/create-context";
-import { createTRPCRouter } from "@/backend/trpc/create-context";
+import { publicProcedure, createTRPCRouter } from "@/backend/trpc/create-context";
 
 // In-memory хранилище для настроек
 const settingsStore = new Map<string, any>();
