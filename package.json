@@ -6,7 +6,7 @@
     "start": "bunx rork start -p d8v7u672uumlfpscvnbps --tunnel",
     "start-web": "bunx rork start -p d8v7u672uumlfpscvnbps --web --tunnel",
     "start-web-dev": "DEBUG=expo* bunx rork start -p d8v7u672uumlfpscvnbps --web --tunnel",
-    "start:backend": "npx ts-node backend/server.ts",
+    "start:backend": "npx tsx backend/server.ts",
     "example:client": "node backend/examples/websocket-client-example.js",
     "lint": "expo lint",
     "test": "jest",
@@ -79,6 +79,7 @@
     "eslint": "^9.31.0",
     "eslint-config-expo": "~10.0.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.2"
   },
   "private": true
