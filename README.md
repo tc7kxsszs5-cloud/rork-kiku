@@ -41,11 +41,16 @@ npx expo start
 
 Поддержите проект KIKU и помогите защитить детей по всему миру!
 
-[![GitHub Sponsors](https://img.shields.io/github/sponsors/tc7kxsszs5-cloud?style=flat-square&logo=github)](https://github.com/sponsors/tc7kxsszs5-cloud)
-[![Open Collective](https://img.shields.io/badge/Open%20Collective-Sponsor-red.svg?style=flat-square&logo=opencollective)](https://opencollective.com/kiku)
-[![Patreon](https://img.shields.io/badge/Patreon-Support-orange.svg?style=flat-square&logo=patreon)](https://www.patreon.com/kiku)
+### 🌍 Способы поддержки (работают в Грузии и везде):
 
-**Спонсорские пакеты:** [SPONSORS.md](SPONSORS.md)
+[![PayPal](https://img.shields.io/badge/PayPal-Support-blue.svg?style=flat-square&logo=paypal)](https://paypal.me/kikuapp)
+[![Patreon](https://img.shields.io/badge/Patreon-Support-orange.svg?style=flat-square&logo=patreon)](https://www.patreon.com/kiku)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support-yellow.svg?style=flat-square&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/kiku)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support-red.svg?style=flat-square&logo=ko-fi)](https://ko-fi.com/kiku)
+[![Open Collective](https://img.shields.io/badge/Open%20Collective-Sponsor-red.svg?style=flat-square&logo=opencollective)](https://opencollective.com/kiku)
+
+**Спонсорские пакеты:** [SPONSORS.md](SPONSORS.md)  
+**Альтернативные способы:** [SPONSORSHIP_ALTERNATIVES.md](SPONSORSHIP_ALTERNATIVES.md)
 
 ## 🏗️ Архитектура
 
