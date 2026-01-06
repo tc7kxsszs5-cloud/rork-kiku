@@ -6,6 +6,11 @@ import { RiskLevel, RiskAnalysis } from '../../constants/types';
  * Uses a rule-based approach with patterns that can be extended with AI APIs
  */
 
+// NOTE: In production, consider moving these patterns to a configuration file
+// or database table for easier maintenance and updates without code changes.
+// This allows non-technical staff to update filtering rules and adapt to new threats.
+// See docs/SECURITY.md for recommendations on pattern management.
+
 // Inappropriate content patterns (expanded for child safety)
 const INAPPROPRIATE_PATTERNS = {
   // Bullying and harassment

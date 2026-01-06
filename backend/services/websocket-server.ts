@@ -1,5 +1,6 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { Server } from 'http';
+import crypto from 'crypto';
 import { analyzeTextContent, shouldBlockMessage } from '../services/content-filter';
 import { storeMessage, updateMessageAnalysis, getChatMessages, upsertChat, getChat } from '../services/message-store';
 import { Message } from '../../constants/types';
@@ -237,8 +238,8 @@ async function handleChatMessage(ws: WebSocket, payload: ChatMessagePayload): Pr
     return;
   }
 
-  // Generate message ID
-  const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // Generate message ID using crypto for better uniqueness
+  const messageId = `msg_${Date.now()}_${crypto.randomUUID().split('-')[0]}`;
 
   // Store message (unanalyzed initially)
   const message = storeMessage(messageId, {

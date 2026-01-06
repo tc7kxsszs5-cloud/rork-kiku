@@ -1,6 +1,9 @@
 import { Message, Chat, RiskLevel } from '../../constants/types';
 
-// In-memory storage for messages and chats
+// WARNING: In-memory storage for development/testing only
+// All data will be lost when the server restarts
+// For production, replace with persistent database storage (PostgreSQL, MongoDB, etc.)
+// See docs/ARCHITECTURE.md for database integration guidance
 const chats = new Map<string, Chat>();
 const messages = new Map<string, Message>();
 
