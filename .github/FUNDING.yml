@@ -1,10 +1,21 @@
 # GitHub Sponsors configuration
-# This file enables GitHub Sponsors for your project
+# Примечание: GitHub Sponsors недоступен в Грузии
+# Используем альтернативные платформы
 
-github: # Replace with up to 4 GitHub Sponsors-enabled usernames e.g., [user1, user2]
-custom: # Replace with up to 4 custom sponsorship URLs e.g., ['https://paypal.me/yourusername', 'https://patreon.com/yourusername']
-  - 'https://kiku.app/sponsor'
-  - 'https://opencollective.com/kiku'
+# github: # Недоступно в Грузии - используем custom платформы
+custom:
+  # PayPal - работает везде, включая Грузию
+  - 'https://paypal.me/kikuapp'
+  
+  # Patreon - работает в Грузии
   - 'https://www.patreon.com/kiku'
+  
+  # Buy Me a Coffee - работает в Грузии
   - 'https://www.buymeacoffee.com/kiku'
+  
+  # Ko-fi - работает в Грузии
+  - 'https://ko-fi.com/kiku'
+  
+  # Прямые переводы (когда настроите)
+  # - 'https://kiku.app/sponsor'
 
