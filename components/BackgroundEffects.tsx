@@ -20,12 +20,20 @@ export const BackgroundWithDepth: React.FC<BackgroundWithDepthProps> = ({
 }) => {
   const { theme } = useThemeMode();
 
-  const gradientColors: string[] = {
-    default: [theme.background.primary, theme.background.secondary],
-    warm: Gradients.warm,
-    cool: Gradients.trust,
-    dramatic: [theme.background.primary, theme.interactive.primary, theme.background.secondary],
-  }[variant] as string[];
+  const getGradientColors = (): [string, string, ...string[]] => {
+    switch (variant) {
+      case 'warm':
+        return Gradients.warm as [string, string];
+      case 'cool':
+        return Gradients.trust as [string, string];
+      case 'dramatic':
+        return [theme.background.primary, theme.interactive.primary, theme.background.secondary];
+      default:
+        return [theme.background.primary, theme.background.secondary];
+    }
+  };
+  
+  const gradientColors = getGradientColors();
 
   return (
     <View style={[styles.container, style]}>
