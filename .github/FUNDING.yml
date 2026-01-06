@@ -1,0 +1,10 @@
+# GitHub Sponsors configuration
+# This file enables GitHub Sponsors for your project
+
+github: # Replace with up to 4 GitHub Sponsors-enabled usernames e.g., [user1, user2]
+custom: # Replace with up to 4 custom sponsorship URLs e.g., ['https://paypal.me/yourusername', 'https://patreon.com/yourusername']
+  - 'https://kiku.app/sponsor'
+  - 'https://opencollective.com/kiku'
+  - 'https://www.patreon.com/kiku'
+  - 'https://www.buymeacoffee.com/kiku'
+

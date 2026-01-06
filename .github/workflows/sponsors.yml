@@ -1,0 +1,37 @@
+name: Update Sponsors
+
+on:
+  schedule:
+    # Запускается каждый день в 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [sponsor]
+
+jobs:
+  update-sponsors:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Fetch sponsors
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: sponsors } = await github.rest.sponsors.listSponsorsForUser({
+              username: 'tc7kxsszs5-cloud',
+            });
+            
+            // Обновить SPONSORS.md с текущими спонсорами
+            // Это пример - в production нужно парсить и обновлять файл
+            
+            console.log(`Found ${sponsors.length} sponsors`);
+      
+      - name: Update README
+        run: |
+          # Обновить README с количеством спонсоров
+          # Это пример - в production нужно обновлять badges
+          echo "Sponsors updated"
+
