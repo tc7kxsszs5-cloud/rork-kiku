@@ -326,14 +326,13 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
             }
 
             // Трекинг анализа сообщения
-      trackEvent('message_analyzed', {
-        messageId: newMessage.id,
-        chatId,
-        riskLevel: analysis.riskLevel,
-        hasImage: !!imageUri,
-        imageBlocked: imageAnalysis.blocked,
-      });
-    }, [personalizeAnalysis, trackEvent, chats]);
+            trackEvent('message_analyzed', {
+              messageId: newMessage.id,
+              chatId,
+              riskLevel: analysis.riskLevel,
+              hasImage: !!imageUri,
+              imageBlocked: imageAnalysis.blocked,
+            });
 
             return {
               ...chat,
@@ -349,7 +348,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
         setIsAnalyzing(false);
       }
     }
-  }, [analyzeMessage, analyzeImage, trackEvent]);
+  }, [analyzeMessage, analyzeImage, trackEvent, personalizeAnalysis]);
 
   const initializeChatMessages = useCallback(() => {
     if (!isMountedRef.current) {

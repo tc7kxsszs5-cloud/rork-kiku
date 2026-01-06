@@ -87,7 +87,7 @@ export const [PersonalizedAIProvider, usePersonalizedAI] = createContextHook<Per
   }, [profiles]);
 
   const updateChildProfile = useCallback(
-    async (_childId: string, updates: Partial<ChildProfile>) => {
+    async (childId: string, updates: Partial<ChildProfile>) => {
       setProfiles((prev) => {
         const newProfiles = new Map(prev);
         const existing = newProfiles.get(childId);
