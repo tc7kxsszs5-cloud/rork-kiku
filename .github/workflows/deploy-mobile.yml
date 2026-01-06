@@ -1,0 +1,50 @@
+name: Deploy Mobile App
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'constants/**'
+      - 'components/**'
+      - 'package.json'
+      - '.github/workflows/deploy-mobile.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: |
+          npm install -g eas-cli
+          npm install
+      
+      - name: Build iOS (Preview)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          eas build --platform ios --profile preview --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      
+      - name: Build Android (Preview)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          eas build --platform android --profile preview --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      
+      - name: Publish OTA Update
+        if: github.ref == 'refs/heads/main'
+        run: |
+          eas update --branch production --message "Auto-update from CI" --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
