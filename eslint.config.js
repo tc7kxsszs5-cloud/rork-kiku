@@ -4,6 +4,10 @@ const lintTargets = [
   'app/**/*.{js,jsx,ts,tsx}',
   'constants/**/*.{js,jsx,ts,tsx}',
   'types/**/*.{js,jsx,ts,tsx}',
+  'components/**/*.{js,jsx,ts,tsx}',
+  'backend/**/*.{js,jsx,ts,tsx}',
+  'lib/**/*.{js,jsx,ts,tsx}',
+  'hooks/**/*.{js,jsx,ts,tsx}',
   '*.{js,ts,tsx}',
 ];
 

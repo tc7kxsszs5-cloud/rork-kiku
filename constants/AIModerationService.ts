@@ -161,10 +161,9 @@ function analyzeWithRules(text: string): RiskAnalysis {
 async function analyzeWithAdvancedHeuristics(text: string): Promise<RiskAnalysis> {
   // Анализ длины сообщения
   const length = text.length;
-  const hasExcessiveLength = length > 500;
   
   // Анализ использования заглавных букв (крики)
-  const capsRatio = (text.match(/[A-ZА-Я]/g) || []).length / length;
+  const capsRatio = length > 0 ? (text.match(/[A-ZА-Я]/g) || []).length / length : 0;
   const isShouting = capsRatio > 0.5 && length > 10;
   
   // Анализ повторяющихся символов
@@ -176,7 +175,6 @@ async function analyzeWithAdvancedHeuristics(text: string): Promise<RiskAnalysis
   
   // Анализ эмоциональных маркеров
   const hasNegativeEmotions = /(плохо|страшно|боюсь|ненавижу|ужасно)/i.test(text);
-  const hasPositiveEmotions = /(хорошо|рад|счастлив|люблю)/i.test(text);
   
   let riskLevel: RiskLevel = 'safe';
   const reasons: string[] = [];

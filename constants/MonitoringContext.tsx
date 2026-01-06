@@ -340,7 +340,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
         setIsAnalyzing(false);
       }
     }
-  }, [analyzeMessage, analyzeImage]);
+  }, [analyzeMessage, analyzeImage, trackEvent]);
 
   const initializeChatMessages = useCallback(() => {
     if (!isMountedRef.current) {
