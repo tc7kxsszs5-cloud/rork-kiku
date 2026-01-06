@@ -20,6 +20,12 @@ import { AIParentingAssistantProvider } from "@/constants/AIParentingAssistantCo
 import { ReferralProgramProvider } from "@/constants/ReferralProgramContext";
 import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
+import { applyGlobalCursorStyles } from "@/utils/cursorStyles";
+
+// Применяем пользовательские курсоры для web
+if (Platform.OS === 'web' && typeof document !== 'undefined') {
+  applyGlobalCursorStyles();
+}
 
 if (Platform.OS !== 'web') {
   SplashScreen.preventAutoHideAsync();
