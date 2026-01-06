@@ -10,6 +10,9 @@ import { UserProvider } from "@/constants/UserContext";
 import { ParentalControlsProvider } from "@/constants/ParentalControlsContext";
 import { ThemeProvider } from "@/constants/ThemeContext";
 import { NotificationsProvider } from "@/constants/NotificationsContext";
+import { AnalyticsProvider } from "@/constants/AnalyticsContext";
+import { AgeComplianceProvider } from "@/constants/AgeComplianceContext";
+import { ABTestingProvider } from "@/constants/ABTestingContext";
 import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
 
@@ -142,15 +145,21 @@ function AppProviders({ children }: { children: ReactNode }) {
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <AppErrorBoundary>
           <ThemeProvider>
-            <UserProvider>
-              <NotificationsProvider>
-                <ParentalControlsProvider>
-                  <MonitoringProvider>
-                    {children}
-                  </MonitoringProvider>
-                </ParentalControlsProvider>
-              </NotificationsProvider>
-            </UserProvider>
+            <AgeComplianceProvider>
+              <AnalyticsProvider>
+                <ABTestingProvider>
+                  <UserProvider>
+                    <NotificationsProvider>
+                      <ParentalControlsProvider>
+                        <MonitoringProvider>
+                          {children}
+                        </MonitoringProvider>
+                      </ParentalControlsProvider>
+                    </NotificationsProvider>
+                  </UserProvider>
+                </ABTestingProvider>
+              </AnalyticsProvider>
+            </AgeComplianceProvider>
           </ThemeProvider>
         </AppErrorBoundary>
       </trpc.Provider>

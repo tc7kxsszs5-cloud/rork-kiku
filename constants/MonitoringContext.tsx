@@ -3,6 +3,10 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Chat, Message, Alert, RiskLevel, RiskAnalysis } from '@/constants/types';
 import { MOCK_CHATS, INITIAL_MESSAGES } from '@/constants/mockData';
 import { HapticFeedback } from '@/constants/haptics';
+import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
+import { useAnalytics } from './AnalyticsContext';
+import { analyzeMessageWithAI, analyzeImageWithAI } from './AIModerationService';
 
 const LEVEL_ORDER: RiskLevel[] = ['safe', 'low', 'medium', 'high', 'critical'];
 
@@ -119,6 +123,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const isMountedRef = useRef(true);
+  const { trackEvent } = useAnalytics();
 
   useEffect(() => {
     return () => {
@@ -129,25 +134,34 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   const analyzeMessage = useCallback(async (message: Message): Promise<RiskAnalysis> => {
     try {
       await simulateLatency();
-      return evaluateMessageRisk(message);
+      // Используем расширенный AI анализ
+      const aiAnalysis = await analyzeMessageWithAI(message.text, {
+        useAdvancedAI: true,
+        confidenceThreshold: 0.7,
+      });
+      return aiAnalysis;
     } catch (error) {
       console.error('Error analyzing message:', error);
-      return {
-        riskLevel: 'safe',
-        reasons: [],
-        confidence: 0.2,
-        categories: [],
-      };
+      // Fallback на базовый анализ
+      return evaluateMessageRisk(message);
     }
   }, []);
 
   const analyzeImage = useCallback(async (imageUri: string): Promise<{ blocked: boolean; reasons: string[] }> => {
     try {
       await simulateLatency();
-      return evaluateImageRisk(imageUri);
+      // Используем расширенный AI анализ изображений
+      const aiAnalysis = await analyzeImageWithAI(imageUri, {
+        enableImageAnalysis: true,
+      });
+      return {
+        blocked: aiAnalysis.blocked,
+        reasons: aiAnalysis.reasons,
+      };
     } catch (error) {
       console.error('Error analyzing image:', error);
-      return { blocked: false, reasons: [] };
+      // Fallback на базовый анализ
+      return evaluateImageRisk(imageUri);
     }
   }, []);
 
@@ -180,6 +194,9 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
         return chat;
       })
     );
+
+    // Трекинг отправки сообщения
+    trackEvent('message_sent', { chatId, senderId, hasImage: !!imageUri });
 
     setIsAnalyzing(true);
 
@@ -251,7 +268,63 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
                 resolved: false,
               };
               setAlerts((prevAlerts) => [newAlert, ...prevAlerts]);
+
+              // Трекинг создания алерта
+              trackEvent('alert_created', {
+                alertId: newAlert.id,
+                chatId,
+                riskLevel: analysis.riskLevel,
+                reasons: analysis.reasons,
+              });
+
+              // Отправка push уведомления родителям
+              (async () => {
+                try {
+                  const riskLevelLabels: Record<RiskLevel, string> = {
+                    safe: 'Безопасно',
+                    low: 'Низкий',
+                    medium: 'Средний',
+                    high: 'Высокий',
+                    critical: 'КРИТИЧЕСКИЙ',
+                  };
+
+                  const title = analysis.riskLevel === 'critical' 
+                    ? '🚨 КРИТИЧЕСКИЙ РИСК обнаружен!'
+                    : `⚠️ Обнаружен ${riskLevelLabels[analysis.riskLevel]} риск`;
+
+                  const body = `В чате "${chat.participants.join(', ')}": ${analysis.reasons[0] || 'Обнаружена угроза'}`;
+
+                  if (Platform.OS !== 'web') {
+                    await Notifications.scheduleNotificationAsync({
+                      content: {
+                        title,
+                        body,
+                        data: {
+                          type: 'risk_alert',
+                          alertId: newAlert.id,
+                          chatId,
+                          riskLevel: analysis.riskLevel,
+                        },
+                        sound: analysis.riskLevel === 'critical' ? true : 'default',
+                        priority: analysis.riskLevel === 'critical' ? Notifications.AndroidNotificationPriority.MAX : Notifications.AndroidNotificationPriority.HIGH,
+                      },
+                      trigger: null,
+                    });
+                  }
+                } catch (error) {
+                  console.error('[MonitoringContext] Failed to send push notification:', error);
+                }
+              })();
             }
+
+            // Трекинг анализа сообщения
+            trackEvent('message_analyzed', {
+              messageId: newMessage.id,
+              chatId,
+              riskLevel: analysis.riskLevel,
+              hasImage: !!imageUri,
+              imageBlocked: imageAnalysis.blocked,
+            });
 
             return {
               ...chat,
@@ -288,12 +361,21 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   }, [initializeChatMessages]);
 
   const resolveAlert = useCallback((alertId: string) => {
-    setAlerts((prev) =>
-      prev.map((alert) =>
+    setAlerts((prev) => {
+      const updated = prev.map((alert) =>
         alert.id === alertId ? { ...alert, resolved: true } : alert
-      )
-    );
-  }, []);
+      );
+      const resolvedAlert = prev.find((a) => a.id === alertId);
+      if (resolvedAlert) {
+        trackEvent('alert_resolved', {
+          alertId,
+          chatId: resolvedAlert.chatId,
+          riskLevel: resolvedAlert.riskLevel,
+        });
+      }
+      return updated;
+    });
+  }, [trackEvent]);
 
   const unresolvedAlerts = useMemo(
     () => alerts.filter((alert) => !alert.resolved),
