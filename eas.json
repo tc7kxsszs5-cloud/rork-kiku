@@ -1,16 +1,48 @@
 {
+  "cli": {
+    "version": ">= 5.0.0"
+  },
   "build": {
     "production": {
       "ios": {
         "workflow": "managed",
         "buildType": "archive"
       },
+      "android": {
+        "buildType": "apk"
+      },
       "env": {}
+    },
+    "preview": {
+      "ios": {
+        "workflow": "managed",
+        "buildType": "simulator"
+      },
+      "android": {
+        "buildType": "apk"
+      }
     },
     "development": {
       "ios": {
         "workflow": "managed",
         "developmentClient": true
+      },
+      "android": {
+        "buildType": "apk",
+        "developmentClient": true
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "your-apple-id@example.com",
+        "ascAppId": "your-app-id",
+        "appleTeamId": "your-team-id"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "production"
       }
     }
   }

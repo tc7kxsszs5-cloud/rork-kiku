@@ -1,10 +1,15 @@
 import createContextHook from '@nkzw/create-context-hook';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lightThemeColors, darkThemeColors, SemanticColors } from './ColorSystem';
 
 export type ThemeMode = 'sunrise' | 'midnight';
 
-export interface ThemePalette {
+/**
+ * Расширенная палитра темы с улучшенной цветовой системой
+ */
+export interface ThemePalette extends SemanticColors {
+  // Legacy поддержка (для обратной совместимости)
   backgroundPrimary: string;
   backgroundSecondary: string;
   card: string;
@@ -28,61 +33,51 @@ export interface ThemePalette {
 
 const THEME_STORAGE_KEY = '@theme_mode_preference';
 
-const THEMES: Record<ThemeMode, ThemePalette> = {
-  sunrise: {
-    backgroundPrimary: '#fff9e6',
-    backgroundSecondary: '#ffe8b5',
-    card: '#ffffff',
-    cardMuted: '#fff7e0',
-    textPrimary: '#1a1a1a',
-    textSecondary: '#4a4a4a',
-    accentPrimary: '#fbbf24',
-    accentMuted: '#fde68a',
-    borderSoft: '#f4d159',
-    headerBackground: '#ffffff',
-    headerText: '#0f172a',
-    tabBarBackground: '#ffffff',
-    tabBarActive: '#facc15',
-    tabBarInactive: '#8f8f8f',
-    heroGradient: ['#fff4d7', '#ffe4c4'],
-    surfaceGradient: ['#ffd700', '#ffe9a7'],
-    chipBackground: '#fff2c2',
-    chipText: '#7c2d12',
-    isDark: false,
-  },
-  midnight: {
-    backgroundPrimary: '#0b1220',
-    backgroundSecondary: '#111b2e',
-    card: '#111b2e',
-    cardMuted: '#1c2942',
-    textPrimary: '#f8fafc',
-    textSecondary: '#cbd5f5',
-    accentPrimary: '#facc15',
-    accentMuted: '#7c3aed',
-    borderSoft: '#1f2937',
-    headerBackground: '#0f172a',
-    headerText: '#f8fafc',
-    tabBarBackground: '#0f172a',
-    tabBarActive: '#fbbf24',
-    tabBarInactive: '#94a3b8',
-    heroGradient: ['#111b2e', '#0b1220'],
-    surfaceGradient: ['#1f2937', '#0f172a'],
-    chipBackground: '#1f2937',
-    chipText: '#f8fafc',
-    isDark: true,
-  },
+/**
+ * Создание полной палитры темы из семантических цветов
+ */
+const createThemePalette = (semanticColors: SemanticColors, isDark: boolean): ThemePalette => {
+  return {
+    ...semanticColors,
+    // Legacy поддержка
+    backgroundPrimary: semanticColors.background.primary,
+    backgroundSecondary: semanticColors.background.secondary,
+    card: semanticColors.surface.primary,
+    cardMuted: semanticColors.surface.muted,
+    textPrimary: semanticColors.text.primary,
+    textSecondary: semanticColors.text.secondary,
+    accentPrimary: semanticColors.interactive.primary,
+    accentMuted: semanticColors.interactive.secondary,
+    borderSoft: semanticColors.border.muted,
+    headerBackground: semanticColors.surface.elevated,
+    headerText: semanticColors.text.primary,
+    tabBarBackground: semanticColors.surface.elevated,
+    tabBarActive: semanticColors.interactive.primary,
+    tabBarInactive: semanticColors.text.tertiary,
+    heroGradient: [semanticColors.background.primary, semanticColors.background.secondary],
+    surfaceGradient: [semanticColors.surface.primary, semanticColors.surface.secondary],
+    chipBackground: semanticColors.surface.secondary,
+    chipText: semanticColors.text.primary,
+    isDark,
+  };
 };
 
+const THEMES: Record<ThemeMode, ThemePalette> = {
+  sunrise: createThemePalette(lightThemeColors, false),
+  midnight: createThemePalette(darkThemeColors, true),
+};
+
+// Уникальные названия тем с контекстом детской безопасности
 const THEME_OPTIONS: { value: ThemeMode; label: string; description: string }[] = [
   {
     value: 'sunrise',
-    label: 'Светлый',
-    description: 'Теплый дневной фон и яркие акценты',
+    label: 'Теплый день',
+    description: 'Теплый защищающий фон с яркими акцентами безопасности',
   },
   {
     value: 'midnight',
-    label: 'Ночной',
-    description: 'Контролируемый контраст и неоновые детали',
+    label: 'Ночной режим',
+    description: 'Глубокий темный фон с теплыми неоновыми акцентами',
   },
 ];
 
