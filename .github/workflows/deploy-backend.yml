@@ -21,13 +21,17 @@ jobs:
       
       - name: Install dependencies
         run: |
+          echo "Installing backend dependencies with Bun..."
           cd backend
           bun install
+          echo "Backend dependencies installed successfully"
       
       - name: Run tests (if any)
         run: |
+          echo "Running backend tests..."
           cd backend
           bun test || echo "No tests configured"
+          echo "Test execution completed"
       
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
