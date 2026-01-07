@@ -47,8 +47,9 @@ async function fetchSponsors() {
     console.log(`User type: ${user.type}`);
     
     // Try to fetch sponsors
-    // Note: This API might not be available for all users/organizations
-    // It requires GitHub Sponsors to be enabled and proper permissions
+    // Note: The GitHub Sponsors API may require GraphQL for some operations
+    // or may not be available for all users/organizations
+    // This endpoint requires GitHub Sponsors to be enabled and proper permissions
     try {
       const response = await octokit.rest.users.listSponsorsForUser({
         username: username
@@ -66,10 +67,16 @@ async function fetchSponsors() {
         console.log('No sponsors found or GitHub Sponsors is not enabled for this account');
       }
       
-      // Save sponsors list to a file
+      // Save sponsors list to a file with error handling
       const sponsorsFile = path.join(__dirname, '..', 'SPONSORS.json');
-      fs.writeFileSync(sponsorsFile, JSON.stringify(sponsors, null, 2));
-      console.log(`Sponsors list saved to: ${sponsorsFile}`);
+      try {
+        fs.writeFileSync(sponsorsFile, JSON.stringify(sponsors, null, 2));
+        console.log(`Sponsors list saved to: ${sponsorsFile}`);
+      } catch (writeError) {
+        console.error('ERROR: Failed to write SPONSORS.json file');
+        console.error(`  Write error: ${writeError.message}`);
+        throw writeError;
+      }
       
       return sponsors;
       
@@ -80,7 +87,18 @@ async function fetchSponsors() {
         console.warn('  1. GitHub Sponsors is not enabled for this account');
         console.warn('  2. The account does not have any sponsors');
         console.warn('  3. The GITHUB_TOKEN does not have required permissions');
+        console.warn('  4. The API endpoint may require GraphQL instead of REST');
         console.warn('Required token scopes: repo, read:org, user');
+        
+        // Create an empty sponsors file to indicate no sponsors were found
+        const sponsorsFile = path.join(__dirname, '..', 'SPONSORS.json');
+        try {
+          fs.writeFileSync(sponsorsFile, JSON.stringify([], null, 2));
+          console.log('Created empty SPONSORS.json file');
+        } catch (writeError) {
+          console.warn('Could not write empty SPONSORS.json file:', writeError.message);
+        }
+        
         return [];
       } else if (apiError.status === 403) {
         console.error('ERROR: API returned 403 Forbidden. Token may lack required permissions.');
