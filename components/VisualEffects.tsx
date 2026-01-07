@@ -93,7 +93,6 @@ export const NoiseTexture: React.FC<NoiseTextureProps> = ({
 interface GeometricPatternProps {
   style?: ViewStyle;
   pattern?: 'dots' | 'lines' | 'grid' | 'hexagons';
-  color?: string;
   opacity?: number;
 }
 
