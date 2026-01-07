@@ -22,15 +22,27 @@ jobs:
 
       - name: Install Bun
         run: |
+          echo "Installing Bun..."
           curl -fsSL https://bun.sh/install | bash
-          echo "BUN_INSTALL=$HOME/.bun" > $GITHUB_ENV
-          echo "$HOME/.bun/bin" > $GITHUB_PATH
+          echo "BUN_INSTALL=$HOME/.bun" >> $GITHUB_ENV
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+          echo "Bun installation complete"
 
       - name: Install dependencies (bun)
-        run: bun install
+        run: |
+          echo "Installing dependencies with Bun..."
+          bun --version
+          bun install
+          echo "Dependencies installed successfully"
 
       - name: Lint
-        run: bun run lint
+        run: |
+          echo "Running lint checks..."
+          bun run lint
+          echo "Lint checks completed"
 
       - name: Type check
-        run: bunx tsc --noEmit
+        run: |
+          echo "Running TypeScript type checks..."
+          bunx tsc --noEmit
+          echo "Type checks completed successfully"

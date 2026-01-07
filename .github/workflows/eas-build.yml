@@ -21,25 +21,35 @@ jobs:
 
       - name: Install Bun
         run: |
+          echo "Installing Bun..."
           curl -fsSL https://bun.sh/install | bash
-          echo "BUN_INSTALL=$HOME/.bun" > $GITHUB_ENV
-          echo "$HOME/.bun/bin" > $GITHUB_PATH
+          echo "BUN_INSTALL=$HOME/.bun" >> $GITHUB_ENV
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+          echo "Bun installation complete"
 
       - name: Install EAS CLI
-        run: npm install -g eas-cli@~3
+        run: |
+          echo "Installing EAS CLI..."
+          npm install -g eas-cli@~3
+          eas --version
+          echo "EAS CLI installed successfully"
 
       - name: Login to Expo
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
+          echo "Checking Expo authentication..."
           eas whoami || eas login --token "$EXPO_TOKEN"
+          echo "Successfully authenticated with Expo"
 
       - name: EAS build (iOS)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_NO_TELEMETRY: 1
         run: |
+          echo "Starting iOS build with EAS..."
           eas build --platform ios --profile production --non-interactive
+          echo "iOS build completed successfully"
 
       - name: EAS submit (to TestFlight) - optional
         if: ${{ secrets.APPLE_API_KEY_JSON || secrets.APPLE_SPECIFIC_PASSWORD }}
@@ -48,9 +58,13 @@ jobs:
           APPLE_API_KEY_JSON: ${{ secrets.APPLE_API_KEY_JSON }}
           APPLE_SPECIFIC_PASSWORD: ${{ secrets.APPLE_SPECIFIC_PASSWORD }}
         run: |
+          echo "Submitting to TestFlight..."
           if [ -n "$APPLE_API_KEY_JSON" ]; then
+            echo "Using Apple API Key for submission"
             echo "$APPLE_API_KEY_JSON" > /tmp/apple-api-key.json
             eas submit --platform ios --non-interactive --apple-app-store-connection /tmp/apple-api-key.json
           else
+            echo "Using Apple-specific password for submission"
             eas submit --platform ios --non-interactive --apple-id "${{ secrets.APPLE_ID }}" --apple-app-specific-password "$APPLE_SPECIFIC_PASSWORD"
           fi
+          echo "TestFlight submission completed"
