@@ -43,7 +43,7 @@ npx expo start
 
 ### 🌍 Способы поддержки (работают в Грузии и везде):
 
-[![PayPal](https://img.shields.io/badge/PayPal-Support-blue.svg?style=flat-square&logo=paypal)](https://paypal.me/kikuapp)
+[![PayPal](https://img.shields.io/badge/PayPal-Support-blue.svg?style=flat-square&logo=paypal)](https://paypal.me/kikustore)
 [![Patreon](https://img.shields.io/badge/Patreon-Support-orange.svg?style=flat-square&logo=patreon)](https://www.patreon.com/kiku)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support-yellow.svg?style=flat-square&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/kiku)
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support-red.svg?style=flat-square&logo=ko-fi)](https://ko-fi.com/kiku)

@@ -5,7 +5,7 @@
 # github: # Недоступно в Грузии - используем custom платформы
 custom:
   # PayPal - работает везде, включая Грузию
-  - 'https://paypal.me/kikuapp'
+  - 'https://paypal.me/kikustore'
   
   # Patreon - работает в Грузии
   - 'https://www.patreon.com/kiku'
