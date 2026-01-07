@@ -1,5 +1,7 @@
 # 🛡️ KIKU - AI-Powered Child Safety Platform
 
+[![CI](https://github.com/tc7kxsszs5-cloud/rork-kiku/actions/workflows/ci.yml/badge.svg)](https://github.com/tc7kxsszs5-cloud/rork-kiku/actions/workflows/ci.yml)
+[![EAS Build](https://github.com/tc7kxsszs5-cloud/rork-kiku/actions/workflows/eas-build.yml/badge.svg)](https://github.com/tc7kxsszs5-cloud/rork-kiku/actions/workflows/eas-build.yml)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/tc7kxsszs5-cloud?style=for-the-badge&logo=github)](https://github.com/sponsors/tc7kxsszs5-cloud)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
