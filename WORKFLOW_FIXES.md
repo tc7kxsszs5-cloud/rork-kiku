@@ -142,6 +142,27 @@ permissions:
   # Add other permissions as needed
 ```
 
+### Sponsors API Returns "Endpoint not available"
+
+**Issue:** The GitHub REST API may not have a `listSponsorsForUser` endpoint.
+
+**Solution:**
+- The script includes a fallback for this scenario
+- Consider migrating to GitHub GraphQL API for sponsor data
+- Example GraphQL query:
+  ```graphql
+  query {
+    user(login: "username") {
+      sponsors(first: 100) {
+        nodes {
+          ... on User { login, name }
+          ... on Organization { login, name }
+        }
+      }
+    }
+  }
+  ```
+
 ### Bun Installation Fails
 
 **Issue:** Environment variables not being set correctly.

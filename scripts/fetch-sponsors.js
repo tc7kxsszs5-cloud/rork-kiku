@@ -3,6 +3,12 @@
 /**
  * Script to fetch GitHub sponsors for the organization/user
  * This script is used by the sponsors.yml GitHub Actions workflow
+ * 
+ * NOTE: The GitHub REST API's sponsor-related endpoints may be limited or require
+ * the GraphQL API for full functionality. If the REST endpoint fails, consider
+ * migrating to the GitHub GraphQL API to fetch sponsor information.
+ * 
+ * @requires @octokit/rest - GitHub REST API client
  */
 
 const { Octokit } = require('@octokit/rest');
@@ -47,13 +53,24 @@ async function fetchSponsors() {
     console.log(`User type: ${user.type}`);
     
     // Try to fetch sponsors
-    // Note: The GitHub Sponsors API may require GraphQL for some operations
-    // or may not be available for all users/organizations
-    // This endpoint requires GitHub Sponsors to be enabled and proper permissions
+    // IMPORTANT: The GitHub REST API may not have a direct endpoint for sponsors
+    // The endpoint 'users.listSponsorsForUser' may not exist in all versions of @octokit/rest
+    // If this fails, you may need to use the GitHub GraphQL API instead
+    // GraphQL query example: query { user(login: "username") { sponsors { nodes { login } } } }
     try {
-      const response = await octokit.rest.users.listSponsorsForUser({
-        username: username
-      });
+      // Try to use the REST API endpoint if it exists
+      // Note: This may fail if the endpoint is not available
+      let response;
+      if (typeof octokit.rest.users.listSponsorsForUser === 'function') {
+        response = await octokit.rest.users.listSponsorsForUser({
+          username: username
+        });
+      } else {
+        // Fallback: endpoint doesn't exist, treat as no sponsors
+        console.warn('WARN: listSponsorsForUser endpoint not available in REST API');
+        console.warn('Consider using GitHub GraphQL API for sponsor data');
+        throw { status: 404, message: 'API endpoint not available' };
+      }
       
       const sponsors = response.data || [];
       console.log(`Successfully fetched sponsors. Count: ${sponsors.length}`);
