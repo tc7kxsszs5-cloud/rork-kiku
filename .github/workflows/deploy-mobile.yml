@@ -24,27 +24,36 @@ jobs:
       
       - name: Install dependencies
         run: |
+          echo "Installing EAS CLI globally..."
           npm install -g eas-cli
+          echo "Installing project dependencies..."
           npm install
+          echo "Dependencies installed successfully"
       
       - name: Build iOS (Preview)
         if: github.ref == 'refs/heads/main'
         run: |
+          echo "Starting iOS preview build..."
           eas build --platform ios --profile preview --non-interactive
+          echo "iOS build completed successfully"
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       
       - name: Build Android (Preview)
         if: github.ref == 'refs/heads/main'
         run: |
+          echo "Starting Android preview build..."
           eas build --platform android --profile preview --non-interactive
+          echo "Android build completed successfully"
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       
       - name: Publish OTA Update
         if: github.ref == 'refs/heads/main'
         run: |
+          echo "Publishing OTA update to production branch..."
           eas update --branch production --message "Auto-update from CI" --non-interactive
+          echo "OTA update published successfully"
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
