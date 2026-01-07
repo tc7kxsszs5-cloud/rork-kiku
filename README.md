@@ -78,7 +78,7 @@ MIT License - см. [LICENSE](LICENSE) для деталей.
 
 ## 📞 Контакты
 
-- **Email:** dev@kiku.app
+- **Email:** zaira_beloeva@mail.ru
 - **GitHub:** [github.com/tc7kxsszs5-cloud/rork-kiku](https://github.com/tc7kxsszs5-cloud/rork-kiku)
 - **Спонсорство:** [SPONSORS.md](SPONSORS.md)
 
