@@ -63,10 +63,19 @@ jobs:
 
       - name: Push changes
         run: |
-          # Check if there are unpushed commits
-          if ! git diff --quiet origin/$(git branch --show-current) HEAD 2>/dev/null; then
-            git push
-            echo "Changes pushed successfully"
+          # Check if there are uncommitted changes or commits to push
+          if git diff-index --quiet HEAD --; then
+            # No uncommitted changes, check for unpushed commits
+            LOCAL=$(git rev-parse @)
+            REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "no-remote")
+            if [ "$LOCAL" != "$REMOTE" ]; then
+              git push
+              echo "Changes pushed successfully"
+            else
+              echo "No changes to push"
+            fi
           else
-            echo "No changes to push"
+            # There are uncommitted changes that shouldn't be here
+            echo "WARNING: Uncommitted changes detected, but should have been committed earlier"
+            echo "No push performed"
           fi
