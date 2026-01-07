@@ -53,23 +53,38 @@ async function fetchSponsors() {
     console.log(`User type: ${user.type}`);
     
     // Try to fetch sponsors
-    // IMPORTANT: The GitHub REST API may not have a direct endpoint for sponsors
-    // The endpoint 'users.listSponsorsForUser' may not exist in all versions of @octokit/rest
-    // If this fails, you may need to use the GitHub GraphQL API instead
-    // GraphQL query example: query { user(login: "username") { sponsors { nodes { login } } } }
+    // IMPORTANT NOTE: The GitHub REST API does NOT have a 'listSponsorsForUser' endpoint
+    // GitHub sponsors data can only be accessed via the GraphQL API
+    // This code is structured to fail gracefully and document the correct approach
+    // 
+    // To properly fetch sponsors, you would need to use GraphQL:
+    // const { graphql } = require('@octokit/graphql');
+    // const result = await graphql(`
+    //   query($username: String!) {
+    //     user(login: $username) {
+    //       sponsors(first: 100) {
+    //         nodes {
+    //           ... on User { login, name }
+    //           ... on Organization { login, name }
+    //         }
+    //       }
+    //     }
+    //   }
+    // `, { username, headers: { authorization: `token ${token}` } });
+    //
     try {
-      // Try to use the REST API endpoint if it exists
-      // Note: This may fail if the endpoint is not available
+      // Try to use the REST API endpoint if it exists (it likely won't)
       let response;
       if (typeof octokit.rest.users.listSponsorsForUser === 'function') {
         response = await octokit.rest.users.listSponsorsForUser({
           username: username
         });
       } else {
-        // Fallback: endpoint doesn't exist, treat as no sponsors
+        // Expected path: endpoint doesn't exist in REST API
         console.warn('WARN: listSponsorsForUser endpoint not available in REST API');
-        console.warn('Consider using GitHub GraphQL API for sponsor data');
-        throw { status: 404, message: 'API endpoint not available' };
+        console.warn('GitHub sponsors data requires the GraphQL API');
+        console.warn('See script comments for GraphQL implementation example');
+        throw new Error('Sponsors API endpoint not available - GraphQL required');
       }
       
       const sponsors = response.data || [];

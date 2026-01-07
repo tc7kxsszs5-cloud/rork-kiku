@@ -70,13 +70,47 @@ You can manually trigger this workflow from the Actions tab in GitHub to test it
 
 The `scripts/fetch-sponsors.js` script provides the following features:
 
+### Important Note
+
+**The GitHub REST API does not provide a `listSponsorsForUser` endpoint.** The script is designed to fail gracefully and document the need for GraphQL API migration. To actually fetch sponsors, you must use the GitHub GraphQL API.
+
 ### Features
 - Validates that `GITHUB_TOKEN` is present before making API calls
 - Fetches user information first to verify access
 - Handles specific API errors gracefully (404, 403, 401)
 - Provides detailed error messages with troubleshooting hints
-- Saves sponsors list to `SPONSORS.json` file
+- Documents the GraphQL API migration path with code examples
+- Saves sponsors list to `SPONSORS.json` file (currently empty due to REST API limitation)
 - Extensive logging for debugging
+
+### Migration to GraphQL API
+
+To properly fetch sponsors, you need to use the GitHub GraphQL API. Here's an example:
+
+```javascript
+const { graphql } = require('@octokit/graphql');
+
+const result = await graphql(`
+  query($username: String!) {
+    user(login: $username) {
+      sponsors(first: 100) {
+        nodes {
+          ... on User { login, name, avatarUrl }
+          ... on Organization { login, name, avatarUrl }
+        }
+        totalCount
+      }
+    }
+  }
+`, {
+  username: 'your-username',
+  headers: {
+    authorization: `token ${process.env.GITHUB_TOKEN}`
+  }
+});
+
+console.log(result.user.sponsors);
+```
 
 ### Usage
 
