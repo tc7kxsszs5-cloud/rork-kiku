@@ -50,13 +50,28 @@ jobs:
 
           if [ -f "SPONSORS.json" ]; then
             git add SPONSORS.json
-            git diff --staged --quiet || git commit -m "chore: update sponsors list [skip ci]"
-            echo "Sponsors list updated and committed"
+            # Check if there are actual changes to commit
+            if git diff --cached --quiet; then
+              echo "No changes to SPONSORS.json"
+            else
+              git commit -m "chore: update sponsors list [skip ci]"
+              echo "Sponsors list updated and committed"
+            fi
           else
             echo "No SPONSORS.json file to commit"
           fi
 
       - name: Push changes
-        if: success()
         run: |
-          git push || echo "No changes to push"
+          # Check if there are commits to push
+          if git status --porcelain | grep -q .; then
+            git push
+            echo "Changes pushed successfully"
+          else
+            if git log origin/$(git branch --show-current)..HEAD | grep -q .; then
+              git push
+              echo "Changes pushed successfully"
+            else
+              echo "No changes to push"
+            fi
+          fi
