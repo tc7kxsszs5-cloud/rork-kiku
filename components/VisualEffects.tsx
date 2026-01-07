@@ -100,12 +100,8 @@ interface GeometricPatternProps {
 export const GeometricPattern: React.FC<GeometricPatternProps> = ({
   style,
   pattern = 'dots',
-  color,
   opacity = 0.1,
 }) => {
-  const { theme } = useThemeMode();
-  const patternColor = color || theme.border.accent;
-
   return (
     <View style={[styles.geometricPattern, { opacity }, style]}>
       {/* В production можно использовать react-native-svg для создания паттернов */}
