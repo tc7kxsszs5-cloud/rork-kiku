@@ -51,7 +51,7 @@ When contributing to KIKU, please follow these security best practices:
 
 ### Data Protection
 - Implement proper encryption for sensitive data
-- Follow GDPR-K and COPPA compliance requirements
+- Follow GDPR-K (GDPR for children) and COPPA compliance requirements (see [GDPR_K_COMPLIANCE.md](LEGAL/GDPR_K_COMPLIANCE.md))
 - Minimize data collection and storage
 - Use secure communication protocols (HTTPS, WSS)
 
@@ -73,7 +73,7 @@ KIKU implements several security features to protect children and their data:
 
 - **End-to-End Encryption**: Sensitive communications are encrypted
 - **Data Minimization**: We collect only necessary data
-- **Compliance**: GDPR-K and COPPA compliant
+- **Compliance**: GDPR-K (GDPR for children) and COPPA compliant (see [LEGAL/GDPR_K_COMPLIANCE.md](LEGAL/GDPR_K_COMPLIANCE.md))
 - **Secure Storage**: Using React Native secure storage mechanisms
 - **Regular Security Audits**: We perform periodic security assessments
 
