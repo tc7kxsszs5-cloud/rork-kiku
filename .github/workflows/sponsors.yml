@@ -63,15 +63,10 @@ jobs:
 
       - name: Push changes
         run: |
-          # Check if there are commits to push
-          if git status --porcelain | grep -q .; then
+          # Check if there are unpushed commits
+          if ! git diff --quiet origin/$(git branch --show-current) HEAD 2>/dev/null; then
             git push
             echo "Changes pushed successfully"
           else
-            if git log origin/$(git branch --show-current)..HEAD | grep -q .; then
-              git push
-              echo "Changes pushed successfully"
-            else
-              echo "No changes to push"
-            fi
+            echo "No changes to push"
           fi
