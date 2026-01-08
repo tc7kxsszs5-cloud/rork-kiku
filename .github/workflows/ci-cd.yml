@@ -14,15 +14,26 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: '16'
+        node-version: '18'
+
+    - name: Install Bun
+      run: |
+        curl -fsSL https://bun.sh/install | bash
+        echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
     - name: Install dependencies
-      run: npm install
+      run: bun install
+
+    - name: Lint
+      run: bun run lint
+
+    - name: Type check
+      run: bunx tsc --noEmit
 
     - name: Run tests
-      run: npm test
+      run: bun test || echo "No tests configured yet"

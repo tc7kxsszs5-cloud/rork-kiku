@@ -6,6 +6,7 @@ name: Sponsors
 on:
   schedule:
     - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
   update-sponsors:
@@ -13,32 +14,17 @@ jobs:
 
     steps:
     - name: Check out repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: '16'
+        node-version: '18'
 
     - name: Install dependencies
-      run: npm install
+      run: npm install @octokit/rest
 
     - name: Update sponsors list
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        const { Octokit } = require('@octokit/rest');
-        const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-
-        async function fetchSponsors() {
-          try {
-            const { data } = await octokit.rest.users.listSponsorsForUser({
-              username: 'tc7kxsszs5-cloud' // Required username setup
-            });
-            console.log(data || []);
-          } catch (error) {
-            console.error('Error fetching sponsors:', error);
-          }
-        }
-
-        fetchSponsors();
+      run: node .github/scripts/update-sponsors.js
