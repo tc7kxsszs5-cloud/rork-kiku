@@ -131,3 +131,4 @@ eas submit --platform android
 
 **Итого: ~40 минут до первого production deployment!** 🚀
 
+

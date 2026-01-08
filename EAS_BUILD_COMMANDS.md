@@ -160,3 +160,4 @@ eas build --platform ios --profile production
 
 Можно отслеживать прогресс на: https://expo.dev
 
+

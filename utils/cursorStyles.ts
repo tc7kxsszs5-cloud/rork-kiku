@@ -74,3 +74,4 @@ export const applyGlobalCursorStyles = () => {
   document.head.appendChild(style);
 };
 
+

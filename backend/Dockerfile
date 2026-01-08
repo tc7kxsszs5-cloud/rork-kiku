@@ -25,3 +25,4 @@ EXPOSE 3000
 # Запуск приложения
 CMD ["bun", "run", "index.ts"]
 
+

@@ -1,0 +1,205 @@
+# KIKU Project - Cursor AI Agent Rules
+
+## Project Context
+
+This is **KIKU** - an AI-powered child safety platform built with React Native (Expo), TypeScript, and tRPC.
+
+### Core Technologies
+- **Frontend:** React Native 0.81.5, Expo 54, TypeScript 5.9
+- **Backend:** Hono + tRPC
+- **State Management:** React Context (createContextHook), React Query
+- **Styling:** React Native StyleSheet, custom design system
+- **Package Manager:** Bun
+
+### Key Design Principles
+
+1. **Avoid AI-generated clichés:**
+   - NO generic fonts (Inter, Roboto, Arial, system fonts)
+   - NO purple gradients on white backgrounds
+   - NO cookie-cutter layouts
+   - Use context-specific, unique design elements
+
+2. **Typography:**
+   - Display fonts: Playfair Display (elegant, distinctive)
+   - Body fonts: Lora (readable, refined)
+   - Accent fonts: Montserrat Bold (emphasis)
+
+3. **Color System:**
+   - Dominant: Safety Orange (#FF6B35), Trust Blue (#4A90E2)
+   - Accent: Alert Amber (#FFB020), Care Green (#52C41A)
+   - Danger: Red (#F5222D)
+
+4. **Visual Effects:**
+   - Gradient meshes, noise textures, geometric patterns
+   - Layered glass effects, dramatic shadows
+   - Decorative borders, grain overlays
+   - Custom cursors (web only)
+
+## Code Style Guidelines
+
+### TypeScript
+- Use strict mode
+- Prefer explicit types over `any`
+- Use interfaces for object shapes
+- Use enums for fixed sets of values
+- Export types and interfaces explicitly
+
+### React Native / Expo
+- Use functional components with hooks
+- Prefer `useCallback` and `useMemo` for optimization
+- Use Context API for global state
+- Follow Expo best practices for native modules
+- Handle platform-specific code with `Platform.OS` checks
+
+### File Organization
+- Components in `/components`
+- Context providers in `/constants`
+- Utilities in `/utils`
+- Types in `/constants/types.ts`
+- Routes in `/app` (Expo Router file-based routing)
+
+### Naming Conventions
+- Components: PascalCase (e.g., `MonitoringScreen`)
+- Hooks: camelCase with `use` prefix (e.g., `useMonitoring`)
+- Context: PascalCase with `Context` suffix (e.g., `MonitoringContext`)
+- Files: Match component/hook name (e.g., `MonitoringContext.tsx`)
+- Constants: UPPER_SNAKE_CASE (e.g., `ANALYTICS_STORAGE_KEY`)
+
+### State Management Patterns
+
+**Context Providers:**
+- Use `@nkzw/create-context-hook` for creating context providers
+- Export both Provider and hook: `export const [Provider, useHook] = createContextHook(...)`
+- Wrap providers in `app/_layout.tsx` in correct dependency order
+- Provider order matters: UserProvider before AnalyticsProvider before ABTestingProvider
+
+**Example:**
+```typescript
+export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
+  const [state, setState] = useState();
+  // ... logic
+  return { state, setState };
+});
+```
+
+### Error Handling
+- Use ErrorBoundary for React errors
+- Wrap async operations in try-catch
+- Log errors with context: `console.error('[ContextName] Error:', error)`
+- Provide user-friendly error messages
+- Use `isMountedRef` pattern for async operations in effects
+
+### Performance
+- Memoize expensive computations with `useMemo`
+- Memoize callbacks with `useCallback`
+- Limit re-renders with proper dependency arrays
+- Use `isMountedRef` to prevent state updates after unmount
+
+## Project-Specific Rules
+
+### Analytics
+- Track events using `useAnalytics().trackEvent()`
+- Store analytics in AsyncStorage with key `@kiku_analytics`
+- Events: `message_sent`, `message_analyzed`, `alert_created`, `sos_triggered`, etc.
+
+### AI Moderation
+- Use `AIModerationService` for message/image analysis
+- Risk levels: `'safe' | 'low' | 'medium' | 'high' | 'critical'`
+- Always provide fallback analysis if AI fails
+
+### Internationalization
+- Use `i18next` for translations
+- Keys in `/constants/locales/en.ts` and `/constants/locales/ru.ts`
+- Use `useTranslation()` hook: `const { t } = useTranslation()`
+
+### Theme System
+- Use `useTheme()` hook from `ThemeContext`
+- Themes: `'sunrise' | 'midnight'`
+- Colors via semantic system: `theme.colors.interactive.primary`
+
+### Security & Privacy
+- Use `SecureStore` for sensitive data (not AsyncStorage)
+- Always validate user input
+- Follow GDPR compliance guidelines
+- Never log sensitive user data
+
+## Common Patterns
+
+### Async Operations in Effects
+```typescript
+useEffect(() => {
+  let isMounted = true;
+  const loadData = async () => {
+    try {
+      const data = await fetchData();
+      if (isMounted) setData(data);
+    } catch (error) {
+      console.error('[Component] Error:', error);
+    }
+  };
+  loadData();
+  return () => { isMounted = false; };
+}, []);
+```
+
+### Context Provider Usage
+```typescript
+// In app/_layout.tsx
+<UserProvider>
+  <AnalyticsProvider>
+    <MonitoringProvider>
+      {children}
+    </MonitoringProvider>
+  </AnalyticsProvider>
+</UserProvider>
+```
+
+### Platform-Specific Code
+```typescript
+if (Platform.OS === 'web') {
+  // Web-specific code
+} else {
+  // Native code
+}
+```
+
+## What NOT to Do
+
+- ❌ Don't use `any` type without good reason
+- ❌ Don't mutate state directly
+- ❌ Don't forget cleanup in useEffect
+- ❌ Don't create circular dependencies between contexts
+- ❌ Don't use inline styles for complex components
+- ❌ Don't ignore TypeScript errors
+- ❌ Don't commit `node_modules`, `.expo`, or `.rork` directories
+- ❌ Don't use generic AI-generated design patterns
+- ❌ Don't change the main launch logo (splash screen icon)
+
+## Testing Considerations
+
+- Use Expo Go for development testing
+- Test on iOS 16+ and Android 10+
+- Test parent and child user roles
+- Verify AI moderation works correctly
+- Check SOS functionality with location permissions
+- Test offline scenarios
+
+## Deployment
+
+- Use EAS Build for iOS/Android builds
+- Use Rork platform for development server
+- Backend: Hono + tRPC on Vercel/Cloudflare
+- Database: PostgreSQL (production)
+- Cache: Redis
+
+## Documentation
+
+- Keep README.md updated
+- Document complex logic with comments
+- Update type definitions when adding features
+- Maintain DESIGN_SYSTEM.md for design changes
+
+---
+
+**Remember:** This is a child safety application. Code quality, security, and user privacy are paramount. Always prioritize safety and clarity over cleverness.
+
