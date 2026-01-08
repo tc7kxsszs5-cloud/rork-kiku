@@ -31,6 +31,9 @@ jobs:
     - name: Install dependencies
       run: bun install
 
+    - name: Install Octokit
+      run: bun add @octokit/rest
+
     - name: Update sponsors list
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
