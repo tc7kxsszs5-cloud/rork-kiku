@@ -41,3 +41,6 @@ android/
 .rork
 .env
 rork-eslint.config.js
+
+# Prevent malformed directory names
+-*github*-
