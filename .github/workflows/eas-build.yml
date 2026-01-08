@@ -25,6 +25,7 @@ jobs:
       - name: Install Bun
         run: |
           curl -fsSL https://bun.sh/install | bash
+          echo "BUN_INSTALL=$HOME/.bun" >> $GITHUB_ENV
           echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
       - name: Install EAS CLI
