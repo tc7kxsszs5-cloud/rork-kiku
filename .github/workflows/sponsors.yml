@@ -35,13 +35,14 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        node -e "
         const { Octokit } = require('@octokit/rest');
         const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
         async function fetchSponsors() {
           try {
             const { data } = await octokit.rest.users.listSponsorsForUser({
-              username: 'tc7kxsszs5-cloud' // Required username setup
+              username: 'tc7kxsszs5-cloud'
             });
             console.log(data || []);
           } catch (error) {
@@ -50,3 +51,4 @@ jobs:
         }
 
         fetchSponsors();
+        "
