@@ -15,6 +15,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Mark repository as safe
+        run: git config --global --add safe.directory /home/runner/work/rork-kiku/rork-kiku
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
