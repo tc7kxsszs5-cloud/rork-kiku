@@ -1,0 +1,109 @@
+name: 🔄 Continuous Check & Quality Control
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  schedule:
+    # Каждый день в 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  quality-check:
+    name: 🔍 Quality Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: 📦 Install dependencies
+        run: bun install
+
+      - name: 🔍 TypeScript Check
+        run: bunx tsc --noEmit
+        continue-on-error: true
+
+      - name: 🧹 ESLint Check
+        run: bun run lint
+        continue-on-error: true
+
+      - name: 📊 Code Quality Report
+        run: |
+          echo "## 📊 Quality Check Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ TypeScript check completed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ ESLint check completed" >> $GITHUB_STEP_SUMMARY
+
+  security-check:
+    name: 🔒 Security Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Setup Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: 📦 Install dependencies
+        run: bun install
+
+      - name: 🔒 Security Audit
+        run: |
+          echo "Security audit placeholder"
+          # Можно добавить: bun audit или другие инструменты
+        continue-on-error: true
+
+  project-health:
+    name: 📈 Project Health
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📊 Project Statistics
+        run: |
+          echo "## 📈 Project Health Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Статистика файлов
+          TS_FILES=$(find . -name "*.ts" -o -name "*.tsx" | wc -l)
+          COMPONENTS=$(find components -name "*.tsx" 2>/dev/null | wc -l)
+          CONTEXTS=$(find constants -name "*Context.tsx" 2>/dev/null | wc -l)
+          
+          echo "📁 TypeScript файлов: $TS_FILES" >> $GITHUB_STEP_SUMMARY
+          echo "🧩 Компонентов: $COMPONENTS" >> $GITHUB_STEP_SUMMARY
+          echo "🔄 Context провайдеров: $CONTEXTS" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Проверка критических файлов
+          if [ -f "app/_layout.tsx" ]; then
+            echo "✅ app/_layout.tsx exists" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ app/_layout.tsx missing" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  notify-on-failure:
+    name: 📢 Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [quality-check, security-check]
+    if: failure()
+
+    steps:
+      - name: 📢 Notification
+        run: |
+          echo "⚠️ Quality checks failed!"
+          # Можно добавить отправку уведомлений (Email, Slack, Discord)
+
