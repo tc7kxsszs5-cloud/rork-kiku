@@ -288,3 +288,4 @@ import { BodyRegular } from '@/components/Typography';
 **Последнее обновление:** 2025-01-06  
 **Версия:** 1.0
 
+
