@@ -59,8 +59,7 @@ export interface NotificationsContextValue {
 }
 
 export const [NotificationsProvider, useNotifications] = createContextHook<NotificationsContextValue>(() => {
-  const userContext = useUser();
-  const user = userContext?.user ?? null;
+  const { user } = useUser();
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
   const [permissionStatus, setPermissionStatus] = useState<PushPermissionState>(() => 'undetermined');
@@ -217,7 +216,7 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
             pushToken: tokenResponse.data,
             platform: platformValue,
             appVersion: Constants.expoConfig?.version,
-            userId: user?.id ?? undefined,
+            userId: user?.id,
             permissions: status,
           });
         } catch (mutationError) {
