@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { NotificationDeviceRecord, NotificationTestResult } from './types';
 import { useUser } from './UserContext';
+import { setupNotificationChannels } from '@/utils/soundNotifications';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -192,12 +193,9 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
           return;
         }
 
+        // Настройка каналов уведомлений с поддержкой звуков
         if (Platform.OS === 'android') {
-          await Notifications.setNotificationChannelAsync('default', {
-            name: 'Стандартные уведомления',
-            importance: Notifications.AndroidImportance.MAX,
-            description: 'Системные уведомления KIDS',
-          });
+          await setupNotificationChannels();
         }
 
         const tokenResponse = await Notifications.getExpoPushTokenAsync({ projectId });

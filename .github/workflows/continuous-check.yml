@@ -107,3 +107,4 @@ jobs:
           echo "⚠️ Quality checks failed!"
           # Можно добавить отправку уведомлений (Email, Slack, Discord)
 
+

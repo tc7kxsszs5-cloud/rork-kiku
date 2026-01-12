@@ -30,8 +30,13 @@ import {
   Activity,
   CheckCircle2,
   XCircle,
+  Star,
+  Heart,
+  Sparkles,
+  MessageCircle,
 } from 'lucide-react-native';
 import { useUser } from '@/constants/UserContext';
+import { useMonitoring } from '@/constants/MonitoringContext';
 import { useNotifications, PushPermissionState } from '@/constants/NotificationsContext';
 import { NotificationTestType } from '@/constants/types';
 import { useParentalControls } from '@/constants/ParentalControlsContext';
@@ -167,8 +172,9 @@ const DIAGNOSTIC_LABELS: Record<NotificationTestType, string> = {
 };
 
 export default function ProfileScreen() {
-  const { user, isLoading, identifyUser, updateUser, logoutUser } = useUser();
+  const { user, isLoading, identifyUser, updateUser, logoutUser, isChild, isParent } = useUser();
   const { settings } = useParentalControls();
+  const { chats } = useMonitoring();
   const router = useRouter();
 
   const [name, setName] = useState<string>('');
@@ -372,20 +378,18 @@ export default function ProfileScreen() {
 
     try {
       if (user) {
-        await updateUser({
-          name: name.trim(),
-          email: email.trim() || undefined,
-          role,
-          language,
-        });
+        // Для детей сохраняем только имя, для родителей - все поля
+        const updates = isChild
+          ? { name: name.trim(), role: 'child' as const, language }
+          : { name: name.trim(), email: email.trim() || undefined, role, language };
+        await updateUser(updates);
         console.log('[ProfileScreen] User updated');
       } else {
-        await identifyUser({
-          name: name.trim(),
-          email: email.trim() || undefined,
-          role,
-          language,
-        });
+        // При создании профиля для детей используем role='child'
+        const userData = isChild
+          ? { name: name.trim(), role: 'child' as const, language }
+          : { name: name.trim(), email: email.trim() || undefined, role, language };
+        await identifyUser(userData);
         console.log('[ProfileScreen] User created');
       }
       HapticFeedback.success();
@@ -436,6 +440,100 @@ export default function ProfileScreen() {
     );
   }
 
+  // Красивая версия для детей
+  if (isChild) {
+    const chatsCount = chats.length;
+    const safeChatsCount = chats.filter(chat => chat.overallRisk === 'safe' || chat.overallRisk === 'low').length;
+
+    return (
+      <ScrollView style={styles.container} contentContainerStyle={styles.childContentContainer} testID="profile-screen-child">
+        {/* Большая яркая карточка профиля */}
+        <LinearGradient 
+          colors={['#FF6B9D', '#C44569', '#8E44AD']} 
+          start={{ x: 0, y: 0 }} 
+          end={{ x: 1, y: 1 }}
+          style={styles.childHeroCard}
+        >
+          <View style={styles.childAvatarWrapper}>
+            <View style={styles.childAvatarCircle}>
+              <UserIcon color="#FFFFFF" size={64} fill="#FFFFFF" />
+            </View>
+            <View style={styles.childSparkle1}>
+              <Sparkles size={24} color="#FFD700" fill="#FFD700" />
+            </View>
+            <View style={styles.childSparkle2}>
+              <Star size={20} color="#FF6B9D" fill="#FF6B9D" />
+            </View>
+          </View>
+          <Text style={styles.childName} testID="profile-name-display">
+            {name || 'Твой профиль'}
+          </Text>
+          <View style={styles.childStatusBadge}>
+            <ShieldCheck size={24} color="#FFFFFF" />
+            <Text style={styles.childStatusText}>Защищен 🛡️</Text>
+          </View>
+        </LinearGradient>
+
+        {/* Статистика в ярких карточках */}
+        <View style={styles.childStatsRow}>
+          <LinearGradient 
+            colors={['#4ECDC4', '#44A08D']} 
+            style={styles.childStatCard}
+          >
+            <MessageCircle size={48} color="#FFFFFF" />
+            <Text style={styles.childStatNumber}>{chatsCount}</Text>
+            <Text style={styles.childStatLabel}>Чатов</Text>
+          </LinearGradient>
+
+          <LinearGradient 
+            colors={['#FFE66D', '#FF6B6B']} 
+            style={styles.childStatCard}
+          >
+            <Heart size={48} color="#FFFFFF" />
+            <Text style={styles.childStatNumber}>{safeChatsCount}</Text>
+            <Text style={styles.childStatLabel}>Безопасных</Text>
+          </LinearGradient>
+        </View>
+
+        {/* Редактирование имени */}
+        <View style={styles.childEditSection}>
+          <Text style={styles.childSectionTitle}>Моё имя</Text>
+          <View style={styles.childInputWrapper}>
+            <TextInput
+              value={name}
+              onChangeText={setName}
+              placeholder="Как тебя зовут?"
+              style={styles.childInput}
+              placeholderTextColor="rgba(255, 255, 255, 0.6)"
+              autoCapitalize="words"
+              testID="profile-name-input"
+            />
+            <TouchableOpacity
+              style={styles.childSaveButton}
+              onPress={handleSaveProfile}
+              disabled={isSubmitting}
+              testID="profile-save-button"
+            >
+              {isSubmitting ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Save size={24} color="#FFFFFF" />
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Декоративные элементы */}
+        <View style={styles.childDecorativeStars}>
+          <Star size={32} color="#FFD700" fill="#FFD700" opacity={0.3} />
+          <Sparkles size={28} color="#FF6B9D" fill="#FF6B9D" opacity={0.2} />
+          <Star size={24} color="#4ECDC4" fill="#4ECDC4" opacity={0.25} />
+        </View>
+      </ScrollView>
+    );
+  }
+
+  // Полная версия для родителей
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} testID="profile-screen">
       <LinearGradient colors={theme.heroGradient} style={styles.heroCard}>
@@ -1420,5 +1518,150 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     marginTop: 12,
     fontSize: 14,
     color: theme.textSecondary,
+  },
+  // Детские стили
+  childContentContainer: {
+    padding: 24,
+    paddingBottom: 80,
+    gap: 24,
+    backgroundColor: theme.backgroundPrimary,
+  },
+  childHeroCard: {
+    borderRadius: 32,
+    padding: 32,
+    alignItems: 'center',
+    shadowColor: '#FF6B9D',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.4,
+    shadowRadius: 24,
+    elevation: 12,
+    marginBottom: 8,
+  },
+  childAvatarWrapper: {
+    position: 'relative',
+    marginBottom: 20,
+  },
+  childAvatarCircle: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 4,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  childSparkle1: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+  },
+  childSparkle2: {
+    position: 'absolute',
+    bottom: -4,
+    left: -12,
+  },
+  childName: {
+    fontSize: 32,
+    fontWeight: '800' as const,
+    color: '#FFFFFF',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  childStatusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  childStatusText: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+    color: '#FFFFFF',
+  },
+  childStatsRow: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  childStatCard: {
+    flex: 1,
+    borderRadius: 24,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  childStatNumber: {
+    fontSize: 36,
+    fontWeight: '800' as const,
+    color: '#FFFFFF',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  childStatLabel: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: '#FFFFFF',
+    opacity: 0.9,
+  },
+  childEditSection: {
+    backgroundColor: theme.card,
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  childSectionTitle: {
+    fontSize: 22,
+    fontWeight: '700' as const,
+    color: theme.textPrimary,
+    marginBottom: 16,
+  },
+  childInputWrapper: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'center',
+  },
+  childInput: {
+    flex: 1,
+    backgroundColor: theme.cardMuted,
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    fontSize: 18,
+    fontWeight: '600' as const,
+    color: theme.textPrimary,
+    borderWidth: 2,
+    borderColor: theme.borderSoft,
+  },
+  childSaveButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#FF6B9D',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#FF6B9D',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  childDecorativeStars: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 32,
+    paddingVertical: 16,
   },
 });

@@ -1,0 +1,53 @@
+# Git Workflow Rules for AI Agent
+
+## Commit Guidelines
+
+### NEVER Auto-Commit
+- ❌ NEVER execute `git commit` automatically
+- ✅ ALWAYS ask user for approval before committing
+- ✅ Wait for explicit user confirmation
+
+### When to Suggest Commits
+Suggest commits ONLY when:
+1. ✅ Batch of work is completed
+2. ✅ Tests pass (verified by agent): `bun test`
+3. ✅ TypeScript check passes: `bunx tsc --noEmit`
+4. ✅ Natural pause point exists
+5. ✅ Agent can verify the work independently
+
+### When NOT to Suggest Commits
+Do NOT suggest commits when:
+1. ❌ Tests require user's manual verification
+2. ❌ No natural pause point exists
+3. ❌ Manual verification required by user
+4. ❌ Work is incomplete or partial
+5. ❌ Uncertain about results
+
+### Commit Message Format
+```
+<type>: <brief description>
+
+<details (optional)>
+
+<files (optional)>
+```
+
+Types: `feat`, `fix`, `test`, `refactor`, `docs`, `style`, `chore`
+
+### Example Workflow
+```
+1. Complete tasks
+2. Run: bun test (verify all pass)
+3. Run: bunx tsc --noEmit (verify no errors)
+4. Suggest commit to user (don't execute)
+5. Wait for user approval
+6. Only commit after explicit user confirmation
+```
+
+## Integration with Plans
+
+Plans (TESTING_PLAN.md, REMAINING_TASKS.md) may include commit steps showing WHAT to commit, not WHEN. Execution must always ask user.
+
+See: GIT_WORKFLOW.md for complete documentation.
+
+

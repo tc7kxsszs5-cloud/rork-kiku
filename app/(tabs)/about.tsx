@@ -54,7 +54,7 @@ export default function AboutScreen() {
             KIDS
           </Text>
         </View>
-        <Text style={styles.title}>KIDS</Text>
+        <Text style={styles.title}>by Kiku</Text>
         <Text style={styles.subtitle}>Защита переписок с AI</Text>
         <Text style={styles.version}>Версия 1.0.0</Text>
       </View>

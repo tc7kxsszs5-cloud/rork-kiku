@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIDS by KIKU - Project Resume</title>
+    <style>
+        @page {
+            margin: 2cm;
+            size: A4;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+            padding: 40px;
+            max-width: 210mm;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 32px;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #FF6B35;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4A90E2;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            font-size: 20px;
+            color: #34495e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        hr {
+            border: none;
+            border-top: 2px solid #e0e0e0;
+            margin: 30px 0;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #4A90E2;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .emoji {
+            font-size: 1.2em;
+        }
+        
+        .highlight {
+            background-color: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        
+        .mission {
+            background-color: #f0f7ff;
+            padding: 15px;
+            border-left: 4px solid #4A90E2;
+            margin: 15px 0;
+            font-style: italic;
+        }
+        
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            flex: 1;
+            min-width: 200px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #FF6B35;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FF6B35;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        @media print {
+            body {
+                padding: 0;
+            }
+            
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>📄 KIDS by KIKU - Project Resume</h1>
+    <p style="font-size: 16px; color: #666; margin-bottom: 30px;">Одностраничное резюме проекта</p>
+    
+    <hr>
+    
+    <h2>🎯 О проекте</h2>
+    <p><strong>KIDS by KIKU</strong> — AI-платформа для защиты детей в цифровом мире, объединяющая проактивную защиту в реальном времени с образовательной составляющей.</p>
+    <div class="mission">
+        <strong>Миссия:</strong> Стать предустановленным стандартом детской безопасности на всех платформах.
+    </div>
+    
+    <hr>
+    
+    <h2>🚨 Проблема</h2>
+    <div class="stats">
+        <div class="stat-item">
+            <div class="stat-value">34%</div>
+            <div class="stat-label">детей сталкиваются с кибербуллингом</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">1 из 5</div>
+            <div class="stat-label">получает нежелательные сообщения</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">60%</div>
+            <div class="stat-label">видят нежелательный контент онлайн</div>
+        </div>
+    </div>
+    <p><strong>Текущие решения реактивные</strong> (действуют после факта) — дети остаются незащищенными.</p>
+    
+    <hr>
+    
+    <h2>✅ Решение</h2>
+    <p><strong>KIDS Platform — 4 ключевых компонента:</strong></p>
+    <ol>
+        <li><strong>AI-мониторинг в реальном времени</strong>
+            <ul>
+                <li>Анализ текста, изображений, голоса ДО показа ребенку</li>
+                <li>90% снижение ложных срабатываний</li>
+            </ul>
+        </li>
+        <li><strong>Образование + защита</strong> (уникальное преимущество)
+            <ul>
+                <li>Игровые сценарии безопасного поведения</li>
+                <li>Возрастно-адаптивное обучение</li>
+            </ul>
+        </li>
+        <li><strong>Родительский контроль</strong>
+            <ul>
+                <li>4 уровня контроля</li>
+                <li>Детальная аналитика</li>
+            </ul>
+        </li>
+        <li><strong>SOS экстренная помощь</strong>
+            <ul>
+                <li>Кнопка SOS с геолокацией</li>
+                <li>Автоматические уведомления</li>
+            </ul>
+        </li>
+    </ol>
+    
+    <hr>
+    
+    <h2>📊 Рынок</h2>
+    <ul>
+        <li><strong>Размер рынка:</strong> $2.5B (2024) → <span class="highlight">$5B+ (2030)</span></li>
+        <li><strong>Рост:</strong> 15% CAGR</li>
+        <li><strong>Целевая аудитория:</strong> 500M+ семей с детьми 5-17 лет</li>
+        <li><strong>География:</strong> США ($800M), ЕС ($600M), Азия ($700M)</li>
+    </ul>
+    
+    <hr>
+    
+    <h2>💰 Бизнес-модель</h2>
+    <p><strong>Многоуровневая монетизация:</strong></p>
+    <table>
+        <thead>
+            <tr>
+                <th>Сегмент</th>
+                <th>Модель</th>
+                <th>Цена</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>B2C</strong></td>
+                <td>Freemium</td>
+                <td>$9.99/мес (Premium), $19.99/мес (Family)</td>
+            </tr>
+            <tr>
+                <td><strong>B2B</strong></td>
+                <td>Школы</td>
+                <td>$500-2000/мес</td>
+            </tr>
+            <tr>
+                <td><strong>Партнерства</strong></td>
+                <td>Лицензии</td>
+                <td>Предустановка на устройствах</td>
+            </tr>
+        </tbody>
+    </table>
+    <p><strong>Прогноз:</strong></p>
+    <ul>
+        <li>Год 1: <strong>$500K ARR</strong></li>
+        <li>Год 2: <strong>$5M ARR</strong></li>
+        <li>Год 3: <strong>$25M ARR</strong></li>
+    </ul>
+    
+    <hr>
+    
+    <h2>🎯 Конкурентные преимущества</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>KIDS</th>
+                <th>Конкуренты (Bark, Qustodio)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>✅ Образование + защита</td>
+                <td>❌ Только блокировка</td>
+            </tr>
+            <tr>
+                <td>✅ Проактивная AI-защита</td>
+                <td>❌ Реактивная защита</td>
+            </tr>
+            <tr>
+                <td>✅ Стратегия предустановки</td>
+                <td>❌ Только приложения</td>
+            </tr>
+            <tr>
+                <td>✅ 90% точность</td>
+                <td>❌ Высокий уровень ложных срабатываний</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <hr>
+    
+    <h2>📈 Текущий статус</h2>
+    <p><strong>✅ Готово:</strong></p>
+    <ul>
+        <li>MVP полностью функционален</li>
+        <li>Все основные функции реализованы</li>
+        <li>COPPA/GDPR-K compliant</li>
+        <li>Production-ready код</li>
+        <li>Open Source подход</li>
+    </ul>
+    <p><strong>🚀 Следующие шаги:</strong></p>
+    <ul>
+        <li>Интеграции (iOS, Android, браузеры, мессенджеры)</li>
+        <li>Партнерства (Apple, Google, Microsoft)</li>
+        <li>Масштабирование команды</li>
+    </ul>
+    
+    <hr>
+    
+    <h2>💼 Инвестиционные потребности</h2>
+    <p><strong>Seed Round: $500K - $1M</strong></p>
+    <p><strong>Использование средств:</strong></p>
+    <ul>
+        <li>40% — Интеграции (iOS, Android, браузеры, мессенджеры)</li>
+        <li>30% — Команда (разработчики, маркетинг)</li>
+        <li>20% — Партнерства (переговоры, юридические вопросы)</li>
+        <li>10% — Операционные расходы</li>
+    </ul>
+    <p><strong>Ожидаемые результаты через 12 месяцев:</strong></p>
+    <ul>
+        <li>3-5 платформ интегрированы</li>
+        <li>50,000+ активных пользователей</li>
+        <li>1-2 крупных партнерства</li>
+        <li>Подготовка к Series A ($2M-$5M)</li>
+    </ul>
+    
+    <hr>
+    
+    <h2>🌍 Видение</h2>
+    <ul>
+        <li><strong>Краткосрочно (1-2 года):</strong> 50K-500K защищенных детей</li>
+        <li><strong>Среднесрочно (3-5 лет):</strong> Стандарт предустановки на детских устройствах, миллионы пользователей</li>
+        <li><strong>Долгосрочно (5+ лет):</strong> Глобальное признание, государственное внедрение, экосистема продуктов</li>
+    </ul>
+    
+    <hr>
+    
+    <h2>🤝 Что мы ищем</h2>
+    <p><strong>Инвесторы:</strong></p>
+    <ul>
+        <li>Seed Round: $500K - $1M</li>
+        <li>Опыт в tech/edtech/social impact</li>
+        <li>Стратегическое мышление</li>
+        <li>Сеть контактов для партнерств</li>
+    </ul>
+    <p><strong>Стратегические партнеры:</strong></p>
+    <ul>
+        <li>Apple, Google, Microsoft (интеграции)</li>
+        <li>Образовательные платформы</li>
+        <li>Телеком операторы</li>
+    </ul>
+    
+    <hr>
+    
+    <h2>📞 Контакты</h2>
+    <ul>
+        <li><strong>Компания:</strong> KIKU</li>
+        <li><strong>Проект:</strong> KIDS</li>
+        <li><strong>Email:</strong> g_mikheil@icloud.com</li>
+        <li><strong>GitHub:</strong> github.com/tc7kxsszs5-cloud/rork-kiku</li>
+        <li><strong>Website:</strong> [в разработке]</li>
+    </ul>
+    
+    <hr>
+    
+    <p style="text-align: center; font-size: 18px; margin: 30px 0;">
+        <strong>KIDS by KIKU</strong> — Защита детей в цифровом мире через инновационные технологии 🛡️
+    </p>
+    <p style="text-align: center; font-style: italic; color: #666; margin-bottom: 30px;">
+        Это не просто бизнес — это миссия защиты миллионов детей.
+    </p>
+    
+    <div class="footer">
+        <p>© 2024 KIKU. All rights reserved.</p>
+        <p>KIDS by KIKU - Confidential and Proprietary</p>
+    </div>
+</body>
+</html>
+
+
