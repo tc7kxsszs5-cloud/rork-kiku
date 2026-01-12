@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "bunx rork start -p d8v7u672uumlfpscvnbps --tunnel",
+    "start:expo": "bunx expo start",
+    "start:local": "bunx expo start --lan",
     "start-web": "bunx rork start -p d8v7u672uumlfpscvnbps --web --tunnel",
     "start-web-dev": "DEBUG=expo* bunx rork start -p d8v7u672uumlfpscvnbps --web --tunnel",
     "lint": "expo lint",

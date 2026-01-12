@@ -4,15 +4,25 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import i18n from './i18n';
 
+export interface ChildProfile {
+  id: string;
+  name: string;
+  age?: number;
+  avatar?: string;
+  deviceId?: string;
+  addedAt: number;
+}
+
 export interface User {
   id: string;
   name: string;
-  role: 'parent' | 'child';
   email?: string;
   avatar?: string;
   createdAt: number;
   deviceId?: string;
   language?: string;
+  children: ChildProfile[]; // Массив детей родителя
+  activeChildId?: string; // ID активного (выбранного) ребенка для просмотра
 }
 
 const USER_STORAGE_KEY = '@user_data';
@@ -33,9 +43,15 @@ export const [UserProvider, useUser] = createContextHook(() => {
         }
         if (stored) {
           const userData = JSON.parse(stored);
-          setUser(userData);
-          if (userData.language) {
-            i18n.changeLanguage(userData.language);
+          // Миграция: если старый формат (с role), конвертируем в новый
+          const { role, ...userWithoutRole } = userData;
+          const migratedUser: User = {
+            ...userWithoutRole,
+            children: userData.children || [], // Обеспечиваем наличие children
+          };
+          setUser(migratedUser);
+          if (migratedUser.language) {
+            i18n.changeLanguage(migratedUser.language);
           }
         }
       } catch (error) {
@@ -61,11 +77,12 @@ export const [UserProvider, useUser] = createContextHook(() => {
     };
   }, []);
 
-  const identifyUser = useCallback(async (userData: Omit<User, 'id' | 'createdAt'>) => {
+  const identifyUser = useCallback(async (userData: Omit<User, 'id' | 'createdAt' | 'children'> & { children?: ChildProfile[] }) => {
     try {
       const newUser: User = {
         id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         createdAt: Date.now(),
+        children: userData.children || [],
         ...userData,
       };
 
@@ -75,7 +92,7 @@ export const [UserProvider, useUser] = createContextHook(() => {
       console.log('User identified:', {
         id: newUser.id,
         name: newUser.name,
-        role: newUser.role,
+        childrenCount: newUser.children.length,
       });
 
       return newUser;
@@ -107,6 +124,74 @@ export const [UserProvider, useUser] = createContextHook(() => {
     }
   }, [user]);
 
+  const addChild = useCallback(async (childData: Omit<ChildProfile, 'id' | 'addedAt'>) => {
+    if (!user) {
+      throw new Error('No user to add child to');
+    }
+
+    try {
+      const newChild: ChildProfile = {
+        id: `child_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        addedAt: Date.now(),
+        ...childData,
+      };
+
+      const updatedUser = {
+        ...user,
+        children: [...user.children, newChild],
+      };
+
+      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
+      setUser(updatedUser);
+
+      console.log('Child added:', newChild.id);
+      return newChild;
+    } catch (error) {
+      console.error('Error adding child:', error);
+      throw error;
+    }
+  }, [user]);
+
+  const removeChild = useCallback(async (childId: string) => {
+    if (!user) {
+      throw new Error('No user to remove child from');
+    }
+
+    try {
+      const updatedChildren = user.children.filter(child => child.id !== childId);
+      const updatedUser = {
+        ...user,
+        children: updatedChildren,
+        activeChildId: user.activeChildId === childId ? undefined : user.activeChildId,
+      };
+
+      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
+      setUser(updatedUser);
+
+      console.log('Child removed:', childId);
+    } catch (error) {
+      console.error('Error removing child:', error);
+      throw error;
+    }
+  }, [user]);
+
+  const setActiveChild = useCallback(async (childId: string | undefined) => {
+    if (!user) {
+      throw new Error('No user to update');
+    }
+
+    try {
+      const updatedUser = { ...user, activeChildId: childId };
+      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
+      setUser(updatedUser);
+
+      console.log('Active child set:', childId);
+    } catch (error) {
+      console.error('Error setting active child:', error);
+      throw error;
+    }
+  }, [user]);
+
   const logoutUser = useCallback(async () => {
     try {
       await AsyncStorage.removeItem(USER_STORAGE_KEY);
@@ -118,17 +203,22 @@ export const [UserProvider, useUser] = createContextHook(() => {
     }
   }, []);
 
-  const isParent = user?.role === 'parent';
-  const isChild = user?.role === 'child';
+  const activeChild = useMemo(() => {
+    if (!user || !user.activeChildId) return null;
+    return user.children.find(child => child.id === user.activeChildId) || null;
+  }, [user]);
 
   return useMemo(() => ({
     user,
     isLoading,
     isAuthenticated: !!user,
-    isParent,
-    isChild,
+    activeChild,
+    children: user?.children || [],
     identifyUser,
     updateUser,
+    addChild,
+    removeChild,
+    setActiveChild,
     logoutUser,
-  }), [user, isLoading, isParent, isChild, identifyUser, updateUser, logoutUser]);
+  }), [user, isLoading, activeChild, identifyUser, updateUser, addChild, removeChild, setActiveChild, logoutUser]);
 });

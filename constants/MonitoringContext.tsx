@@ -6,6 +6,12 @@ import { HapticFeedback } from '@/constants/haptics';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { useAnalytics } from './AnalyticsContext';
+import {
+  getSoundForRiskLevel,
+  getAndroidPriorityForRiskLevel,
+  getChannelIdForRiskLevel,
+  setupNotificationChannels,
+} from '@/utils/soundNotifications';
 import { analyzeMessageWithAI, analyzeImageWithAI } from './AIModerationService';
 import { usePersonalizedAI } from './PersonalizedAIContext';
 
@@ -128,6 +134,12 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   const { personalizeAnalysis } = usePersonalizedAI();
 
   useEffect(() => {
+    // Настройка каналов уведомлений для Android при инициализации
+    if (Platform.OS === 'android') {
+      setupNotificationChannels().catch((error) => {
+        console.error('[MonitoringContext] Failed to setup notification channels:', error);
+      });
+    }
     return () => {
       isMountedRef.current = false;
     };
@@ -303,6 +315,10 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
                   const body = `В чате "${chat.participants.join(', ')}": ${analysis.reasons[0] || 'Обнаружена угроза'}`;
 
                   if (Platform.OS !== 'web') {
+                    const sound = getSoundForRiskLevel(analysis.riskLevel);
+                    const channelId = getChannelIdForRiskLevel(analysis.riskLevel);
+                    const priority = getAndroidPriorityForRiskLevel(analysis.riskLevel);
+
                     await Notifications.scheduleNotificationAsync({
                       content: {
                         title,
@@ -313,8 +329,9 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
                           chatId,
                           riskLevel: analysis.riskLevel,
                         },
-                        sound: analysis.riskLevel === 'critical' ? true : 'default',
-                        priority: analysis.riskLevel === 'critical' ? Notifications.AndroidNotificationPriority.MAX : Notifications.AndroidNotificationPriority.HIGH,
+                        sound,
+                        ...(Platform.OS === 'android' && channelId ? { channelId } : {}),
+                        priority,
                       },
                       trigger: null,
                     });

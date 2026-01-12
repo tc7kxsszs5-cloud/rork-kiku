@@ -23,11 +23,11 @@ import { Audio } from 'expo-av';
 import { useIsMounted } from '@/hooks/useIsMounted';
 
 const RISK_COLORS: Record<RiskLevel, string> = {
-  safe: '#10b981',
-  low: '#3b82f6',
-  medium: '#f59e0b',
-  high: '#ef4444',
-  critical: '#991b1b',
+  safe: '#52C41A',      // СУПЕР ЯРКИЙ зеленый лайм (детская версия)
+  low: '#4A90E2',       // СУПЕР ЯРКИЙ голубой (детская версия)
+  medium: '#FFD700',    // СУПЕР ЯРКИЙ золотой (детская версия)
+  high: '#FF1744',      // СУПЕР ЯРКИЙ красный (детская версия)
+  critical: '#E6002E',  // СУПЕР ЯРКИЙ темно-красный (детская версия)
 };
 
 const RISK_LABELS: Record<RiskLevel, string> = {

@@ -157,29 +157,29 @@ function AppProviders({ children }: { children: ReactNode }) {
         <AppErrorBoundary>
           <ThemeProvider>
             <AgeComplianceProvider>
-              <AnalyticsProvider>
-                <ABTestingProvider>
-                  <PersonalizedAIProvider>
-                    <GamificationProvider>
-                      <PredictiveAnalyticsProvider>
-                        <AIParentingAssistantProvider>
-                          <ReferralProgramProvider>
-                            <UserProvider>
-                              <NotificationsProvider>
-                                <ParentalControlsProvider>
-                                  <MonitoringProvider>
+              <UserProvider>
+                <AnalyticsProvider>
+                  <ABTestingProvider>
+                    <PersonalizedAIProvider>
+                      <MonitoringProvider>
+                        <ParentalControlsProvider>
+                          <GamificationProvider>
+                            <PredictiveAnalyticsProvider>
+                              <AIParentingAssistantProvider>
+                                <ReferralProgramProvider>
+                                  <NotificationsProvider>
                                     {children}
-                                  </MonitoringProvider>
-                                </ParentalControlsProvider>
-                              </NotificationsProvider>
-                            </UserProvider>
-                          </ReferralProgramProvider>
-                        </AIParentingAssistantProvider>
-                      </PredictiveAnalyticsProvider>
-                    </GamificationProvider>
-                  </PersonalizedAIProvider>
-                </ABTestingProvider>
-              </AnalyticsProvider>
+                                  </NotificationsProvider>
+                                </ReferralProgramProvider>
+                              </AIParentingAssistantProvider>
+                            </PredictiveAnalyticsProvider>
+                          </GamificationProvider>
+                        </ParentalControlsProvider>
+                      </MonitoringProvider>
+                    </PersonalizedAIProvider>
+                  </ABTestingProvider>
+                </AnalyticsProvider>
+              </UserProvider>
             </AgeComplianceProvider>
           </ThemeProvider>
         </AppErrorBoundary>
