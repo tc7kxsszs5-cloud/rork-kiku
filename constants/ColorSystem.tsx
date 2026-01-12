@@ -1,13 +1,11 @@
 /**
- * СУПЕР ЯРКАЯ цветовая система KIKU для детей (обновленная версия)
+ * ЯРКАЯ цветовая система KIKU для детей
  * 
  * Принципы:
- * - ОЧЕНЬ яркие, веселые цвета для детской аудитории
- * - Максимально насыщенные цвета с резкими акцентами
+ * - Яркие, веселые цвета для детской аудитории
+ * - Доминирующие цвета с резкими акцентами
  * - Контекстно-специфичные цвета для детской безопасности
- * - СУПЕР яркие, дружелюбные цвета для привлечения детей
- * 
- * Обновлено: Цвета сделаны еще более яркими и насыщенными для детской версии
+ * - Яркие, дружелюбные цвета
  */
 
 /**
@@ -15,79 +13,79 @@
  * Яркие, веселые, привлекательные для детей
  */
 export const ColorTokens = {
-  // Safety Orange - СУПЕР ЯРКИЙ оранжевый для безопасности (детская версия)
-  // Очень яркий, дружелюбный, привлекательный для детей
+  // Safety Orange - яркий оранжевый для безопасности
+  // Яркий, дружелюбный, привлекательный
   safety: {
-    50: '#FFF0E6',
-    100: '#FFD4B8',
-    200: '#FFB88A',
-    300: '#FF9C5C',
-    400: '#FF8042',
-    500: '#FF6B35', // СУПЕР ЯРКИЙ оранжевый (более яркий чем раньше)
-    600: '#FF5722',
-    700: '#FF4500',
-    800: '#FF3300',
-    900: '#FF2200',
+    50: '#FFF3E0',
+    100: '#FFE0B2',
+    200: '#FFCC80',
+    300: '#FFB74D',
+    400: '#FFA726',
+    500: '#FF9800', // Яркий основной цвет безопасности
+    600: '#FB8C00',
+    700: '#F57C00',
+    800: '#EF6C00',
+    900: '#E65100',
   },
   
-  // Trust Blue - СУПЕР ЯРКИЙ голубой для доверия (детская версия)
-  // Очень яркий, веселый, привлекательный для детей
+  // Trust Blue - яркий синий для доверия
+  // Яркий, веселый, привлекательный
   trust: {
-    50: '#E6F4FF',
-    100: '#B3DEFF',
-    200: '#80C8FF',
-    300: '#4DB2FF',
-    400: '#1A9CFF',
-    500: '#4A90E2', // СУПЕР ЯРКИЙ голубой (более яркий чем раньше)
-    600: '#0080FF',
-    700: '#0070E6',
-    800: '#0060CC',
-    900: '#0050B3',
+    50: '#E3F2FD',
+    100: '#BBDEFB',
+    200: '#90CAF9',
+    300: '#64B5F6',
+    400: '#42A5F5',
+    500: '#2196F3', // Яркий основной цвет доверия
+    600: '#1E88E5',
+    700: '#1976D2',
+    800: '#1565C0',
+    900: '#0D47A1',
   },
   
-  // Care Green - СУПЕР ЯРКИЙ зеленый для заботы (детская версия)
-  // Очень яркий, свежий, привлекательный для детей
+  // Care Green - яркий зеленый для заботы
+  // Яркий, свежий, привлекательный
   care: {
-    50: '#E8FFE8',
-    100: '#B3FFB3',
-    200: '#7FFF7F',
-    300: '#4CFF4C',
-    400: '#19FF19',
-    500: '#52C41A', // СУПЕР ЯРКИЙ зеленый лайм (более яркий)
-    600: '#00E600',
-    700: '#00CC00',
-    800: '#00B300',
-    900: '#009900',
+    50: '#E8F5E9',
+    100: '#C8E6C9',
+    200: '#A5D6A7',
+    300: '#81C784',
+    400: '#66BB6A',
+    500: '#4CAF50', // Яркий основной цвет заботы
+    600: '#43A047',
+    700: '#388E3C',
+    800: '#2E7D32',
+    900: '#1B5E20',
   },
   
-  // Alert Amber - СУПЕР ЯРКИЙ золотой для предупреждений (детская версия)
-  // Очень яркий, заметный, веселый для детей
+  // Alert Amber - яркий желтый для предупреждений
+  // Яркий, заметный, веселый
   alert: {
-    50: '#FFFBE6',
-    100: '#FFF5B3',
-    200: '#FFEF80',
-    300: '#FFE94D',
-    400: '#FFE31A',
-    500: '#FFD700', // СУПЕР ЯРКИЙ золотой (более яркий)
-    600: '#FFC700',
-    700: '#FFB700',
-    800: '#FFA700',
-    900: '#FF9700',
+    50: '#FFFDE7',
+    100: '#FFF9C4',
+    200: '#FFF59D',
+    300: '#FFF176',
+    400: '#FFEE58',
+    500: '#FFEB3B', // Яркий основной цвет предупреждения
+    600: '#FDD835',
+    700: '#FBC02D',
+    800: '#F9A825',
+    900: '#F57F17',
   },
   
-  // Danger Red - СУПЕР ЯРКИЙ красный для критических рисков (детская версия)
-  // Очень яркий, заметный, но дружелюбный для детей
+  // Danger Red - яркий красный для критических рисков
+  // Яркий, заметный, но дружелюбный
   danger: {
-    50: '#FFE6E6',
-    100: '#FFB3B3',
-    200: '#FF8080',
-    300: '#FF4D4D',
-    400: '#FF1A1A',
-    500: '#FF1744', // СУПЕР ЯРКИЙ красный (более яркий и насыщенный)
-    600: '#FF0033',
-    700: '#E6002E',
-    800: '#CC0029',
-    900: '#B30024',
+    50: '#FFEBEE',
+    100: '#FFCDD2',
+    200: '#EF9A9A',
+    300: '#E57373',
+    400: '#EF5350',
+    500: '#F44336', // Яркий основной цвет опасности
+    600: '#E53935',
+    700: '#D32F2F',
+    800: '#C62828',
+    900: '#B71C1C',
   },
   
   // Neutral - для текста и фонов
@@ -176,49 +174,49 @@ export interface SemanticColors {
  */
 export const lightThemeColors: SemanticColors = {
   background: {
-    primary: ColorTokens.safety[50],      // СУПЕР ЯРКИЙ теплый фон для детей
+    primary: ColorTokens.safety[50],      // Яркий теплый фон
     secondary: '#FFFFFF',
-    tertiary: ColorTokens.alert[50],      // СУПЕР ЯРКИЙ золотой оттенок
+    tertiary: ColorTokens.alert[50],      // Яркий желтый оттенок
     elevated: '#FFFFFF',
-    warm: ColorTokens.alert[100],         // СУПЕР ЯРКИЙ теплый акцент
+    warm: ColorTokens.alert[100],         // Яркий теплый акцент
   },
   surface: {
     primary: '#FFFFFF',
-    secondary: ColorTokens.safety[50],    // Яркий оранжевый оттенок
+    secondary: ColorTokens.safety[50],
     muted: ColorTokens.neutral[100],
     elevated: '#FFFFFF',
-    accent: ColorTokens.safety[100],      // СУПЕР ЯРКАЯ акцентная поверхность
+    accent: ColorTokens.safety[100],      // Яркая акцентная поверхность
   },
   text: {
     primary: ColorTokens.neutral[900],    // Четкий контраст
     secondary: ColorTokens.neutral[700],
     tertiary: ColorTokens.neutral[600],
     inverse: '#FFFFFF',
-    accent: ColorTokens.safety[500],      // СУПЕР ЯРКИЙ акцент (более яркий)
-    warm: ColorTokens.safety[600],        // СУПЕР ЯРКИЙ теплый текст
+    accent: ColorTokens.safety[600],      // Яркий акцент
+    warm: ColorTokens.safety[700],        // Яркий теплый текст
   },
   border: {
     primary: ColorTokens.neutral[300],
-    secondary: ColorTokens.safety[300],   // Более яркая граница
+    secondary: ColorTokens.safety[300],
     muted: ColorTokens.neutral[200],
-    accent: ColorTokens.safety[500],      // СУПЕР ЯРКИЙ акцент
-    warm: ColorTokens.alert[400],         // СУПЕР ЯРКАЯ теплая граница
+    accent: ColorTokens.safety[500],      // Яркий акцент
+    warm: ColorTokens.alert[400],         // Яркая теплая граница
   },
   interactive: {
-    primary: ColorTokens.safety[500],     // СУПЕР ЯРКИЙ доминирующий (#FF6B35)
+    primary: ColorTokens.safety[500],     // Яркий доминирующий
     primaryHover: ColorTokens.safety[600],
-    secondary: ColorTokens.trust[500],    // СУПЕР ЯРКИЙ акцент (#4A90E2)
+    secondary: ColorTokens.trust[500],    // Яркий акцент
     secondaryHover: ColorTokens.trust[600],
-    accent: ColorTokens.alert[500],       // СУПЕР ЯРКИЙ акцент (#FFD700)
+    accent: ColorTokens.alert[500],       // Яркий акцент
     accentHover: ColorTokens.alert[600],
-    safety: ColorTokens.safety[500],      // СУПЕР ЯРКИЙ
-    trust: ColorTokens.trust[500],        // СУПЕР ЯРКИЙ
+    safety: ColorTokens.safety[500],
+    trust: ColorTokens.trust[500],
   },
   status: {
-    safe: ColorTokens.care[500],          // СУПЕР ЯРКИЙ зеленый (#52C41A)
-    warning: ColorTokens.alert[500],      // СУПЕР ЯРКИЙ золотой (#FFD700)
-    danger: ColorTokens.danger[500],      // СУПЕР ЯРКИЙ красный (#FF1744)
-    info: ColorTokens.trust[500],         // СУПЕР ЯРКИЙ синий (#4A90E2)
+    safe: ColorTokens.care[500],          // Яркий зеленый
+    warning: ColorTokens.alert[500],      // Яркий желтый
+    danger: ColorTokens.danger[500],      // Яркий красный
+    info: ColorTokens.trust[500],         // Яркий синий
   },
 };
 
@@ -232,45 +230,45 @@ export const darkThemeColors: SemanticColors = {
     secondary: ColorTokens.neutral[900],
     tertiary: ColorTokens.neutral[800],
     elevated: ColorTokens.neutral[800],
-    warm: ColorTokens.safety[800],       // СУПЕР ЯРКИЙ теплый акцент
+    warm: ColorTokens.safety[900],       // Теплый акцент
   },
   surface: {
     primary: ColorTokens.neutral[900],
     secondary: ColorTokens.neutral[800],
     muted: ColorTokens.neutral[700],
     elevated: ColorTokens.neutral[800],
-    accent: ColorTokens.safety[700],     // СУПЕР ЯРКАЯ акцентная поверхность
+    accent: ColorTokens.safety[800],     // Акцентная поверхность
   },
   text: {
     primary: ColorTokens.neutral[50],    // Резкий контраст
     secondary: ColorTokens.neutral[300],
     tertiary: ColorTokens.neutral[500],
     inverse: ColorTokens.neutral[950],
-    accent: ColorTokens.safety[400],     // СУПЕР ЯРКИЙ неоновый акцент
-    warm: ColorTokens.alert[400],        // СУПЕР ЯРКИЙ неоновый текст
+    accent: ColorTokens.safety[400],     // Яркий неоновый акцент
+    warm: ColorTokens.alert[400],        // Яркий неоновый текст
   },
   border: {
     primary: ColorTokens.neutral[700],
     secondary: ColorTokens.neutral[600],
     muted: ColorTokens.neutral[800],
-    accent: ColorTokens.safety[500],     // СУПЕР ЯРКИЙ неоновый акцент
-    warm: ColorTokens.alert[500],       // СУПЕР ЯРКАЯ неоновая граница
+    accent: ColorTokens.safety[500],     // Яркий неоновый акцент
+    warm: ColorTokens.alert[500],       // Яркая неоновая граница
   },
   interactive: {
-    primary: ColorTokens.safety[500],    // СУПЕР ЯРКИЙ доминирующий (#FF6B35)
+    primary: ColorTokens.safety[500],    // Яркий доминирующий
     primaryHover: ColorTokens.safety[400],
-    secondary: ColorTokens.trust[500],   // СУПЕР ЯРКИЙ акцент (#4A90E2)
+    secondary: ColorTokens.trust[500],   // Яркий акцент
     secondaryHover: ColorTokens.trust[400],
-    accent: ColorTokens.alert[500],      // СУПЕР ЯРКИЙ неоновый акцент (#FFD700)
+    accent: ColorTokens.alert[500],      // Яркий неоновый акцент
     accentHover: ColorTokens.alert[400],
-    safety: ColorTokens.safety[500],     // СУПЕР ЯРКИЙ
-    trust: ColorTokens.trust[500],       // СУПЕР ЯРКИЙ
+    safety: ColorTokens.safety[500],
+    trust: ColorTokens.trust[500],
   },
   status: {
-    safe: ColorTokens.care[500],         // СУПЕР ЯРКИЙ зеленый (#52C41A)
-    warning: ColorTokens.alert[500],     // СУПЕР ЯРКИЙ золотой (#FFD700)
-    danger: ColorTokens.danger[500],     // СУПЕР ЯРКИЙ красный (#FF1744)
-    info: ColorTokens.trust[500],        // СУПЕР ЯРКИЙ синий (#4A90E2)
+    safe: ColorTokens.care[500],         // Яркий зеленый
+    warning: ColorTokens.alert[500],      // Яркий желтый
+    danger: ColorTokens.danger[500],      // Яркий красный
+    info: ColorTokens.trust[500],         // Яркий синий
   },
 };
 
@@ -288,12 +286,12 @@ export const getColor = (token: keyof typeof ColorTokens, shade: keyof typeof Co
 export const createGradient = (colors: string[]): string[] => colors;
 
 /**
- * Уникальные СУПЕР ЯРКИЕ градиенты для KIKU (детская версия)
+ * Уникальные градиенты для KIKU
  */
 export const Gradients = {
-  safety: [ColorTokens.safety[400], ColorTokens.safety[600]],  // Яркий оранжевый градиент
-  trust: [ColorTokens.trust[400], ColorTokens.trust[600]],      // Яркий голубой градиент
-  care: [ColorTokens.care[400], ColorTokens.care[600]],         // Яркий зеленый градиент
-  warm: [ColorTokens.alert[300], ColorTokens.safety[400]],      // Яркий золотой-оранжевый градиент
-  danger: [ColorTokens.danger[400], ColorTokens.danger[600]],   // Яркий красный градиент
+  safety: [ColorTokens.safety[400], ColorTokens.safety[600]],
+  trust: [ColorTokens.trust[400], ColorTokens.trust[600]],
+  care: [ColorTokens.care[400], ColorTokens.care[600]],
+  warm: [ColorTokens.alert[300], ColorTokens.safety[400]],
+  danger: [ColorTokens.danger[400], ColorTokens.danger[600]],
 };
