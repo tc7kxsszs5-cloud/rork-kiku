@@ -2,125 +2,190 @@ import { z } from 'zod';
 import { publicProcedure } from '../../create-context';
 import { getDeviceRecord, listDeviceRecords } from './store';
 
-// Для production нужно установить: bun add expo-server-sdk
-// Для разработки используем простую реализацию через fetch к Expo Push API
-const EXPO_PUSH_API_URL = 'https://exp.host/--/api/v2/push/send';
-
 interface ExpoPushMessage {
   to: string;
   sound?: 'default' | null;
   title?: string;
   body?: string;
   data?: Record<string, any>;
+  badge?: number;
   priority?: 'default' | 'normal' | 'high';
   channelId?: string;
 }
 
+interface ExpoPushResponse {
+  data: Array<{
+    status: 'ok' | 'error';
+    id?: string;
+    message?: string;
+    details?: any;
+  }>;
+}
+
+const EXPO_PUSH_API_URL = 'https://exp.host/--/api/v2/push/send';
+
+/**
+ * Отправка push-уведомлений через Expo Push API
+ */
+async function sendExpoPushNotifications(messages: ExpoPushMessage[]): Promise<ExpoPushResponse> {
+  const response = await fetch(EXPO_PUSH_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'Accept-Encoding': 'gzip, deflate',
+    },
+    body: JSON.stringify(messages),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Expo Push API error: ${response.status} ${errorText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Отправка push-уведомления одному устройству по deviceId
+ */
 export const sendPushProcedure = publicProcedure
   .input(
     z.object({
-      deviceIds: z.array(z.string().min(1).max(100)).optional(), // Ограничение для безопасности
-      userIds: z.array(z.string().min(1).max(100)).optional(), // Ограничение для безопасности
-      title: z.string().min(1).max(200), // Валидация длины
-      body: z.string().min(1).max(1000), // Валидация длины
+      deviceId: z.string().min(3),
+      title: z.string().min(1),
+      body: z.string().min(1),
       data: z.record(z.string(), z.any()).optional(),
-      sound: z.enum(['default', 'none']).optional(),
+      sound: z.enum(['default', 'null']).optional(),
       priority: z.enum(['default', 'normal', 'high']).optional(),
-    })
+      badge: z.number().optional(),
+      channelId: z.string().optional(),
+    }),
   )
   .mutation(async ({ input }) => {
-    const { deviceIds, userIds, title, body, data, sound = 'default', priority = 'high' } = input;
-
-    // Получаем все устройства или фильтруем по deviceIds/userIds
-    let devices = listDeviceRecords();
-
-    if (deviceIds && deviceIds.length > 0) {
-      devices = devices.filter((d) => deviceIds.includes(d.deviceId));
+    const device = getDeviceRecord(input.deviceId);
+    if (!device) {
+      throw new Error(`Device not found: ${input.deviceId}`);
     }
 
-    if (userIds && userIds.length > 0) {
-      devices = devices.filter((d) => d.userId && userIds.includes(d.userId));
-    }
-
-    // TODO: Для production - добавить фильтрацию по роли (только родители)
-    // Требуется: хранить role в NotificationDeviceRecord или делать запрос к UserContext
-    // Пример: devices = devices.filter((d) => d.userRole === 'parent');
-
-    if (devices.length === 0) {
-      return {
-        success: false,
-        error: 'No devices found',
-        sent: 0,
-        failed: 0,
-      };
-    }
-
-    // Формируем сообщения для Expo Push API
-    const messages: ExpoPushMessage[] = devices
-      .filter((d) => d.pushToken && d.pushToken.startsWith('ExponentPushToken['))
-      .map((device) => ({
-        to: device.pushToken,
-        sound: sound === 'default' ? 'default' : null,
-        title,
-        body,
-        data: data || {},
-        priority,
-      }));
-
-    if (messages.length === 0) {
-      return {
-        success: false,
-        error: 'No valid push tokens found',
-        sent: 0,
-        failed: 0,
-      };
-    }
+    const message: ExpoPushMessage = {
+      to: device.pushToken,
+      title: input.title,
+      body: input.body,
+      data: input.data,
+      sound: input.sound === 'null' ? null : input.sound ?? 'default',
+      priority: input.priority ?? 'high',
+      badge: input.badge,
+      channelId: input.channelId,
+    };
 
     try {
-      // Отправляем push через Expo Push API
-      const response = await fetch(EXPO_PUSH_API_URL, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Accept-Encoding': 'gzip, deflate',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(messages),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[sendPush] Expo API error:', errorText);
-        return {
-          success: false,
-          error: `Expo API error: ${response.status}`,
-          sent: 0,
-          failed: messages.length,
-        };
-      }
-
-      const results = await response.json();
-      
-      // Expo возвращает массив результатов
-      const resultsArray = Array.isArray(results.data) ? results.data : [results];
-      
-      const sent = resultsArray.filter((r: any) => r.status === 'ok').length;
-      const failed = resultsArray.filter((r: any) => r.status === 'error').length;
-
+      const result = await sendExpoPushNotifications([message]);
       return {
         success: true,
-        sent,
-        failed,
-        results: resultsArray,
+        result,
+        deviceId: input.deviceId,
+        sent: result.data[0]?.status === 'ok',
       };
     } catch (error) {
-      console.error('[sendPush] Error sending push notifications:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        sent: 0,
-        failed: messages.length,
-      };
+      console.error('[send-push] Error sending push notification:', error);
+      throw error;
     }
   });
 
+/**
+ * Отправка push-уведомления нескольким устройствам по userId или всем устройствам пользователя
+ */
+export const sendPushToUserProcedure = publicProcedure
+  .input(
+    z.object({
+      userId: z.string().min(1),
+      title: z.string().min(1),
+      body: z.string().min(1),
+      data: z.record(z.string(), z.any()).optional(),
+      sound: z.enum(['default', 'null']).optional(),
+      priority: z.enum(['default', 'normal', 'high']).optional(),
+      badge: z.number().optional(),
+      channelId: z.string().optional(),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const allDevices = listDeviceRecords();
+    const userDevices = allDevices.filter((device) => device.userId === input.userId);
+
+    if (userDevices.length === 0) {
+      return {
+        success: false,
+        message: `No devices found for user: ${input.userId}`,
+        sent: 0,
+        total: 0,
+      };
+    }
+
+    const messages: ExpoPushMessage[] = userDevices.map((device) => ({
+      to: device.pushToken,
+      title: input.title,
+      body: input.body,
+      data: input.data,
+      sound: input.sound === 'null' ? null : input.sound ?? 'default',
+      priority: input.priority ?? 'high',
+      badge: input.badge,
+      channelId: input.channelId,
+    }));
+
+    try {
+      const result = await sendExpoPushNotifications(messages);
+      const sentCount = result.data.filter((r) => r.status === 'ok').length;
+      return {
+        success: true,
+        result,
+        userId: input.userId,
+        sent: sentCount,
+        total: userDevices.length,
+      };
+    } catch (error) {
+      console.error('[send-push] Error sending push notifications to user:', error);
+      throw error;
+    }
+  });
+
+/**
+ * Отправка push-уведомления по push token (для прямого использования)
+ */
+export const sendPushToTokenProcedure = publicProcedure
+  .input(
+    z.object({
+      pushToken: z.string().min(10),
+      title: z.string().min(1),
+      body: z.string().min(1),
+      data: z.record(z.string(), z.any()).optional(),
+      sound: z.enum(['default', 'null']).optional(),
+      priority: z.enum(['default', 'normal', 'high']).optional(),
+      badge: z.number().optional(),
+      channelId: z.string().optional(),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const message: ExpoPushMessage = {
+      to: input.pushToken,
+      title: input.title,
+      body: input.body,
+      data: input.data,
+      sound: input.sound === 'null' ? null : input.sound ?? 'default',
+      priority: input.priority ?? 'high',
+      badge: input.badge,
+      channelId: input.channelId,
+    };
+
+    try {
+      const result = await sendExpoPushNotifications([message]);
+      return {
+        success: true,
+        result,
+        sent: result.data[0]?.status === 'ok',
+      };
+    } catch (error) {
+      console.error('[send-push] Error sending push notification to token:', error);
+      throw error;
+    }
+  });

@@ -1,5 +1,5 @@
 import createContextHook from '@nkzw/create-context-hook';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import { Platform } from 'react-native';
@@ -11,12 +11,16 @@ import {
   ComplianceLog,
 } from './types';
 import { HapticFeedback } from './haptics';
+import { trpc } from '@/lib/trpc';
+import { useNotifications } from './NotificationsContext';
+import { useUser } from './UserContext';
 
 const SETTINGS_STORAGE_KEY = '@parental_settings';
 const SOS_ALERTS_STORAGE_KEY = '@sos_alerts';
 const CONTACTS_STORAGE_KEY = '@contacts';
 const TIME_RESTRICTIONS_STORAGE_KEY = '@time_restrictions';
 const COMPLIANCE_LOG_STORAGE_KEY = '@compliance_log';
+const ALERTS_LAST_SYNC_KEY = '@alerts_last_sync';
 
 const DEFAULT_SETTINGS: ParentalSettings = {
   timeRestrictionsEnabled: false,
@@ -37,6 +41,11 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
   const [timeRestrictions, setTimeRestrictions] = useState<TimeRestriction[]>([]);
   const [complianceLog, setComplianceLog] = useState<ComplianceLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { deviceId } = useNotifications();
+  const { user } = useUser();
+  const syncAlertsMutation = trpc.sync.alerts.sync.useMutation();
+  const sendPushMutation = trpc.notifications.sendPushToUser.useMutation();
+  const lastSyncTimestampRef = useRef<number>(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -62,6 +71,12 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
         if (contactsData) setContacts(JSON.parse(contactsData));
         if (restrictionsData) setTimeRestrictions(JSON.parse(restrictionsData));
         if (complianceData) setComplianceLog(JSON.parse(complianceData));
+
+        // Загружаем lastSyncTimestamp для alerts
+        const lastSyncData = await AsyncStorage.getItem(ALERTS_LAST_SYNC_KEY);
+        if (lastSyncData) {
+          lastSyncTimestampRef.current = parseInt(lastSyncData, 10);
+        }
       } catch (error) {
         console.error('Error loading parental controls data:', error);
       } finally {
@@ -102,6 +117,31 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
       console.log('Compliance logged:', action, userId);
     },
     [complianceLog]
+  );
+
+  // Синхронизация SOS alerts с backend
+  const syncAlerts = useCallback(
+    async (alertsToSync: SOSAlert[]) => {
+      if (!deviceId || Platform.OS === 'web') {
+        return;
+      }
+
+      try {
+        const result = await syncAlertsMutation.mutateAsync({
+          deviceId,
+          alerts: alertsToSync,
+          lastSyncTimestamp: lastSyncTimestampRef.current,
+        });
+
+        if (result.success && result.lastSyncTimestamp) {
+          lastSyncTimestampRef.current = result.lastSyncTimestamp;
+          await AsyncStorage.setItem(ALERTS_LAST_SYNC_KEY, result.lastSyncTimestamp.toString());
+        }
+      } catch (error) {
+        console.error('[ParentalControlsContext] Error syncing alerts (ignored):', error);
+      }
+    },
+    [deviceId, syncAlertsMutation]
   );
 
   const updateSettings = useCallback(
@@ -149,6 +189,34 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
         await AsyncStorage.setItem(SOS_ALERTS_STORAGE_KEY, JSON.stringify(updatedAlerts));
         await logCompliance('sos_triggered', userId, { chatId, location, message }, false);
 
+        // Синхронизация с backend
+        await syncAlerts(updatedAlerts);
+
+        // Отправка push-уведомления родителю (если включены уведомления)
+        if (settings.sosNotificationsEnabled && user?.id) {
+          try {
+            await sendPushMutation.mutateAsync({
+              userId: user.id,
+              title: '🚨 SOS Алерт',
+              body: `${userName} активировал кнопку SOS${location ? ' с геолокацией' : ''}`,
+              data: {
+                type: 'sos',
+                alertId: sosAlert.id,
+                userId,
+                userName,
+                chatId,
+                location,
+                timestamp: sosAlert.timestamp,
+              },
+              priority: 'high',
+              sound: 'default',
+              channelId: Platform.OS === 'android' ? 'sos_alerts' : undefined,
+            });
+          } catch (error) {
+            console.error('[ParentalControlsContext] Error sending push notification (ignored):', error);
+          }
+        }
+
         console.log('SOS alert triggered:', sosAlert);
         return sosAlert;
       } catch (error) {
@@ -156,7 +224,7 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
         throw error;
       }
     },
-    [settings, sosAlerts, logCompliance]
+    [settings, sosAlerts, logCompliance, syncAlerts, sendPushMutation, user?.id]
   );
 
   const resolveSOS = useCallback(
@@ -168,10 +236,14 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
       );
       setSosAlerts(updatedAlerts);
       await AsyncStorage.setItem(SOS_ALERTS_STORAGE_KEY, JSON.stringify(updatedAlerts));
+      
+      // Синхронизация с backend
+      await syncAlerts(updatedAlerts);
+      
       HapticFeedback.success();
       console.log('SOS resolved:', sosId);
     },
-    [sosAlerts]
+    [sosAlerts, syncAlerts]
   );
 
   const addContact = useCallback(
