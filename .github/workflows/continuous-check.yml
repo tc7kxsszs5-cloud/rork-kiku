@@ -19,6 +19,9 @@ jobs:
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
+        with:
+          lfs: true
+          submodules: false
 
       - name: 🏗️ Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -51,6 +54,9 @@ jobs:
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
+        with:
+          lfs: true
+          submodules: false
 
       - name: 🏗️ Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -72,6 +78,9 @@ jobs:
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
+        with:
+          lfs: true
+          submodules: false
 
       - name: 📊 Project Statistics
         run: |
