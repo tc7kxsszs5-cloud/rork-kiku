@@ -53,8 +53,8 @@ export const syncAlertsProcedure = publicProcedure
     lastSyncStore.set(deviceId, timestamp);
 
     if (lastSyncTimestamp > 0) {
-      const stored = alertsStore.get(deviceId);
-      const allAlerts = stored?.alerts || [];
+      const storedData = alertsStore.get(deviceId);
+      const allAlerts = storedData?.alerts || [];
       const deltaAlerts = getDeltaAlerts(allAlerts, lastSyncTimestamp);
       return {
         success: true,
@@ -66,14 +66,14 @@ export const syncAlertsProcedure = publicProcedure
       };
     }
 
-    const stored = alertsStore.get(deviceId);
+    const storedData = alertsStore.get(deviceId);
     return {
       success: true,
-      alerts: stored?.alerts || [],
+      alerts: storedData?.alerts || [],
       lastSyncTimestamp: timestamp,
       serverTimestamp: timestamp,
       isDelta: false,
-      count: stored?.alerts?.length || 0,
+      count: storedData?.alerts?.length || 0,
     };
   });
 

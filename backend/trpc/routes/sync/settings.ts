@@ -46,10 +46,10 @@ export const syncSettingsProcedure = publicProcedure
 
     lastSyncStore.set(deviceId, timestamp);
 
-    const stored = settingsStore.get(deviceId);
+    const storedData = settingsStore.get(deviceId);
     return {
       success: true,
-      settings: stored?.settings || {},
+      settings: storedData?.settings || {},
       lastSyncTimestamp: timestamp,
       serverTimestamp: timestamp,
     };

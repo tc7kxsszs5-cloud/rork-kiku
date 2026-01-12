@@ -118,8 +118,8 @@ export const syncChatsProcedure = publicProcedure
 
     // Если запрошен incremental sync - возвращаем только изменения
     if (lastSyncTimestamp > 0) {
-      const stored = chatsStore.get(deviceId);
-      const allChats = stored?.chats || [];
+      const storedData = chatsStore.get(deviceId);
+      const allChats = storedData?.chats || [];
       const deltaChats = getDeltaChats(allChats, lastSyncTimestamp);
       
       return {
@@ -133,10 +133,10 @@ export const syncChatsProcedure = publicProcedure
     }
 
     // Полная синхронизация - возвращаем все чаты
-    const stored = chatsStore.get(deviceId);
+    const storedData = chatsStore.get(deviceId);
     return {
       success: true,
-      chats: stored?.chats || [],
+      chats: storedData?.chats || [],
       lastSyncTimestamp: timestamp,
       serverTimestamp: timestamp,
       isDelta: false,
