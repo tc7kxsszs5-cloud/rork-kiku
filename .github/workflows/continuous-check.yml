@@ -22,6 +22,7 @@ jobs:
         with:
           lfs: true
           submodules: false
+          fetch-depth: 1
 
       - name: 🏗️ Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -57,6 +58,7 @@ jobs:
         with:
           lfs: true
           submodules: false
+          fetch-depth: 1
 
       - name: 🏗️ Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -81,14 +83,15 @@ jobs:
         with:
           lfs: true
           submodules: false
+          fetch-depth: 1
 
       - name: 📊 Project Statistics
         run: |
           echo "## 📈 Project Health Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Статистика файлов
-          TS_FILES=$(find . -name "*.ts" -o -name "*.tsx" | wc -l)
+          # Статистика файлов (избегаем проблемных директорий)
+          TS_FILES=$(find . -name "*.ts" -o -name "*.tsx" 2>/dev/null | grep -v -E "(kiku/|KIKU79/|node_modules/|\.git/)" | wc -l)
           COMPONENTS=$(find components -name "*.tsx" 2>/dev/null | wc -l)
           CONTEXTS=$(find constants -name "*Context.tsx" 2>/dev/null | wc -l)
           
