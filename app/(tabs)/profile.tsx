@@ -172,7 +172,10 @@ const DIAGNOSTIC_LABELS: Record<NotificationTestType, string> = {
 };
 
 export default function ProfileScreen() {
-  const { user, isLoading, identifyUser, updateUser, logoutUser, isChild, isParent } = useUser();
+  const { user, isLoading, identifyUser, updateUser, logoutUser, children } = useUser();
+  // Определяем роль на основе наличия детей: если есть дети - родитель, если нет - ребенок
+  const isParent = useMemo(() => user ? (user.children?.length > 0 || user.email) : false, [user]);
+  const isChild = useMemo(() => user ? (!user.children?.length && !user.email) : false, [user]);
   const { settings } = useParentalControls();
   const { chats } = useMonitoring();
   const router = useRouter();
@@ -354,7 +357,8 @@ export default function ProfileScreen() {
     if (user) {
       setName(user.name ?? '');
       setEmail(user.email ?? '');
-      setRole(user.role);
+      // Определяем роль на основе наличия детей
+      setRole(user.children?.length > 0 || user.email ? 'parent' : 'child');
       setLanguage(user.language ?? 'ru');
       console.log('[ProfileScreen] Loaded user data into form');
     }
@@ -380,15 +384,15 @@ export default function ProfileScreen() {
       if (user) {
         // Для детей сохраняем только имя, для родителей - все поля
         const updates = isChild
-          ? { name: name.trim(), role: 'child' as const, language }
-          : { name: name.trim(), email: email.trim() || undefined, role, language };
+          ? { name: name.trim(), language }
+          : { name: name.trim(), email: email.trim() || undefined, language };
         await updateUser(updates);
         console.log('[ProfileScreen] User updated');
       } else {
-        // При создании профиля для детей используем role='child'
-        const userData = isChild
-          ? { name: name.trim(), role: 'child' as const, language }
-          : { name: name.trim(), email: email.trim() || undefined, role, language };
+        // При создании профиля: если роль parent, добавляем email, иначе только имя
+        const userData = role === 'parent'
+          ? { name: name.trim(), email: email.trim() || undefined, language }
+          : { name: name.trim(), language };
         await identifyUser(userData);
         console.log('[ProfileScreen] User created');
       }

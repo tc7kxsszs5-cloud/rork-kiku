@@ -158,9 +158,10 @@ export default function RoleSelectionScreen() {
     HapticFeedback.medium();
 
     try {
+      // Для родителя добавляем email (можно пустой), для ребенка - только имя
       await identifyUser({
         name: selectedRole === 'parent' ? 'Родитель' : 'Ребенок',
-        role: selectedRole,
+        ...(selectedRole === 'parent' ? { email: '' } : {}),
       });
 
       // Переход в зависимости от роли

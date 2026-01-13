@@ -86,8 +86,8 @@ export const getAlertsProcedure = publicProcedure
   )
   .query(({ input }) => {
     const { deviceId, lastSyncTimestamp = 0 } = input;
-    const stored = alertsStore.get(deviceId);
-    const allAlerts = stored?.alerts || [];
+    const storedData = alertsStore.get(deviceId);
+    const allAlerts = storedData?.alerts || [];
     const lastSync = lastSyncStore.get(deviceId) || 0;
 
     if (lastSyncTimestamp > 0) {

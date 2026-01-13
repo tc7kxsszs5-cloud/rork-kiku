@@ -14,9 +14,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          lfs: true
-          submodules: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -37,3 +34,6 @@ jobs:
 
       - name: Type check
         run: bunx tsc --noEmit
+
+      - name: Run unit tests
+        run: bun test --testPathPattern=unit

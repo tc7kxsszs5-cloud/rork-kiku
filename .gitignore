@@ -41,3 +41,14 @@ android/
 .rork
 .env
 rork-eslint.config.js
+# Jest
+.jest-cache/
+coverage/
+
+
+# Странные папки для удаления
+-https-github.com-tc7kxsszs5-cloud-rork-kiku.git-/
+e807b43d-2c4e-4a88-9ed1-1b6c686be9a6/
+rork-kiku/
+KIKU79/
+kiku/
