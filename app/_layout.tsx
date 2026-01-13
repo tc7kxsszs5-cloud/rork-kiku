@@ -18,6 +18,8 @@ import { GamificationProvider } from "@/constants/GamificationContext";
 import { PredictiveAnalyticsProvider } from "@/constants/PredictiveAnalyticsContext";
 import { AIParentingAssistantProvider } from "@/constants/AIParentingAssistantContext";
 import { ReferralProgramProvider } from "@/constants/ReferralProgramContext";
+import { SyncSettingsProvider } from "@/constants/SyncSettingsContext";
+import { SecuritySettingsProvider } from "@/constants/SecuritySettingsContext";
 import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
 import { applyGlobalCursorStyles } from "@/utils/cursorStyles";
@@ -167,9 +169,13 @@ function AppProviders({ children }: { children: ReactNode }) {
                             <PredictiveAnalyticsProvider>
                               <AIParentingAssistantProvider>
                                 <ReferralProgramProvider>
-                                  <NotificationsProvider>
-                                    {children}
-                                  </NotificationsProvider>
+                                  <SyncSettingsProvider>
+                                    <SecuritySettingsProvider>
+                                      <NotificationsProvider>
+                                        {children}
+                                      </NotificationsProvider>
+                                    </SecuritySettingsProvider>
+                                  </SyncSettingsProvider>
                                 </ReferralProgramProvider>
                               </AIParentingAssistantProvider>
                             </PredictiveAnalyticsProvider>

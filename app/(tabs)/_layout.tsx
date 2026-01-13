@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { MessageCircle, Info, User } from "lucide-react-native";
+import { MessageCircle, Info, User, Settings } from "lucide-react-native";
 import React from "react";
 import { StyleSheet } from "react-native";
 import { useThemeMode } from "@/constants/ThemeContext";
@@ -37,22 +37,29 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Чаты",
-          tabBarIcon: ({ color }) => <MessageCircle color={color} size={24} />,
+          tabBarIcon: ({ color }: { color: string }) => <MessageCircle color={color} size={24} />,
           headerShown: false,
+        }}
+      />
+      <Tabs.Screen
+        name="messenger-settings"
+        options={{
+          title: "Настройки",
+          tabBarIcon: ({ color }: { color: string }) => <Settings color={color} size={24} />,
         }}
       />
       <Tabs.Screen
         name="about"
         options={{
           title: "О приложении",
-          tabBarIcon: ({ color }) => <Info color={color} size={24} />,
+          tabBarIcon: ({ color }: { color: string }) => <Info color={color} size={24} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Профиль",
-          tabBarIcon: ({ color }) => <User color={color} size={24} />,
+          tabBarIcon: ({ color }: { color: string }) => <User color={color} size={24} />,
           headerShown: false,
         }}
       />
