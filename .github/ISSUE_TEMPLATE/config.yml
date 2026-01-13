@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: ❓ Вопросы и поддержка
+    url: https://github.com/tc7kxsszs5-cloud/rork-kiku/discussions
+    about: Задавайте вопросы и получайте помощь от сообщества
+  - name: 🔒 Сообщить об уязвимости безопасности
+    url: mailto:g_mikheil@icloud.com?subject=[SECURITY]%20Описание%20уязвимости
+    about: НЕ создавайте публичные issues об уязвимостях! Используйте этот email.
+  - name: 💰 Спонсорство
+    url: https://github.com/tc7kxsszs5-cloud/rork-kiku/blob/main/SPONSORS.md
+    about: Узнайте, как поддержать проект KIKU
