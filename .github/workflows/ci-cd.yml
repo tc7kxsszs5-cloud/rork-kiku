@@ -1,28 +1,42 @@
-name: CI/CD for rork-kiku
+name: CI/CD for rork-kiku (DEPRECATED)
+# This workflow is deprecated and replaced by ci.yml
+# It is disabled to avoid duplicate runs
+# Consider removing this file if no longer needed
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:  # Only manual trigger to avoid conflicts
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  #   branches:
+  #     - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: false  # Disabled - use ci.yml instead
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: '16'
+        node-version: '18'
+
+    - name: Install Bun
+      run: |
+        curl -fsSL https://bun.sh/install | bash
+        echo "BUN_INSTALL=$HOME/.bun" >> $GITHUB_ENV
+        echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
     - name: Install dependencies
-      run: npm install
+      run: bun install
 
-    - name: Run tests
-      run: npm test
+    - name: Run linting
+      run: bun run lint
+
+    - name: Run type check
+      run: bunx tsc --noEmit
