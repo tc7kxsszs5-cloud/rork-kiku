@@ -8,6 +8,7 @@ import { trpc } from '@/lib/trpc';
 import { NotificationDeviceRecord, NotificationTestResult } from './types';
 import { useUser } from './UserContext';
 import { setupNotificationChannels } from '@/utils/soundNotifications';
+import { isUuid } from '@/utils/validation';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -23,13 +24,6 @@ const DEVICE_ID_STORAGE_KEY = '@kids_device_id';
 const PUSH_TOKEN_STORAGE_KEY = '@kids_push_token';
 
 const createDeviceId = () => `device_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-
-const isUuid = (value: unknown): value is string => {
-  if (typeof value !== 'string') {
-    return false;
-  }
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-};
 
 const resolveExpoProjectId = (): string | undefined => {
   const candidate =

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { publicProcedure, createTRPCRouter } from "@/backend/trpc/create-context";
+import { getDeltaChats } from "@/utils/syncHelpers";
 
 // In-memory хранилище для синхронизации (в production использовать БД)
 const chatsStore = new Map<string, { chats: any[]; timestamp: number }>();
@@ -71,14 +72,6 @@ const mergeMessages = (serverMessages: any[], clientMessages: any[]): any[] => {
 
   // Сортируем по timestamp
   return Array.from(messageMap.values()).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-};
-
-// Incremental sync - получение только изменений
-const getDeltaChats = (allChats: any[], lastSyncTimestamp: number): any[] => {
-  return allChats.filter((chat) => {
-    // Возвращаем чат, если он был изменен после lastSyncTimestamp
-    return (chat.updatedAt || chat.timestamp || 0) > lastSyncTimestamp;
-  });
 };
 
 export const syncChatsProcedure = publicProcedure
