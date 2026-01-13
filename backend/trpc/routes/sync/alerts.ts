@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { publicProcedure, createTRPCRouter } from "@/backend/trpc/create-context";
+import { getDeltaAlerts } from "@/utils/syncHelpers";
 
 const alertsStore = new Map<string, { alerts: any[]; timestamp: number }>();
 const lastSyncStore = new Map<string, number>();
@@ -21,10 +22,6 @@ const mergeAlerts = (serverAlerts: any[], clientAlerts: any[]): any[] => {
   });
 
   return Array.from(alertMap.values()).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-};
-
-const getDeltaAlerts = (allAlerts: any[], lastSyncTimestamp: number): any[] => {
-  return allAlerts.filter((alert) => (alert.timestamp || 0) > lastSyncTimestamp);
 };
 
 export const syncAlertsProcedure = publicProcedure
