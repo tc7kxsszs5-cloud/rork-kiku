@@ -13,27 +13,39 @@ jobs:
 
     steps:
     - name: Check out repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+
+    - name: Mark repository as safe
+      run: git config --global --add safe.directory /home/runner/work/rork-kiku/rork-kiku
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: '16'
+        node-version: '18'
+
+    - name: Install Bun
+      run: |
+        curl -fsSL https://bun.sh/install | bash
+        echo "$HOME/.bun/bin" >> $GITHUB_PATH
 
     - name: Install dependencies
-      run: npm install
+      run: bun install
+
+    - name: Install Octokit
+      run: bun add @octokit/rest
 
     - name: Update sponsors list
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        node -e "
         const { Octokit } = require('@octokit/rest');
         const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
         async function fetchSponsors() {
           try {
             const { data } = await octokit.rest.users.listSponsorsForUser({
-              username: 'tc7kxsszs5-cloud' // Required username setup
+              username: 'tc7kxsszs5-cloud'
             });
             console.log(data || []);
           } catch (error) {
@@ -42,3 +54,4 @@ jobs:
         }
 
         fetchSponsors();
+        "
