@@ -140,7 +140,7 @@ export const syncChatsProcedure = publicProcedure
       lastSyncTimestamp: timestamp,
       serverTimestamp: timestamp,
       isDelta: false,
-      count: storedData?.chats?.length || 0,
+      count: stored?.chats?.length || 0,
     };
   });
 

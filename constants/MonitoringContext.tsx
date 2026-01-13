@@ -14,9 +14,6 @@ import {
 } from '@/utils/soundNotifications';
 import { analyzeMessageWithAI, analyzeImageWithAI } from './AIModerationService';
 import { usePersonalizedAI } from './PersonalizedAIContext';
-import { trpc } from '@/lib/trpc';
-import { useNotifications } from './NotificationsContext';
-import { useUser } from './UserContext';
 
 const LEVEL_ORDER: RiskLevel[] = ['safe', 'low', 'medium', 'high', 'critical'];
 
@@ -135,9 +132,6 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   const isMountedRef = useRef(true);
   const { trackEvent } = useAnalytics();
   const { personalizeAnalysis } = usePersonalizedAI();
-  const { deviceId } = useNotifications();
-  const { user } = useUser();
-  const sendPushMutation = trpc.notifications.sendPushToUser.useMutation();
 
   useEffect(() => {
     // Настройка каналов уведомлений для Android при инициализации
@@ -325,7 +319,6 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
                     const channelId = getChannelIdForRiskLevel(analysis.riskLevel);
                     const priority = getAndroidPriorityForRiskLevel(analysis.riskLevel);
 
-                    // Локальное уведомление на текущем устройстве
                     await Notifications.scheduleNotificationAsync({
                       content: {
                         title,
@@ -342,31 +335,6 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
                       },
                       trigger: null,
                     });
-
-                    // Отправка push-уведомления через backend для критических и высоких рисков
-                    // (чтобы уведомить родительские устройства)
-                    if ((analysis.riskLevel === 'critical' || analysis.riskLevel === 'high') && user?.id) {
-                      try {
-                        await sendPushMutation.mutateAsync({
-                          userId: user.id,
-                          title,
-                          body,
-                          data: {
-                            type: 'risk_alert',
-                            alertId: newAlert.id,
-                            chatId,
-                            riskLevel: analysis.riskLevel,
-                            reasons: analysis.reasons,
-                            timestamp: newAlert.timestamp,
-                          },
-                          priority: analysis.riskLevel === 'critical' ? 'high' : 'normal',
-                          sound: 'default',
-                          channelId: Platform.OS === 'android' ? channelId : undefined,
-                        });
-                      } catch (error) {
-                        console.error('[MonitoringContext] Error sending push notification via backend (ignored):', error);
-                      }
-                    }
                   }
                 } catch (error) {
                   console.error('[MonitoringContext] Failed to send push notification:', error);

@@ -86,7 +86,7 @@ export default function SecuritySettingsScreen() {
           <View style={styles.heroTextWrapper}>
             <Text style={styles.heroTitle}>Центр безопасности</Text>
             <Text style={styles.heroSubtitle}>
-              {user?.name ?? 'Родитель'} • {user?.role === 'child' ? 'Ребенок' : 'Родитель'}
+              {user?.name ?? 'Родитель'} • {((user?.children?.length ?? 0) > 0 || user?.email) ? 'Родитель' : 'Ребенок'}
             </Text>
           </View>
         </View>

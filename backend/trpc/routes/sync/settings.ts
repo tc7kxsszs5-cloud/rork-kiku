@@ -30,8 +30,8 @@ export const syncSettingsProcedure = publicProcedure
     const { deviceId, settings, lastSyncTimestamp = 0 } = input;
     const timestamp = Date.now();
 
-    const stored = settingsStore.get(deviceId);
-    const serverSettings = stored?.settings;
+    const storedData = settingsStore.get(deviceId);
+    const serverSettings = storedData?.settings;
 
     if (settings) {
       const mergedSettings = mergeSettings(serverSettings, settings);
@@ -46,10 +46,10 @@ export const syncSettingsProcedure = publicProcedure
 
     lastSyncStore.set(deviceId, timestamp);
 
-    const storedData = settingsStore.get(deviceId);
+    const storedData2 = settingsStore.get(deviceId);
     return {
       success: true,
-      settings: storedData?.settings || {},
+      settings: storedData2?.settings || {},
       lastSyncTimestamp: timestamp,
       serverTimestamp: timestamp,
     };
