@@ -60,11 +60,11 @@ export default function AnalyticsScreen() {
     value: string | number;
     subtitle?: string;
     icon: any;
-    gradient: string[];
+    gradient: readonly [string, string, ...string[]];
   }) => (
     <View style={styles.metricCard}>
       <LinearGradient
-        colors={gradient}
+        colors={gradient as [string, string]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.metricGradient}
@@ -283,10 +283,10 @@ export default function AnalyticsScreen() {
         <Text style={styles.title}>📊 KPI Dashboard</Text>
         <View style={styles.actions}>
           <TouchableOpacity style={styles.actionButton} onPress={handleShareForInvestors}>
-            <Share2 size={20} color={theme.colors.text} />
+            <Share2 size={20} color={theme.textPrimary} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton} onPress={handleExportJSON}>
-            <Download size={20} color={theme.colors.text} />
+            <Download size={20} color={theme.textPrimary} />
           </TouchableOpacity>
         </View>
       </View>

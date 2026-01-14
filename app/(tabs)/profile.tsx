@@ -44,6 +44,8 @@ import { HapticFeedback } from '@/constants/haptics';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { useThemeMode, ThemePalette } from '@/constants/ThemeContext';
 import { ThemeModeToggle } from '@/components/ThemeModeToggle';
+import { useTranslation } from 'react-i18next';
+import i18n from '@/constants/i18n';
 
 const ROLE_OPTIONS = [
   {
@@ -173,6 +175,7 @@ const DIAGNOSTIC_LABELS: Record<NotificationTestType, string> = {
 
 export default function ProfileScreen() {
   const { user, isLoading, identifyUser, updateUser, logoutUser, children } = useUser();
+  const { i18n: i18nInstance } = useTranslation();
   // Определяем роль на основе наличия детей: если есть дети - родитель, если нет - ребенок
   const isParent = useMemo(() => user ? (user.children?.length > 0 || user.email) : false, [user]);
   const isChild = useMemo(() => user ? (!user.children?.length && !user.email) : false, [user]);
@@ -183,7 +186,7 @@ export default function ProfileScreen() {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [role, setRole] = useState<'parent' | 'child'>('parent');
-  const [language, setLanguage] = useState<string>('ru');
+  const [language, setLanguage] = useState<string>(i18nInstance.language || 'ru');
   const [twoFactorEnabled, setTwoFactorEnabled] = useState<boolean>(true);
   const [paymentLinked, setPaymentLinked] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -359,7 +362,11 @@ export default function ProfileScreen() {
       setEmail(user.email ?? '');
       // Определяем роль на основе наличия детей
       setRole(user.children?.length > 0 || user.email ? 'parent' : 'child');
-      setLanguage(user.language ?? 'ru');
+      const userLanguage = user.language ?? i18nInstance.language ?? 'ru';
+      setLanguage(userLanguage);
+      if (userLanguage !== i18nInstance.language) {
+        i18nInstance.changeLanguage(userLanguage);
+      }
       console.log('[ProfileScreen] Loaded user data into form');
     }
   }, [user]);
@@ -819,10 +826,22 @@ export default function ProfileScreen() {
             <TouchableOpacity
               key={lang.value}
               style={[styles.languageChip, language === lang.value && styles.languageChipActive]}
-              onPress={() => {
-                setLanguage(lang.value);
+              onPress={async () => {
                 HapticFeedback.selection();
-                console.log('[ProfileScreen] Language selected', lang.value);
+                setLanguage(lang.value);
+                // Сохранить язык в профиль и изменить язык приложения
+                if (user) {
+                  try {
+                    await updateUser({ language: lang.value });
+                    i18n.changeLanguage(lang.value);
+                    console.log('[ProfileScreen] Language changed to', lang.value);
+                  } catch (error) {
+                    console.error('[ProfileScreen] Error updating language', error);
+                  }
+                } else {
+                  // Если пользователя нет, просто меняем язык
+                  i18n.changeLanguage(lang.value);
+                }
               }}
               testID={`profile-language-${lang.value}`}
             >
