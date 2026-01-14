@@ -4,10 +4,7 @@
   },
   "build": {
     "production": {
-      "ios": {
-        "workflow": "managed",
-        "buildType": "archive"
-      },
+      "ios": {},
       "android": {
         "buildType": "apk"
       },
@@ -15,8 +12,7 @@
     },
     "preview": {
       "ios": {
-        "workflow": "managed",
-        "buildType": "simulator"
+        "simulator": true
       },
       "android": {
         "buildType": "apk"
@@ -24,7 +20,6 @@
     },
     "development": {
       "ios": {
-        "workflow": "managed",
         "developmentClient": true
       },
       "android": {
