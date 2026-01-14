@@ -29,6 +29,20 @@ yarn-error.*
 .DS_Store
 *.pem
 
+# Temporary documentation files
+COMMAND*.md
+COMMIT*.md
+COMMIT*.sh
+FIX_*.md
+GITHUB_*.md
+HOW_*.md
+LINK_*.md
+WHEN_*.md
+WHY_*.md
+ERROR_*.md
+TEST_*.md
+TYPESCRIPT_*.md
+
 # local env files
 .env*.local
 
