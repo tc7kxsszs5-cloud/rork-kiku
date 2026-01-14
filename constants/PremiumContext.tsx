@@ -2,6 +2,7 @@ import createContextHook from '@nkzw/create-context-hook';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import { checkSubscriptionStatus as checkStatus } from '@/utils/premiumStatus';
 
 const PREMIUM_STORAGE_KEY = '@kiku_premium_status';
 
@@ -106,39 +107,13 @@ export const [PremiumProvider, usePremium] = createContextHook<PremiumContextVal
   }, []);
 
   // Проверка статуса подписки (истечение trial/subscription)
+  // Используем чистую функцию для тестируемости
   const checkSubscriptionStatus = useCallback(async () => {
     const now = Date.now();
-    const status = { ...premiumStatus };
+    const result = checkStatus(premiumStatus, now);
 
-    // Проверка trial
-    if (status.tier === 'trial' && status.trialEndDate) {
-      if (now > status.trialEndDate) {
-        // Trial истек
-        status.tier = 'free';
-        status.features = FREE_FEATURES;
-        status.trialEndDate = undefined;
-        await savePremiumStatus(status);
-        return;
-      }
-    }
-
-    // Проверка subscription
-    if (status.tier === 'premium' && status.subscriptionEndDate) {
-      if (now > status.subscriptionEndDate) {
-        // Подписка истекла
-        status.tier = 'free';
-        status.features = FREE_FEATURES;
-        status.subscriptionId = undefined;
-        status.subscriptionStartDate = undefined;
-        status.subscriptionEndDate = undefined;
-        await savePremiumStatus(status);
-        return;
-      }
-    }
-
-    // Если статус изменился, сохраняем
-    if (JSON.stringify(status) !== JSON.stringify(premiumStatus)) {
-      await savePremiumStatus(status);
+    if (result.updated) {
+      await savePremiumStatus(result.newStatus);
     }
   }, [premiumStatus, savePremiumStatus]);
 

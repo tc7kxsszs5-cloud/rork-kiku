@@ -11,6 +11,7 @@ import {
   ComplianceLog,
 } from './types';
 import { HapticFeedback } from './haptics';
+import { isTimeRestricted as checkTimeRestricted } from '@/utils/timeRestrictions';
 
 const SETTINGS_STORAGE_KEY = '@parental_settings';
 const SOS_ALERTS_STORAGE_KEY = '@sos_alerts';
@@ -293,20 +294,8 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
   const isTimeRestricted = useCallback(() => {
     if (!settings.timeRestrictionsEnabled) return false;
 
-    const now = new Date();
-    const dayOfWeek = now.getDay();
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-
-    return timeRestrictions.some((restriction) => {
-      if (!restriction.enabled || restriction.dayOfWeek !== dayOfWeek) return false;
-
-      const currentTime = currentHour * 60 + currentMinute;
-      const startTime = restriction.startHour * 60 + restriction.startMinute;
-      const endTime = restriction.endHour * 60 + restriction.endMinute;
-
-      return currentTime < startTime || currentTime >= endTime;
-    });
+    // Используем чистую функцию для тестируемости
+    return checkTimeRestricted(timeRestrictions, new Date());
   }, [settings, timeRestrictions]);
 
   const whitelistedContacts = useMemo(
