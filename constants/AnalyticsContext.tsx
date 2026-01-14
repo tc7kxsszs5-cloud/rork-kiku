@@ -1,6 +1,7 @@
 import createContextHook from '@nkzw/create-context-hook';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { calculateMetrics } from '@/utils/analyticsMetrics';
 
 const ANALYTICS_STORAGE_KEY = '@kiku_analytics';
 
@@ -18,7 +19,27 @@ export type AnalyticsEvent =
   | 'time_restriction_added'
   | 'recommendation_viewed'
   | 'statistics_viewed'
-  | 'profile_updated';
+  | 'profile_updated'
+  | 'app_installed'
+  | 'app_first_launch'
+  | 'user_activated'
+  | 'session_started'
+  | 'session_ended'
+  | 'feature_used'
+  | 'premium_subscribed'
+  | 'premium_feature_accessed'
+  | 'premium_trial_started'
+  | 'premium_trial_ended'
+  | 'premium_cancelled'
+  | 'alert_notification_sent'
+  | 'sos_notification_sent'
+  | 'ai_analysis_completed'
+  | 'image_analysis_completed'
+  | 'false_positive_reported'
+  | 'threat_confirmed'
+  | 'parent_child_pair_completed'
+  | 'screen_viewed'
+  | 'user_feedback_submitted';
 
 export interface AnalyticsEventData {
   event: AnalyticsEvent;
@@ -43,6 +64,48 @@ export interface AnalyticsMetrics {
   };
   eventsByType: Record<AnalyticsEvent, number>;
   dailyActivity: { date: string; events: number }[];
+  // KPI Metrics
+  totalInstalls: number;
+  totalActivations: number;
+  activationRate: number; // totalActivations / totalInstalls
+  totalSessions: number;
+  averageSessionDuration: number; // in minutes
+  retention: {
+    d1: number; // Day 1 retention
+    d7: number; // Day 7 retention
+    d30: number; // Day 30 retention
+  };
+  featureUsage: Record<string, number>; // e.g., { 'chat_view': 150, 'settings_changed': 20 }
+  premiumSubscribers: number;
+  premiumTrialUsers: number;
+  premiumConversionRate: number; // premiumSubscribers / totalActivations
+  // DAU/MAU (calculated from sessions)
+  dau: number; // Daily Active Users (unique users with session_started today)
+  mau: number; // Monthly Active Users (unique users with session_started in last 30 days)
+  // Security KPIs
+  threatDetectionRate: number; // Threats detected / Total threats
+  falsePositiveRate: number; // False positives / Total alerts
+  falseNegativeRate: number; // Missed threats / Total threats
+  averageAlertResponseTime: number; // Average time from alert to notification (seconds)
+  averageSOSResponseTime: number; // Average time from SOS trigger to notification (seconds)
+  aiAnalysisAccuracy: number; // Correct analyses / Total analyses
+  aiAnalysisSpeed: number; // Average analysis time (seconds)
+  imageAnalysisAccuracy: number; // Correct image analyses / Total
+  // Engagement KPIs
+  sessionsPerUserWeekly: number; // Average sessions per user per week
+  messagesAnalyzedPerDay: number; // Average messages analyzed per day
+  featureAdoptionRate: number; // Users using features / Total users
+  parentChildPairCompletionRate: number; // Completed pairs / Started pairs
+  // Market KPIs
+  geographicExpansion: number; // Number of countries with users
+  appStoreRating: number; // App Store rating (0-5)
+  nps: number; // Net Promoter Score (-100 to 100)
+  // Revenue KPIs (calculated from premium data)
+  arr: number; // Annual Recurring Revenue
+  cac: number; // Customer Acquisition Cost
+  ltv: number; // Lifetime Value
+  ltvCacRatio: number; // LTV / CAC
+  userGrowthRate: number; // Monthly growth rate (%)
 }
 
 export interface AnalyticsContextValue {
@@ -70,6 +133,47 @@ const DEFAULT_METRICS: AnalyticsMetrics = {
   },
   eventsByType: {} as Record<AnalyticsEvent, number>,
   dailyActivity: [],
+  // KPI Metrics
+  totalInstalls: 0,
+  totalActivations: 0,
+  activationRate: 0,
+  totalSessions: 0,
+  averageSessionDuration: 0,
+  retention: {
+    d1: 0,
+    d7: 0,
+    d30: 0,
+  },
+  featureUsage: {},
+  premiumSubscribers: 0,
+  premiumTrialUsers: 0,
+  premiumConversionRate: 0,
+  dau: 0,
+  mau: 0,
+  // Security KPIs
+  threatDetectionRate: 0,
+  falsePositiveRate: 0,
+  falseNegativeRate: 0,
+  averageAlertResponseTime: 0,
+  averageSOSResponseTime: 0,
+  aiAnalysisAccuracy: 0,
+  aiAnalysisSpeed: 0,
+  imageAnalysisAccuracy: 0,
+  // Engagement KPIs
+  sessionsPerUserWeekly: 0,
+  messagesAnalyzedPerDay: 0,
+  featureAdoptionRate: 0,
+  parentChildPairCompletionRate: 0,
+  // Market KPIs
+  geographicExpansion: 0,
+  appStoreRating: 0,
+  nps: 0,
+  // Revenue KPIs
+  arr: 0,
+  cac: 0,
+  ltv: 0,
+  ltvCacRatio: 0,
+  userGrowthRate: 0,
 };
 
 export const [AnalyticsProvider, useAnalytics] = createContextHook<AnalyticsContextValue>(() => {
@@ -145,88 +249,9 @@ export const [AnalyticsProvider, useAnalytics] = createContextHook<AnalyticsCont
     return JSON.stringify(events, null, 2);
   }, [events]);
 
-  // Вычисление метрик
+  // Вычисление метрик (используем чистую функцию для тестируемости)
   const metrics = useMemo((): AnalyticsMetrics => {
-    const baseMetrics = { ...DEFAULT_METRICS };
-    const eventsByType: Record<string, number> = {};
-    const riskCounts: Record<string, number> = {
-      safe: 0,
-      low: 0,
-      medium: 0,
-      high: 0,
-      critical: 0,
-    };
-    const chatActivity: Record<string, number> = {};
-    let totalRiskScore = 0;
-    let riskCount = 0;
-
-    events.forEach((eventData) => {
-      // Подсчет событий по типам
-      eventsByType[eventData.event] = (eventsByType[eventData.event] || 0) + 1;
-
-      // Специфичная логика для разных событий
-      switch (eventData.event) {
-        case 'message_sent':
-          baseMetrics.totalMessages++;
-          break;
-        case 'message_analyzed':
-          baseMetrics.messagesAnalyzed++;
-          if (eventData.properties?.riskLevel) {
-            const risk = eventData.properties.riskLevel as string;
-            if (risk in riskCounts) {
-              riskCounts[risk]++;
-            }
-            // Вычисление среднего уровня риска (0=safe, 1=low, 2=medium, 3=high, 4=critical)
-            const riskScores: Record<string, number> = {
-              safe: 0,
-              low: 1,
-              medium: 2,
-              high: 3,
-              critical: 4,
-            };
-            totalRiskScore += riskScores[risk] || 0;
-            riskCount++;
-          }
-          if (eventData.properties?.chatId) {
-            const chatId = eventData.properties.chatId as string;
-            chatActivity[chatId] = (chatActivity[chatId] || 0) + 1;
-          }
-          break;
-        case 'alert_created':
-          baseMetrics.totalAlerts++;
-          break;
-        case 'alert_resolved':
-          baseMetrics.alertsResolved++;
-          break;
-        case 'sos_triggered':
-          baseMetrics.totalSOS++;
-          break;
-      }
-    });
-
-    // Находим самый активный чат
-    const mostActiveChatId = Object.entries(chatActivity).reduce(
-      (max, [id, count]) => (count > (chatActivity[max] || 0) ? id : max),
-      ''
-    );
-
-    baseMetrics.averageRiskLevel = riskCount > 0 ? totalRiskScore / riskCount : 0;
-    baseMetrics.mostActiveChat = mostActiveChatId || null;
-    baseMetrics.riskDistribution = riskCounts as AnalyticsMetrics['riskDistribution'];
-    baseMetrics.eventsByType = eventsByType as Record<AnalyticsEvent, number>;
-
-    // Группировка по дням
-    const dailyMap: Record<string, number> = {};
-    events.forEach((event) => {
-      const date = new Date(event.timestamp).toISOString().split('T')[0];
-      dailyMap[date] = (dailyMap[date] || 0) + 1;
-    });
-    baseMetrics.dailyActivity = Object.entries(dailyMap)
-      .map(([date, events]) => ({ date, events }))
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .slice(-30); // Последние 30 дней
-
-    return baseMetrics;
+    return calculateMetrics(events);
   }, [events]);
 
   return useMemo(
