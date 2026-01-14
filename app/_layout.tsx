@@ -10,9 +10,9 @@ import { UserProvider } from "@/constants/UserContext";
 import { ParentalControlsProvider } from "@/constants/ParentalControlsContext";
 import { ThemeProvider } from "@/constants/ThemeContext";
 import { NotificationsProvider } from "@/constants/NotificationsContext";
-import { AnalyticsProvider } from "@/constants/AnalyticsContext";
 import { AgeComplianceProvider } from "@/constants/AgeComplianceContext";
 import { ABTestingProvider } from "@/constants/ABTestingContext";
+import * as AnalyticsContext from "@/constants/AnalyticsContext";
 import { PersonalizedAIProvider } from "@/constants/PersonalizedAIContext";
 import { GamificationProvider } from "@/constants/GamificationContext";
 import { PredictiveAnalyticsProvider } from "@/constants/PredictiveAnalyticsContext";
@@ -20,6 +20,8 @@ import { AIParentingAssistantProvider } from "@/constants/AIParentingAssistantCo
 import { ReferralProgramProvider } from "@/constants/ReferralProgramContext";
 import { SyncSettingsProvider } from "@/constants/SyncSettingsContext";
 import { SecuritySettingsProvider } from "@/constants/SecuritySettingsContext";
+import { PremiumProvider } from "@/constants/PremiumContext";
+import { ActivationTracker } from "@/components/ActivationTracker";
 import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
 import { applyGlobalCursorStyles } from "@/utils/cursorStyles";
@@ -160,31 +162,34 @@ function AppProviders({ children }: { children: ReactNode }) {
           <ThemeProvider>
             <AgeComplianceProvider>
               <UserProvider>
-                <AnalyticsProvider>
-                  <ABTestingProvider>
-                    <PersonalizedAIProvider>
-                      <MonitoringProvider>
-                        <ParentalControlsProvider>
-                          <GamificationProvider>
-                            <PredictiveAnalyticsProvider>
-                              <AIParentingAssistantProvider>
-                                <ReferralProgramProvider>
-                                  <SyncSettingsProvider>
+                <AnalyticsContext.AnalyticsProvider>
+                  <PremiumProvider>
+                    <ABTestingProvider>
+                      <PersonalizedAIProvider>
+                        <MonitoringProvider>
+                          <ParentalControlsProvider>
+                            <GamificationProvider>
+                              <PredictiveAnalyticsProvider>
+                                <AIParentingAssistantProvider>
+                                  <ReferralProgramProvider>
+                                    <SyncSettingsProvider>
                                     <SecuritySettingsProvider>
                                       <NotificationsProvider>
+                                        <ActivationTracker />
                                         {children}
                                       </NotificationsProvider>
                                     </SecuritySettingsProvider>
-                                  </SyncSettingsProvider>
-                                </ReferralProgramProvider>
-                              </AIParentingAssistantProvider>
-                            </PredictiveAnalyticsProvider>
-                          </GamificationProvider>
-                        </ParentalControlsProvider>
-                      </MonitoringProvider>
-                    </PersonalizedAIProvider>
-                  </ABTestingProvider>
-                </AnalyticsProvider>
+                                    </SyncSettingsProvider>
+                                  </ReferralProgramProvider>
+                                </AIParentingAssistantProvider>
+                              </PredictiveAnalyticsProvider>
+                            </GamificationProvider>
+                          </ParentalControlsProvider>
+                        </MonitoringProvider>
+                      </PersonalizedAIProvider>
+                    </ABTestingProvider>
+                  </PremiumProvider>
+                </AnalyticsContext.AnalyticsProvider>
               </UserProvider>
             </AgeComplianceProvider>
           </ThemeProvider>
