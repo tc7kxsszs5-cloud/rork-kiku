@@ -174,10 +174,10 @@ const DIAGNOSTIC_LABELS: Record<NotificationTestType, string> = {
 };
 
 export default function ProfileScreen() {
-  const { user, isLoading, identifyUser, updateUser, logoutUser, children } = useUser();
+  const { user, isLoading, identifyUser, updateUser, logoutUser } = useUser();
   const { i18n: i18nInstance } = useTranslation();
   // Определяем роль на основе наличия детей: если есть дети - родитель, если нет - ребенок
-  const isParent = useMemo(() => user ? (user.children?.length > 0 || user.email) : false, [user]);
+  // const isParent = useMemo(() => user ? (user.children?.length > 0 || user.email) : false, [user]);
   const isChild = useMemo(() => user ? (!user.children?.length && !user.email) : false, [user]);
   const { settings } = useParentalControls();
   const { chats } = useMonitoring();
@@ -369,6 +369,7 @@ export default function ProfileScreen() {
       }
       console.log('[ProfileScreen] Loaded user data into form');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const guardianSummary = useMemo(() => {

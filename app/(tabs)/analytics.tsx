@@ -17,7 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BarChart3, TrendingUp, Shield, Users, DollarSign, Download, Share2 } from 'lucide-react-native';
 import { useAnalytics } from '@/constants/AnalyticsContext';
 import { useThemeMode } from '@/constants/ThemeContext';
-import { exportKPIReportJSON, exportKPIReportCSV, formatKPIsForInvestors } from '@/utils/kpiExport';
+import { exportKPIReportJSON, formatKPIsForInvestors } from '@/utils/kpiExport';
 
 export default function AnalyticsScreen() {
   const { metrics } = useAnalytics();
@@ -35,15 +35,16 @@ export default function AnalyticsScreen() {
     });
   };
 
-  const handleExportCSV = () => {
-    const csv = exportKPIReportCSV(metrics);
-    Share.share({
-      message: csv,
-      title: 'KPI Report CSV',
-    }).catch(() => {
-      Alert.alert('Error', 'Failed to share report');
-    });
-  };
+  // CSV export available but not used in UI yet
+  // const handleExportCSV = () => {
+  //   const csv = exportKPIReportCSV(metrics);
+  //   Share.share({
+  //     message: csv,
+  //     title: 'KPI Report CSV',
+  //   }).catch(() => {
+  //     Alert.alert('Error', 'Failed to share report');
+  //   });
+  // };
 
   const handleShareForInvestors = () => {
     const report = formatKPIsForInvestors(metrics);

@@ -5,14 +5,14 @@ import { useSyncSettings, SyncFrequency, SyncSource } from '@/constants/SyncSett
 import { useThemeMode, ThemePalette } from '@/constants/ThemeContext';
 import { HapticFeedback } from '@/constants/haptics';
 
-const SYNC_FREQUENCY_OPTIONS: Array<{ value: SyncFrequency; label: string; description: string }> = [
+const SYNC_FREQUENCY_OPTIONS: { value: SyncFrequency; label: string; description: string }[] = [
   { value: 'realtime', label: 'В реальном времени', description: 'Мгновенная синхронизация' },
   { value: '5min', label: 'Каждые 5 минут', description: 'Быстрая синхронизация' },
   { value: '15min', label: 'Каждые 15 минут', description: 'Умеренная синхронизация' },
   { value: '1hour', label: 'Каждый час', description: 'Экономная синхронизация' },
 ];
 
-const SYNC_SOURCE_OPTIONS: Array<{ value: SyncSource; label: string; description: string; Icon: typeof Cloud }> = [
+const SYNC_SOURCE_OPTIONS: { value: SyncSource; label: string; description: string; Icon: typeof Cloud }[] = [
   { value: 'cloud', label: 'Облако', description: 'Синхронизация через сервер', Icon: Cloud },
   { value: 'local', label: 'Локально', description: 'Только на устройстве', Icon: HardDrive },
 ];

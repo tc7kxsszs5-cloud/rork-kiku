@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeMode } from '@/constants/ThemeContext';
-import { Gradients } from '@/constants/ColorSystem';
+// import { Gradients } from '@/constants/ColorSystem';
 import { BackgroundWithDepth, CardWithDepth, OrnamentalContainer } from './BackgroundEffects';
 
 /**
@@ -91,7 +91,7 @@ const NoiseOverlay: React.FC = () => {
 };
 
 const PatternOverlay: React.FC = () => {
-  const { theme } = useThemeMode();
+  // const { theme } = useThemeMode();
   
   return (
     <View

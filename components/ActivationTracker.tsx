@@ -15,8 +15,6 @@ export function ActivationTracker() {
       return;
     }
 
-    let isMounted = true;
-
     const trackAppLaunch = async () => {
       try {
         const installDate = await trackInstall();
@@ -46,10 +44,6 @@ export function ActivationTracker() {
     };
 
     trackAppLaunch();
-
-    return () => {
-      isMounted = false;
-    };
   }, [trackEvent]);
 
   return null;
