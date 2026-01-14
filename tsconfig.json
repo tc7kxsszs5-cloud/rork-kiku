@@ -14,5 +14,14 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "kids",
+    "rork-kiku",
+    "kiku",
+    "KIKU79",
+    "e807b43d-*",
+    "-https-github*"
   ]
 }
