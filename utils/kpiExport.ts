@@ -133,6 +133,7 @@ export function exportKPIReportCSV(metrics: AnalyticsMetrics): string {
 export function formatKPIsForInvestors(metrics: AnalyticsMetrics): string {
   const report = generateKPIReport(metrics);
   const { keyMetrics, securityMetrics, engagementMetrics, revenueMetrics } = report.summary;
+  const projections = report.projections;
 
   return `
 📊 KPI REPORT - KIDS by KIKU
