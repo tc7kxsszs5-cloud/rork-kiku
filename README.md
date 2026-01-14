@@ -37,6 +37,30 @@ npx expo start
 - [Стратегия глобального распространения](GLOBAL_EXPANSION_STRATEGY.md)
 - [Визуальные эффекты](VISUAL_EFFECTS_GUIDE.md)
 
+## 💼 Для инвесторов / For Investors
+
+**🇬🇪 Грузинский:**  
+- [Полный инвесторский пакет](INVESTOR_PACKAGE_COMPLETE.md) - все материалы для инвесторов
+- [План привлечения инвесторов](INVESTOR_ATTRACTION_PLAN.md) - стратегия и этапы
+- [Список инвесторов](INVESTOR_OUTREACH_LIST.md) - 50+ потенциальных инвесторов
+
+**🇺🇸 English:**  
+- [Complete Investor Package](INVESTOR_PACKAGE_COMPLETE.md) - all investor materials
+- [Investor Outreach Emails](INVESTOR_OUTREACH/) - ready-to-send emails (English)
+- [Investor List](INVESTOR_OUTREACH_LIST.md) - 50+ potential investors
+
+**📧 Ready-to-send emails (English):**  
+- [Reach Capital](INVESTOR_OUTREACH/Reach_Capital/email.txt)
+- [GSV Ventures](INVESTOR_OUTREACH/GSV_Ventures/email.txt)
+- [Omidyar Network](INVESTOR_OUTREACH/Omidyar_Network/email.txt)
+- [Chan Zuckerberg Initiative](INVESTOR_OUTREACH/Chan_Zuckerberg_Initiative/email.txt)
+- [New Markets Venture Partners](INVESTOR_OUTREACH/New_Markets_Venture_Partners/email.txt)
+
+**🎯 Key highlights for investors:**
+- **Free-to-family model** - doubles active users (1 family = 2-4 active users)
+- **Built-in KPI system** - activation, retention (D1/D7/D30), feature usage, premium metrics
+- See [INVESTOR_PACKAGE_COMPLETE.md](INVESTOR_PACKAGE_COMPLETE.md) section "1.1 (EN) Key product highlight for investors"
+
 ## 💰 Спонсорство
 
 Поддержите проект KIKU и помогите защитить детей по всему миру!

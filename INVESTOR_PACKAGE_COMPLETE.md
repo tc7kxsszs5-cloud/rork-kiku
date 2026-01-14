@@ -19,6 +19,36 @@
 - Финансовая модель с прогнозами
 - Готов к заполнению данными
 
+### 1.1. Ключевой продуктовый акцент (для инвесторов)
+
+✅ **Free‑to‑family модель + двойная аудитория**
+- Приложение KIDS by KIKU бесплатно для семьи на старте (родитель + ребёнок)
+- Это сразу удваивает активную аудиторию (1 семья = 2–4 активных пользователя)
+- Важно явно проговаривать это в pitch deck, Executive Summary и письмах инвесторам
+
+✅ **Встроенная система KPI (активация, удержание, использование функций, премиум)**
+- В коде реализован `AnalyticsContext` с отслеживанием:
+  - установки и первого запуска (`app_installed`, `app_first_launch`, `user_activated`)
+  - удержания (D1, D7, D30 retention через события `session_started`)
+  - использования ключевых функций (`feature_used` с именем функции)
+  - будущей премиум‑подписки (события `premium_*`)
+- Эти метрики используются в **FINANCIAL_MODEL_TEMPLATE.md** и будущих дашбордах как основа для инвест‑отчётности
+
+#### 1.1 (EN) Key product highlight for investors
+
+✅ **Free‑to‑family model + dual user base**
+- KIDS by KIKU is free for families at launch (parent + child apps)
+- This effectively doubles active users per paying unit (1 family = 2–4 active users)
+- Make sure this is clearly stated in the pitch deck, Executive Summary and investor emails
+
+✅ **Built‑in KPI system (activation, retention, feature usage, premium)**
+- Implemented `AnalyticsContext` tracks:
+  - installs and first launch (`app_installed`, `app_first_launch`, `user_activated`)
+  - retention (D1, D7, D30 via `session_started` events)
+  - key feature usage (`feature_used` with feature name)
+  - future premium subscription funnel (all `premium_*` events)
+- These metrics are the backbone for **FINANCIAL_MODEL_TEMPLATE.md** and future dashboards used in investor reporting
+
 ---
 
 ### 2. Списки и контакты (готовы)

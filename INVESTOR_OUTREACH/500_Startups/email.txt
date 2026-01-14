@@ -1,0 +1,50 @@
+TO: info@500.co
+SUBJECT: KIDS by KIKU – AI child safety platform (500 Startups Application)
+
+Hi 500 Startups Team,
+
+My name is Galoian Mikheil, I'm the founder of KIKU and the creator of KIDS by KIKU – 
+a family app that combines online safety, healthy screen use and learning support 
+for children, without turning parents into full‑time spies.
+
+KIDS by KIKU monitors chats, messengers and games with AI, flags risky situations 
+(bullying, grooming, self‑harm, explicit content) and gives parents clear, 
+actionable alerts and SOS flows – while keeping the child's experience human and 
+age‑appropriate.
+
+Our go‑to‑market strategy:
+- **Free for families** at launch – our focus is rapid user acquisition and building critical mass
+- We're targeting both parents and children as active users (doubling our addressable audience)
+- This dual‑user model makes KIDS by KIKU unique: 1 family = 2–4 active users (parent + children)
+- Future monetization: premium features (advanced analytics, extended history), B2B2C partnerships with schools
+
+In the US, we already see state‑level child online safety initiatives (including in Texas) 
+that push platforms to add real age‑based controls and safety tooling. 
+KIDS by KIKU is built as a practical layer for this reality: 
+age‑aware restrictions, AI‑based risk scoring, audit logs and a parent dashboard 
+that can sit on top of Apple/Google/Microsoft ecosystems and messaging platforms.
+
+Where we are now:
+- Working React Native (Expo) MVP with AI moderation and SOS mechanics
+- Architecture ready for mobile + web + tRPC backend and PostgreSQL
+- Built‑in analytics for activation, retention, feature usage, and premium capabilities
+- Clear KPI model around family activation, retention and prevented incidents
+
+We're preparing a $500k–$1M seed round to:
+- Ship a production‑ready version and acquire the first 10–20k families (free model)
+- Run pilots with schools / platforms (Apple / Google / Microsoft ecosystems)
+- Formalize and track safety and engagement KPIs at a level investors can underwrite
+- Build the foundation for future premium features and B2B partnerships
+
+500 Startups' international focus and expertise in scaling consumer products aligns 
+perfectly with KIDS by KIKU's global mission. We'd love to be part of the 500 Startups 
+community.
+
+I'd be happy to send a 1‑page overview and a short product demo, 
+and explore a conversation about our 500 Startups application.
+
+Best,
+Galoian Mikheil  
+Founder, KIKU (KIDS by KIKU)  
+Email: g_mikheil@icloud.com  
+GitHub: https://github.com/tc7kxsszs5-cloud/rork-kiku
