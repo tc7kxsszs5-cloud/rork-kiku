@@ -13,7 +13,10 @@ import {
   Alert,
 } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
-import { Send, AlertTriangle, Mic, X, AlertOctagon } from 'lucide-react-native';
+import { Send, AlertTriangle, Mic, X, AlertOctagon, Smile } from 'lucide-react-native';
+import { EmojiPicker } from '@/components/EmojiPicker';
+import { EmojiRenderer } from '@/components/EmojiRenderer';
+import { replaceTextSmileys } from '@/utils/emojiUtils';
 import { useMonitoring } from '@/constants/MonitoringContext';
 import { useParentalControls } from '@/constants/ParentalControlsContext';
 import { useUser } from '@/constants/UserContext';
@@ -47,6 +50,7 @@ export default function ChatScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const micScaleAnim = useRef(new Animated.Value(1)).current;
   const sendButtonScaleAnim = useRef(new Animated.Value(1)).current;
   const isMountedRef = useIsMounted();
@@ -253,10 +257,19 @@ export default function ChatScreen() {
     const sender = Math.random() > 0.5 ? chat.participants[0] : chat.participants[1];
     const senderName = sender === chat.participants[0] ? chat.participantNames[0] : chat.participantNames[1];
 
-    await addMessage(chatId, inputText.trim(), sender, senderName);
+    // Заменяем текстовые смайлики на эмодзи перед отправкой
+    const processedText = replaceTextSmileys(inputText.trim());
+
+    await addMessage(chatId, processedText, sender, senderName);
     if (isMountedRef.current) {
       setInputText('');
+      setShowEmojiPicker(false);
     }
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setInputText((prev) => prev + emoji);
+    HapticFeedback.light();
   };
 
   const renderMessage = ({ item }: { item: Message }) => {
@@ -266,7 +279,7 @@ export default function ChatScreen() {
       <View style={[styles.messageContainer, isCurrentUser ? styles.messageRight : styles.messageLeft]}>
         <View style={[styles.messageBubble, isCurrentUser ? styles.bubbleRight : styles.bubbleLeft]}>
           {chat.isGroup && <Text style={styles.senderName}>{item.senderName}</Text>}
-          <Text style={styles.messageText}>{item.text}</Text>
+          <EmojiRenderer text={item.text} emojiSize={20} style={styles.messageText} />
           
           {!item.analyzed && (
             <View style={styles.analyzingBadge}>
@@ -365,6 +378,15 @@ export default function ChatScreen() {
             </View>
           ) : (
             <>
+              <TouchableOpacity
+                style={styles.emojiButton}
+                onPress={() => {
+                  setShowEmojiPicker(true);
+                  HapticFeedback.light();
+                }}
+              >
+                <Smile size={22} color="#FFD700" />
+              </TouchableOpacity>
               <TextInput
                 style={styles.input}
                 value={inputText}
@@ -400,6 +422,13 @@ export default function ChatScreen() {
           )}
         </View>
       </KeyboardAvoidingView>
+
+      {/* Emoji Picker Modal */}
+      <EmojiPicker
+        visible={showEmojiPicker}
+        onClose={() => setShowEmojiPicker(false)}
+        onEmojiSelect={handleEmojiSelect}
+      />
     </>
   );
 }
@@ -559,6 +588,14 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#e5e5e5',
     alignItems: 'flex-end',
+  },
+  emojiButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
   },
   input: {
     flex: 1,
