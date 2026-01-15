@@ -8,7 +8,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import { Text } from 'react-native';
 import { CustomEmoji } from './CustomEmoji';
 import { loadCustomEmojis, CustomEmojiData } from '@/utils/customEmojis';
 

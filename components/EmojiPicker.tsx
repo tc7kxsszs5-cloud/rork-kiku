@@ -8,7 +8,7 @@
  * - Кастомные эмодзи (опционально)
  */
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -19,11 +19,8 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
-import { X, Search, Smile, Plus } from 'lucide-react-native';
+import { X, Search, Smile } from 'lucide-react-native';
 import { useThemeMode } from '@/constants/ThemeContext';
-import { CustomEmoji } from './CustomEmoji';
-import { CustomEmojiCreator } from './CustomEmojiCreator';
-import { loadCustomEmojis, CustomEmojiData } from '@/utils/customEmojis';
 
 // Категории эмодзи с популярными эмодзи
 const EMOJI_CATEGORIES = {
@@ -90,8 +87,9 @@ export function EmojiPicker({ visible, onClose, onEmojiSelect }: EmojiPickerProp
         }
       });
     });
-
-    return allEmojis;
+    
+    // Фильтруем по запросу
+    return allEmojis.filter(emoji => emoji.includes(query));
   }, [searchQuery, selectedCategory]);
 
   const handleEmojiPress = (emoji: string) => {
