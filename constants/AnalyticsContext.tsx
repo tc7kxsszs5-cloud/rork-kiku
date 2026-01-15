@@ -2,8 +2,11 @@ import createContextHook from '@nkzw/create-context-hook';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { calculateMetrics } from '@/utils/analyticsMetrics';
+import { getStoredVersion, saveStoredVersion, needsMigration, APP_DATA_VERSION } from '@/utils/versioning';
+import { getMigrationManager } from '@/utils/migrations';
 
 const ANALYTICS_STORAGE_KEY = '@kiku_analytics';
+const CURRENT_ANALYTICS_VERSION = APP_DATA_VERSION; // Используем текущую версию данных
 
 export type AnalyticsEvent = 
   | 'message_sent'
@@ -186,14 +189,59 @@ export const [AnalyticsProvider, useAnalytics] = createContextHook<AnalyticsCont
     };
   }, []);
 
-  // Загрузка аналитики при инициализации
+  // Загрузка аналитики при инициализации с поддержкой миграций
   useEffect(() => {
     const loadAnalytics = async () => {
       try {
         const stored = await AsyncStorage.getItem(ANALYTICS_STORAGE_KEY);
-        if (stored && isMountedRef.current) {
-          const parsed = JSON.parse(stored);
-          setEvents(parsed);
+        if (!stored) {
+          return;
+        }
+
+        if (!isMountedRef.current) {
+          return;
+        }
+
+        let parsed = JSON.parse(stored);
+        
+        // Проверяем версию данных
+        const currentVersion = parsed.version || 1;
+        
+        // Если нужна миграция
+        if (needsMigration(currentVersion, CURRENT_ANALYTICS_VERSION)) {
+          console.log(`[AnalyticsContext] Migrating from version ${currentVersion} to ${CURRENT_ANALYTICS_VERSION}`);
+          
+          try {
+            const migrationManager = getMigrationManager();
+            const result = await migrationManager.migrate(
+              parsed,
+              currentVersion,
+              CURRENT_ANALYTICS_VERSION
+            );
+
+            if (result.success) {
+              parsed = result.data;
+              
+              // Сохраняем мигрированные данные
+              await AsyncStorage.setItem(ANALYTICS_STORAGE_KEY, JSON.stringify(parsed));
+              await saveStoredVersion(ANALYTICS_STORAGE_KEY, CURRENT_ANALYTICS_VERSION);
+              
+              console.log(`[AnalyticsContext] Successfully migrated to version ${CURRENT_ANALYTICS_VERSION}`);
+            } else {
+              console.error('[AnalyticsContext] Migration failed:', result.error);
+              // Продолжаем с исходными данными
+            }
+          } catch (migrationError) {
+            console.error('[AnalyticsContext] Migration error:', migrationError);
+            // Продолжаем с исходными данными
+          }
+        }
+
+        // Извлекаем события из структуры данных
+        const events = parsed.events || parsed; // Поддержка старого формата (массив) и нового (объект с events)
+        
+        if (isMountedRef.current) {
+          setEvents(Array.isArray(events) ? events : []);
         }
       } catch (error) {
         console.error('[AnalyticsContext] Failed to load analytics:', error);
@@ -202,11 +250,19 @@ export const [AnalyticsProvider, useAnalytics] = createContextHook<AnalyticsCont
     loadAnalytics();
   }, []);
 
-  // Сохранение аналитики при изменении
+  // Сохранение аналитики при изменении с версионированием
   useEffect(() => {
     const saveAnalytics = async () => {
       try {
-        await AsyncStorage.setItem(ANALYTICS_STORAGE_KEY, JSON.stringify(events));
+        // Сохраняем в новом формате с версией
+        const versionedData = {
+          version: CURRENT_ANALYTICS_VERSION,
+          events,
+          updatedAt: Date.now(),
+        };
+        
+        await AsyncStorage.setItem(ANALYTICS_STORAGE_KEY, JSON.stringify(versionedData));
+        await saveStoredVersion(ANALYTICS_STORAGE_KEY, CURRENT_ANALYTICS_VERSION);
       } catch (error) {
         console.error('[AnalyticsContext] Failed to save analytics:', error);
       }

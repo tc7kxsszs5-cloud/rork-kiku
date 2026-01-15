@@ -25,6 +25,7 @@ import { ActivationTracker } from "@/components/ActivationTracker";
 import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
 import { applyGlobalCursorStyles } from "@/utils/cursorStyles";
+import { initializeTestCustomEmojis } from "@/utils/initCustomEmojis";
 
 // Применяем пользовательские курсоры для web
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -203,11 +204,23 @@ export default function RootLayout() {
   const [isReady, setIsReady] = useState(Platform.OS === 'web');
 
   useEffect(() => {
+    let isMounted = true;
+
+    const initializeApp = async () => {
+      try {
+        // Инициализация тестовых кастомных эмодзи
+        await initializeTestCustomEmojis();
+      } catch (error) {
+        console.error('[RootLayout] Failed to initialize custom emojis:', error);
+      }
+    };
+
+    initializeApp();
+
     if (Platform.OS === 'web') {
+      setIsReady(true);
       return;
     }
-
-    let isMounted = true;
 
     SplashScreen.hideAsync()
       .catch((error) => {
