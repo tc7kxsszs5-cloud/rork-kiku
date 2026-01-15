@@ -10,7 +10,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   FlatList,
   Alert,
@@ -24,7 +23,6 @@ import { CustomEmojiCreator } from '@/components/CustomEmojiCreator';
 import {
   loadCustomEmojis,
   removeCustomEmoji,
-  searchCustomEmojis,
   CustomEmojiData,
 } from '@/utils/customEmojis';
 import { initializeTestCustomEmojis } from '@/utils/initCustomEmojis';
