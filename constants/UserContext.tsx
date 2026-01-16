@@ -53,6 +53,14 @@ export const [UserProvider, useUser] = createContextHook(() => {
           if (migratedUser.language) {
             i18n.changeLanguage(migratedUser.language);
           }
+        } else {
+          // Первый запуск - определяем язык устройства автоматически
+          const { detectDeviceLanguage } = await import('@/constants/i18n');
+          const detectedLang = await detectDeviceLanguage();
+          if (detectedLang && detectedLang !== i18n.language) {
+            i18n.changeLanguage(detectedLang);
+            console.log(`[UserContext] Auto-detected language: ${detectedLang}`);
+          }
         }
       } catch (error) {
         console.error('Error loading user:', error);
