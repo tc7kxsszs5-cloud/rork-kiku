@@ -87,7 +87,7 @@ export function EmojiPicker({ visible, onClose, onEmojiSelect }: EmojiPickerProp
         }
       });
     });
-    
+
     // Фильтруем по запросу
     return allEmojis.filter(emoji => emoji.includes(query));
   }, [searchQuery, selectedCategory]);
