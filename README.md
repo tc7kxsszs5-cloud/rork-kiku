@@ -34,6 +34,10 @@ bun run start:simple
 # w - для веб-версии
 ```
 
+> 💡 **Новичок?** Начните с [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - простая шпаргалка с основными командами!
+
+> 💳 **Нужна настройка платежей?** См. [PAYMENT_SETUP.md](PAYMENT_SETUP.md) - Stripe, PayPal, In-App Purchases
+
 ## 📚 Документация
 
 ### 🛠️ Для разработчиков
