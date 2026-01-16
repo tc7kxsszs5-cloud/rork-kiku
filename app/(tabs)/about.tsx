@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image as RNImage, Pressable, Linking } from 'react-native';
-import { AlertOctagon, Image as ImageIcon, Clock, Users, Lock, FileText, Eye } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, Image as RNImage, Pressable, Linking, SafeAreaView, useWindowDimensions } from 'react-native';
+import { AlertOctagon, Image as ImageIcon, Clock, Users, Lock, FileText, Eye, Heart } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import appIcon from '@/assets/images/icon.png';
+import { PayPalButton, QuickDonateButton } from '@/components/PayPalButton';
 
 const PROJECT_URL = 'https://rork.app/p/d8v7u672uumlfpscvnbps';
 
@@ -12,36 +14,48 @@ type StageHighlight = {
   accent: string;
 };
 
-const stageHighlights: StageHighlight[] = [
-  {
-    title: 'Стадия',
-    value: 'Late MVP / Pre-Production',
-    description: 'UI/UX и функциональность основных экранов готовы, идет финализация стабильности',
-    accent: '#2ecc71',
-  },
-  {
-    title: 'AI & Контент',
-    value: 'Готово',
-    description: 'Модерация чатов, визуализация рисков, аналитика и рекомендации реализованы',
-    accent: '#00c2ff',
-  },
-  {
-    title: 'Оставшиеся шаги',
-    value: 'Интеграция backend + push',
-    description: 'Нужно подключить серверную синхронизацию, push-уведомления и аналитику',
-    accent: '#ff9f0a',
-  },
-];
 
 export default function AboutScreen() {
+  const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const isSmallScreen = width < 375;
+  const isMediumScreen = width >= 375 && width < 414;
+  const isLargeScreen = width >= 414;
+
   const handleOpenProjectUrl = () => {
     Linking.openURL(PROJECT_URL).catch((error) => {
       console.log('Failed to open project URL', error);
     });
   };
 
+  const stageHighlights: StageHighlight[] = [
+    {
+      title: t('about.stage'),
+      value: 'Late MVP / Pre-Production',
+      description: t('about.currentStatusDescription'),
+      accent: '#2ecc71',
+    },
+    {
+      title: t('about.aiContent'),
+      value: t('about.ready'),
+      description: t('about.aiContent'),
+      accent: '#00c2ff',
+    },
+    {
+      title: t('about.remainingSteps'),
+      value: 'Integration backend + push',
+      description: t('about.releaseReadinessHint'),
+      accent: '#ff9f0a',
+    },
+  ];
+
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
       <View style={styles.header}>
         <View style={styles.iconWrapper}>
           <RNImage
@@ -50,98 +64,104 @@ export default function AboutScreen() {
             resizeMode="contain"
             testID="about-app-icon"
           />
-          <Text style={styles.iconLabel} testID="about-app-icon-label">
+          <Text style={styles.iconLabel} testID="about-app-icon-label" numberOfLines={1}>
             KIDS
           </Text>
         </View>
-        <Text style={styles.title}>by Kiku</Text>
-        <Text style={styles.subtitle}>Защита переписок с AI</Text>
-        <Text style={styles.version}>Версия 1.0.0</Text>
+        <Text style={styles.title} numberOfLines={1}>by Kiku</Text>
+        <Text style={styles.subtitle} numberOfLines={2}>{t('about.subtitle')}</Text>
+        <Text style={styles.version}>{t('about.version')}</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Текущий статус</Text>
-        <Text style={styles.description}>
-          Проект находится на стадии позднего MVP: весь пользовательский функционал и дизайн готовы,
-          проводим стабилизацию и готовим интеграцию с backend и пуш-уведомлениями.
+        <Text style={styles.sectionTitle}>{t('about.currentStatus')}</Text>
+        <Text style={styles.description} numberOfLines={0}>
+          {t('about.currentStatusDescription')}
         </Text>
-        <View style={styles.stageGrid}>
+        <View style={[styles.stageGrid, isSmallScreen && styles.stageGridSmall]}>
           {stageHighlights.map((item, index) => (
-            <View key={item.title} style={styles.stageCard} testID={`about-stage-card-${index}`}>
+            <View 
+              key={item.title} 
+              style={[
+                styles.stageCard, 
+                isSmallScreen && styles.stageCardSmall,
+                isLargeScreen && styles.stageCardLarge
+              ]} 
+              testID={`about-stage-card-${index}`}
+            >
               <View style={[styles.stagePill, { backgroundColor: item.accent }]}
                 testID={`about-stage-pill-${index}`}
               >
-                <Text style={styles.stagePillText}>{item.title}</Text>
+                <Text style={styles.stagePillText} numberOfLines={1}>{item.title}</Text>
               </View>
-              <Text style={styles.stageValue}>{item.value}</Text>
-              <Text style={styles.stageDescription}>{item.description}</Text>
+              <Text style={styles.stageValue} numberOfLines={2}>{item.value}</Text>
+              <Text style={styles.stageDescription} numberOfLines={4}>{item.description}</Text>
             </View>
           ))}
         </View>
         <View style={styles.progressBlock} testID="about-stage-progress">
           <View style={styles.progressHeader}>
-            <Text style={styles.progressLabel}>Готовность релиза</Text>
-            <Text style={styles.progressValue}>80%</Text>
+            <Text style={styles.progressLabel} numberOfLines={1}>{t('about.releaseReadiness')}</Text>
+            <Text style={styles.progressValue}>{t('about.releaseReadinessValue')}</Text>
           </View>
           <View style={styles.progressBar}>
             <View style={styles.progressFill} />
           </View>
-          <Text style={styles.progressHint}>
-            Осталось: подключить push-уведомления, серверную синхронизацию и провести тесты на устройствах.
+          <Text style={styles.progressHint} numberOfLines={0}>
+            {t('about.releaseReadinessHint')}
           </Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>О приложении</Text>
-        <Text style={styles.description}>
-          KIDS - это инновационное приложение для мониторинга и защиты безопасности детских чатов с использованием искусственного интеллекта. 
-          Мы помогаем родителям защитить своих детей от онлайн-угроз, сохраняя при этом приватность и доверие.
+        <Text style={styles.sectionTitle}>{t('about.aboutApp')}</Text>
+        <Text style={styles.description} numberOfLines={0}>
+          {t('about.aboutAppDescription')}
         </Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>URL для публикации</Text>
-        <Text style={styles.description}>
-          Используйте ссылку ниже при заполнении форм App Store или TestFlight — это стабильный веб-превью проекта в Expo.
+        <Text style={styles.sectionTitle}>{t('about.publishUrl')}</Text>
+        <Text style={styles.description} numberOfLines={0}>
+          {t('about.publishUrlDescription')}
         </Text>
         <Pressable
           style={({ pressed }) => [styles.urlCard, pressed && styles.urlCardPressed]}
           onPress={handleOpenProjectUrl}
           testID="about-project-url"
         >
-          <Text style={styles.urlLabel}>Проект</Text>
-          <Text numberOfLines={1} style={styles.urlValue}>
+          <Text style={styles.urlLabel}>{t('about.project')}</Text>
+          <Text numberOfLines={1} style={styles.urlValue} ellipsizeMode="middle">
             {PROJECT_URL}
           </Text>
-          <Text style={styles.urlHint}>Нажмите, чтобы открыть</Text>
+          <Text style={styles.urlHint}>{t('about.clickToOpen')}</Text>
         </Pressable>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Лицензия</Text>
+        <Text style={styles.sectionTitle}>{t('about.license')}</Text>
         <View style={styles.licenseCard} testID="about-license-card">
-          <Text style={styles.licenseStatus}>Файл LICENSE не найден</Text>
-          <Text style={styles.licenseHint}>
-            Добавьте LICENSE в корень проекта и заполните поле «license» в package.json, чтобы зафиксировать выбранную лицензию.
+          <Text style={styles.licenseStatus} numberOfLines={1}>{t('about.licenseNotFound')}</Text>
+          <Text style={styles.licenseHint} numberOfLines={0}>
+            {t('about.licenseHint1')}
           </Text>
-          <Text style={styles.licenseHint}>
-            Проверяйте наличие файла LICENSE и значения «license» в package.json — это основной способ понять, оформлена ли лицензия.
+          <Text style={styles.licenseHint} numberOfLines={0}>
+            {t('about.licenseHint2')}
           </Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Основные функции</Text>
+        <Text style={styles.sectionTitle}>{t('about.mainFeatures')}</Text>
         
         <View style={styles.feature}>
           <View style={styles.featureIcon}>
             <Eye size={24} color="#FFD700" />
           </View>
           <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>AI Мониторинг сообщений</Text>
-            <Text style={styles.featureDescription}>
-              Автоматический анализ текстовых сообщений на предмет угроз, травли, насилия и опасного контента с использованием продвинутых AI моделей
+            <Text style={styles.featureTitle} numberOfLines={2}>{t('about.aiMonitoring')}</Text>
+            <Text style={styles.featureDescription} numberOfLines={0}>
+              {t('about.aiMonitoringDescription')}
             </Text>
           </View>
         </View>
@@ -151,9 +171,9 @@ export default function AboutScreen() {
             <ImageIcon size={24} color="#FFD700" />
           </View>
           <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Фильтрация изображений</Text>
-            <Text style={styles.featureDescription}>
-              AI-анализ изображений для обнаружения неприемлемого контента: насилие, нагота, экстремизм, оружие и наркотики
+            <Text style={styles.featureTitle} numberOfLines={2}>{t('about.imageFiltering')}</Text>
+            <Text style={styles.featureDescription} numberOfLines={0}>
+              {t('about.imageFilteringDescription')}
             </Text>
           </View>
         </View>
@@ -163,9 +183,9 @@ export default function AboutScreen() {
             <AlertOctagon size={24} color="#FFD700" />
           </View>
           <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>SOS кнопка</Text>
-            <Text style={styles.featureDescription}>
-              Экстренная помощь одним нажатием - мгновенное уведомление родителей с геолокацией при опасности
+            <Text style={styles.featureTitle} numberOfLines={2}>{t('about.sosButton')}</Text>
+            <Text style={styles.featureDescription} numberOfLines={0}>
+              {t('about.sosButtonDescription')}
             </Text>
           </View>
         </View>
@@ -175,9 +195,9 @@ export default function AboutScreen() {
             <Clock size={24} color="#FFD700" />
           </View>
           <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Временные ограничения</Text>
-            <Text style={styles.featureDescription}>
-              Настраиваемые ограничения по времени использования и расписанию для здорового цифрового баланса
+            <Text style={styles.featureTitle} numberOfLines={2}>{t('about.timeRestrictions')}</Text>
+            <Text style={styles.featureDescription} numberOfLines={0}>
+              {t('about.timeRestrictionsDescription')}
             </Text>
           </View>
         </View>
@@ -187,9 +207,9 @@ export default function AboutScreen() {
             <Users size={24} color="#FFD700" />
           </View>
           <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Белый список контактов</Text>
-            <Text style={styles.featureDescription}>
-              Управление разрешенными контактами с возможностью блокировки неизвестных собеседников
+            <Text style={styles.featureTitle} numberOfLines={2}>{t('about.contactWhitelist')}</Text>
+            <Text style={styles.featureDescription} numberOfLines={0}>
+              {t('about.contactWhitelistDescription')}
             </Text>
           </View>
         </View>
@@ -199,9 +219,9 @@ export default function AboutScreen() {
             <Lock size={24} color="#FFD700" />
           </View>
           <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Шифрование данных</Text>
-            <Text style={styles.featureDescription}>
-              Все данные хранятся локально на устройстве с шифрованием для максимальной приватности
+            <Text style={styles.featureTitle} numberOfLines={2}>{t('about.dataEncryption')}</Text>
+            <Text style={styles.featureDescription} numberOfLines={0}>
+              {t('about.dataEncryptionDescription')}
             </Text>
           </View>
         </View>
@@ -211,80 +231,101 @@ export default function AboutScreen() {
             <FileText size={24} color="#FFD700" />
           </View>
           <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>COPPA/GDPR-K соответствие</Text>
-            <Text style={styles.featureDescription}>
-              Полное соответствие международным стандартам защиты данных детей с подробным логированием согласий
+            <Text style={styles.featureTitle} numberOfLines={2}>{t('about.coppaCompliance')}</Text>
+            <Text style={styles.featureDescription} numberOfLines={0}>
+              {t('about.coppaComplianceDescription')}
             </Text>
           </View>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Технологии</Text>
+        <Text style={styles.sectionTitle}>{t('about.technologies')}</Text>
         <View style={styles.techList}>
           <View style={styles.techItem}>
             <Text style={styles.techBullet}>•</Text>
-            <Text style={styles.techText}>AI модели для анализа текста и изображений</Text>
+            <Text style={styles.techText} numberOfLines={0}>{t('about.techAiModels')}</Text>
           </View>
           <View style={styles.techItem}>
             <Text style={styles.techBullet}>•</Text>
-            <Text style={styles.techText}>End-to-end шифрование сообщений</Text>
+            <Text style={styles.techText} numberOfLines={0}>{t('about.techEncryption')}</Text>
           </View>
           <View style={styles.techItem}>
             <Text style={styles.techBullet}>•</Text>
-            <Text style={styles.techText}>Локальное хранение данных с AsyncStorage</Text>
+            <Text style={styles.techText} numberOfLines={0}>{t('about.techStorage')}</Text>
           </View>
           <View style={styles.techItem}>
             <Text style={styles.techBullet}>•</Text>
-            <Text style={styles.techText}>Геолокация для экстренных случаев</Text>
+            <Text style={styles.techText} numberOfLines={0}>{t('about.techGeolocation')}</Text>
           </View>
           <View style={styles.techItem}>
             <Text style={styles.techBullet}>•</Text>
-            <Text style={styles.techText}>Голосовые сообщения с транскрипцией</Text>
+            <Text style={styles.techText} numberOfLines={0}>{t('about.techVoice')}</Text>
           </View>
           <View style={styles.techItem}>
             <Text style={styles.techBullet}>•</Text>
-            <Text style={styles.techText}>Реал-тайм мониторинг с уведомлениями</Text>
+            <Text style={styles.techText} numberOfLines={0}>{t('about.techMonitoring')}</Text>
           </View>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Безопасность и приватность</Text>
-        <Text style={styles.description}>
-          Мы серьезно относимся к безопасности и приватности. Все данные хранятся локально на вашем устройстве. 
-          Мы не собираем личную информацию без согласия родителей. AI анализ работает с шифрованными данными, 
-          а метаданные о безопасности хранятся отдельно от содержимого сообщений.
+        <Text style={styles.sectionTitle}>{t('about.securityPrivacy')}</Text>
+        <Text style={styles.description} numberOfLines={0}>
+          {t('about.securityPrivacyDescription')}
         </Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Поддержка</Text>
-        <Text style={styles.description}>
-          Если у вас есть вопросы или предложения, свяжитесь с нами:
+        <Text style={styles.sectionTitle}>{t('about.supportProject')}</Text>
+        <Text style={styles.description} numberOfLines={0}>
+          {t('about.supportProjectDescription')}
         </Text>
-        <Text style={styles.contactText}>Email: support@kids-app.com</Text>
-        <Text style={styles.contactText}>Сайт: www.kids-app.com</Text>
+        <View style={styles.donateContainer}>
+          <PayPalButton label={t('about.supportProject')} variant="primary" size="large" />
+          <QuickDonateButton />
+        </View>
+        <Text style={styles.donateHint} numberOfLines={0}>
+          {t('about.supportProjectHint')}
+        </Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t('about.support')}</Text>
+        <Text style={styles.description} numberOfLines={0}>
+          {t('about.supportDescription')}
+        </Text>
+        <Text style={styles.contactText} numberOfLines={1}>{t('about.email')}</Text>
+        <Text style={styles.contactText} numberOfLines={1}>{t('about.website')}</Text>
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2024 KIDS. Все права защищены.</Text>
-        <Text style={styles.footerSubtext}>
-          Сделано с заботой о безопасности детей
+        <Text style={styles.footerText} numberOfLines={1}>{t('about.footer')}</Text>
+        <Text style={styles.footerSubtext} numberOfLines={1}>
+          {t('about.footerSubtext')}
         </Text>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff9e6',
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff9e6',
   },
+  contentContainer: {
+    paddingBottom: 20,
+  },
   header: {
     alignItems: 'center',
     padding: 40,
+    paddingTop: 20,
     backgroundColor: '#FFD700',
   },
   iconWrapper: {
@@ -348,9 +389,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap' as const,
     gap: 16,
+    justifyContent: 'space-between',
+  },
+  stageGridSmall: {
+    flexDirection: 'column',
+    gap: 12,
   },
   stageCard: {
-    flexBasis: '48%',
+    flex: 1,
+    minWidth: '48%',
+    maxWidth: '48%',
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 16,
@@ -359,6 +407,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 2,
+  },
+  stageCardSmall: {
+    minWidth: '100%',
+    maxWidth: '100%',
+  },
+  stageCardLarge: {
+    minWidth: '31%',
+    maxWidth: '31%',
   },
   stagePill: {
     alignSelf: 'flex-start',
@@ -372,17 +428,20 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
     color: '#0d1b2a',
     letterSpacing: 0.5,
+    flexShrink: 1,
   },
   stageValue: {
     fontSize: 16,
     fontWeight: '700' as const,
     color: '#0d1b2a',
     marginBottom: 6,
+    flexShrink: 1,
   },
   stageDescription: {
     fontSize: 13,
     color: '#4a4a4a',
     lineHeight: 18,
+    flexShrink: 1,
   },
   progressBlock: {
     marginTop: 24,
@@ -447,6 +506,7 @@ const styles = StyleSheet.create({
   },
   featureContent: {
     flex: 1,
+    flexShrink: 1,
   },
   featureTitle: {
     fontSize: 16,
@@ -475,6 +535,7 @@ const styles = StyleSheet.create({
   },
   techText: {
     flex: 1,
+    flexShrink: 1,
     fontSize: 15,
     color: '#666',
     lineHeight: 22,
@@ -547,5 +608,16 @@ const styles = StyleSheet.create({
     color: '#bbb',
     marginTop: 8,
     textAlign: 'center',
+  },
+  donateContainer: {
+    marginTop: 20,
+    marginBottom: 12,
+  },
+  donateHint: {
+    fontSize: 13,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 12,
+    fontStyle: 'italic',
   },
 });
