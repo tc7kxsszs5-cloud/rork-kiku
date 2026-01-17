@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking, Platform } from 'react-native';
-import { Heart, CreditCard } from 'lucide-react-native';
+import { CreditCard } from 'lucide-react-native';
 import { useThemeMode } from '@/constants/ThemeContext';
 
 const PAYPAL_URL = 'https://paypal.me/kikustore';

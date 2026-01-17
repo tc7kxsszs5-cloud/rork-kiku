@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image as RNImage, Pressable, Linking, SafeAreaView, useWindowDimensions } from 'react-native';
-import { AlertOctagon, Image as ImageIcon, Clock, Users, Lock, FileText, Eye, Heart } from 'lucide-react-native';
+import { AlertOctagon, Image as ImageIcon, Clock, Users, Lock, FileText, Eye } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import appIcon from '@/assets/images/icon.png';
 import { PayPalButton, QuickDonateButton } from '@/components/PayPalButton';
@@ -19,7 +19,6 @@ export default function AboutScreen() {
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 375;
-  const isMediumScreen = width >= 375 && width < 414;
   const isLargeScreen = width >= 414;
 
   const handleOpenProjectUrl = () => {
