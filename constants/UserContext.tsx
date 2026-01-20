@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import i18n from './i18n';
 
+import { UserRole, ParentGender } from './types';
+
 export interface ChildProfile {
   id: string;
   name: string;
@@ -11,6 +13,13 @@ export interface ChildProfile {
   avatar?: string;
   deviceId?: string;
   addedAt: number;
+  parentId?: string; // ID родителя-владельца
+  pin?: string; // PIN для входа ребенка (опционально)
+  permissions?: {
+    canChangeChatBackgrounds?: boolean;
+    canChangeNotificationSounds?: boolean;
+    canAddContacts?: boolean;
+  };
 }
 
 export interface User {
@@ -21,6 +30,11 @@ export interface User {
   createdAt: number;
   deviceId?: string;
   language?: string;
+  role?: UserRole; // 'parent' | 'child' (опционально для обратной совместимости)
+  parentId?: string; // Если role='child', указывает на родителя
+  parentPin?: string; // PIN родителя для аутентификации
+  parentGender?: ParentGender; // Пол родителя (для локализации)
+  country?: string; // Страна (для локализации)
   children: ChildProfile[]; // Массив детей родителя
   activeChildId?: string; // ID активного (выбранного) ребенка для просмотра
 }
@@ -43,10 +57,10 @@ export const [UserProvider, useUser] = createContextHook(() => {
         }
         if (stored) {
           const userData = JSON.parse(stored);
-          // Миграция: если старый формат (с role), конвертируем в новый
-          const { role, ...userWithoutRole } = userData;
+          // Миграция: если нет role, устанавливаем 'parent' по умолчанию
           const migratedUser: User = {
-            ...userWithoutRole,
+            ...userData,
+            role: userData.role || 'parent', // По умолчанию родитель
             children: userData.children || [], // Обеспечиваем наличие children
           };
           setUser(migratedUser);
@@ -132,15 +146,27 @@ export const [UserProvider, useUser] = createContextHook(() => {
     }
   }, [user]);
 
-  const addChild = useCallback(async (childData: Omit<ChildProfile, 'id' | 'addedAt'>) => {
+  const addChild = useCallback(async (childData: Omit<ChildProfile, 'id' | 'addedAt' | 'parentId'>) => {
     if (!user) {
       throw new Error('No user to add child to');
+    }
+
+    // Проверка: только родитель может добавлять детей
+    if (user.role === 'child') {
+      throw new Error('Only parent can add children');
     }
 
     try {
       const newChild: ChildProfile = {
         id: `child_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         addedAt: Date.now(),
+        parentId: user.id,
+        permissions: {
+          canChangeChatBackgrounds: true,
+          canChangeNotificationSounds: true,
+          canAddContacts: false, // По умолчанию только родитель
+          ...childData.permissions,
+        },
         ...childData,
       };
 

@@ -1,5 +1,5 @@
 import createContextHook from '@nkzw/create-context-hook';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import { Platform } from 'react-native';
@@ -12,6 +12,7 @@ import {
 } from './types';
 import { HapticFeedback } from './haptics';
 import { isTimeRestricted as checkTimeRestricted } from '@/utils/timeRestrictions';
+import { settingsSyncService } from '@/utils/syncService';
 
 const SETTINGS_STORAGE_KEY = '@parental_settings';
 const SOS_ALERTS_STORAGE_KEY = '@sos_alerts';
@@ -38,6 +39,59 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
   const [timeRestrictions, setTimeRestrictions] = useState<TimeRestriction[]>([]);
   const [complianceLog, setComplianceLog] = useState<ComplianceLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTimestamp, setLastSyncTimestamp] = useState<number | null>(null);
+  const [syncError, setSyncError] = useState<Error | null>(null);
+  const isMountedRef = useRef(true);
+  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Функция синхронизации настроек
+  const syncSettings = useCallback(async (silent = false) => {
+    if (!isMountedRef.current || isSyncing) {
+      return;
+    }
+
+    if (!silent) {
+      setIsSyncing(true);
+    }
+    setSyncError(null);
+
+    try {
+      // Инициализируем сервис синхронизации
+      await settingsSyncService.initialize();
+
+      // 1. Синхронизация настроек - отправляем локальные данные
+      const syncResult = await settingsSyncService.syncSettings(settings);
+      if (syncResult.success && syncResult.data) {
+        // Обновляем настройки с сервера (merge: серверные перезаписывают локальные)
+        setSettings((prev) => ({
+          ...prev,
+          ...syncResult.data,
+        }));
+      }
+
+      // 2. Получение настроек с сервера
+      const getResult = await settingsSyncService.getSettings();
+      if (getResult.success && getResult.data) {
+        // Обновляем настройки с сервера (приоритет серверных для разрешения конфликтов)
+        setSettings((prev) => ({
+          ...prev,
+          ...getResult.data,
+        }));
+      }
+
+      setLastSyncTimestamp(Date.now());
+      console.log('[ParentalControlsContext] Settings sync completed successfully');
+    } catch (error) {
+      console.error('[ParentalControlsContext] Sync error:', error);
+      const syncErr = error instanceof Error ? error : new Error('Sync failed');
+      setSyncError(syncErr);
+    } finally {
+      if (!silent) {
+        setIsSyncing(false);
+      }
+    }
+  }, [settings, isSyncing]);
 
   useEffect(() => {
     let isMounted = true;
@@ -63,6 +117,11 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
         if (contactsData) setContacts(JSON.parse(contactsData));
         if (restrictionsData) setTimeRestrictions(JSON.parse(restrictionsData));
         if (complianceData) setComplianceLog(JSON.parse(complianceData));
+
+        // Первая синхронизация после загрузки данных
+        if (isMountedRef.current) {
+          await syncSettings(true); // Silent sync при загрузке
+        }
       } catch (error) {
         console.error('Error loading parental controls data:', error);
       } finally {
@@ -78,13 +137,25 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
       timer = setTimeout(loadData, 0);
     }
 
+    // Периодическая синхронизация каждые 60 секунд (настройки реже меняются)
+    const syncInterval = setInterval(() => {
+      if (isMountedRef.current && !isSyncing) {
+        syncSettings(true); // Silent периодическая синхронизация
+      }
+    }, 60000);
+
     return () => {
       isMounted = false;
+      isMountedRef.current = false;
       if (timer) {
         clearTimeout(timer);
       }
+      clearInterval(syncInterval);
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
     };
-  }, []);
+  }, [syncSettings, isSyncing]);
 
   const logCompliance = useCallback(
     async (action: string, userId: string, details: Record<string, any>, parentalConsent = false) => {
@@ -112,8 +183,16 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
       await AsyncStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updatedSettings));
       await logCompliance('settings_update', userId, updates, true);
       console.log('Settings updated:', updates);
+
+      // Синхронизация после изменения настроек (debounce 2 секунды)
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
+      syncTimeoutRef.current = setTimeout(() => {
+        syncSettings(true); // Silent sync
+      }, 2000);
     },
-    [settings, logCompliance]
+    [settings, logCompliance, syncSettings]
   );
 
   const triggerSOS = useCallback(
@@ -318,6 +397,9 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
       timeRestrictions,
       complianceLog,
       isLoading,
+      isSyncing,
+      lastSyncTimestamp,
+      syncError,
       updateSettings,
       triggerSOS,
       resolveSOS,
@@ -329,6 +411,7 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
       toggleTimeRestriction,
       isTimeRestricted,
       logCompliance,
+      syncSettings, // Функция для ручной синхронизации
     }),
     [
       settings,
@@ -339,6 +422,9 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
       timeRestrictions,
       complianceLog,
       isLoading,
+      isSyncing,
+      lastSyncTimestamp,
+      syncError,
       updateSettings,
       triggerSOS,
       resolveSOS,
@@ -350,6 +436,7 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
       toggleTimeRestriction,
       isTimeRestricted,
       logCompliance,
+      syncSettings,
     ]
   );
 });
