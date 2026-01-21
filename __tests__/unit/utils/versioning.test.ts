@@ -115,18 +115,30 @@ describe('versioning', () => {
     });
 
     it('должен обработать ошибку при сохранении', async () => {
-      (AsyncStorage.setItem as jest.Mock).mockRejectedValue(new Error('Storage error'));
+      // Подавляем вывод ошибки в консоль для этого теста
+      const originalError = console.error;
+      const errorSpy = jest.fn();
+      console.error = errorSpy;
 
-      // Функция не должна выбросить ошибку, должна обработать её внутри
-      let errorThrown = false;
       try {
-        await saveStoredVersion('@test_key', 2);
-      } catch (error) {
-        errorThrown = true;
-      }
+        (AsyncStorage.setItem as jest.Mock).mockRejectedValue(new Error('Storage error'));
 
-      expect(errorThrown).toBe(false);
-      expect(AsyncStorage.setItem).toHaveBeenCalled();
+        // Функция не должна выбросить ошибку, должна обработать её внутри
+        let errorThrown = false;
+        try {
+          await saveStoredVersion('@test_key', 2);
+        } catch (error) {
+          errorThrown = true;
+        }
+
+        expect(errorThrown).toBe(false);
+        expect(AsyncStorage.setItem).toHaveBeenCalled();
+        // Проверяем, что ошибка была залогирована
+        expect(errorSpy).toHaveBeenCalled();
+      } finally {
+        // Восстанавливаем console.error
+        console.error = originalError;
+      }
     });
   });
 });
