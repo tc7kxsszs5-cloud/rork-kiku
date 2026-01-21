@@ -45,6 +45,7 @@ import { HapticFeedback } from '@/constants/haptics';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { useThemeMode, ThemePalette } from '@/constants/ThemeContext';
 import { ThemeModeToggle } from '@/components/ThemeModeToggle';
+import { logger } from '@/utils/logger';
 import { useTranslation } from 'react-i18next';
 import i18n from '@/constants/i18n';
 
@@ -323,19 +324,19 @@ export default function ProfileScreen() {
       return;
     }
     HapticFeedback.medium();
-    console.log('[ProfileScreen] Manual push registration requested');
+    logger.info('Manual push registration requested', { component: 'ProfileScreen', action: 'handleRegisterPush' });
     try {
       await registerPushDevice();
       Alert.alert('Готово', 'Устройство синхронизировано с сервером');
     } catch (err) {
-      console.error('[ProfileScreen] Push registration error', err);
+      logger.error('Push registration error', err instanceof Error ? err : new Error(String(err)), { component: 'ProfileScreen', action: 'handleRegisterPush' });
       Alert.alert('Ошибка', err instanceof Error ? err.message : 'Не удалось подключить push-уведомления');
     }
   };
 
   const handleRunDiagnostics = async () => {
     HapticFeedback.light();
-    console.log('[ProfileScreen] Diagnostics started');
+    logger.info('Diagnostics started', { component: 'ProfileScreen', action: 'handleRunDiagnostics' });
     try {
       const results = await runDiagnostics();
       const hasFailures = results.some((result) => result.status === 'failed');
@@ -344,18 +345,18 @@ export default function ProfileScreen() {
         hasFailures ? 'Проверьте список проверок ниже' : 'Все проверки пройдены',
       );
     } catch (err) {
-      console.error('[ProfileScreen] Diagnostics error', err);
+      logger.error('Diagnostics error', err instanceof Error ? err : new Error(String(err)), { component: 'ProfileScreen', action: 'handleRunDiagnostics' });
       Alert.alert('Ошибка диагностики', err instanceof Error ? err.message : 'Не удалось запустить проверку');
     }
   };
 
   const handleRefreshPushStatus = async () => {
     HapticFeedback.selection();
-    console.log('[ProfileScreen] Refreshing push sync status');
+      logger.info('Refreshing push sync status', { component: 'ProfileScreen', action: 'handleRefreshPushStatus' });
     try {
       await refreshPushStatus();
     } catch (err) {
-      console.error('[ProfileScreen] Refresh status error', err);
+      logger.error('Refresh status error', err instanceof Error ? err : new Error(String(err)), { component: 'ProfileScreen', action: 'handleRefreshPushStatus' });
     }
   };
 
@@ -370,7 +371,7 @@ export default function ProfileScreen() {
       if (userLanguage !== i18nInstance.language) {
         i18nInstance.changeLanguage(userLanguage);
       }
-      console.log('[ProfileScreen] Loaded user data into form');
+      logger.info('Loaded user data into form', { component: 'ProfileScreen', action: 'loadUserData' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
@@ -398,19 +399,19 @@ export default function ProfileScreen() {
           ? { name: name.trim(), language }
           : { name: name.trim(), email: email.trim() || undefined, language };
         await updateUser(updates);
-        console.log('[ProfileScreen] User updated');
+        logger.info('User updated', { component: 'ProfileScreen', action: 'saveProfile', userId: user?.id });
       } else {
         // При создании профиля: если роль parent, добавляем email, иначе только имя
         const userData = role === 'parent'
           ? { name: name.trim(), email: email.trim() || undefined, language }
           : { name: name.trim(), language };
         await identifyUser(userData);
-        console.log('[ProfileScreen] User created');
+        logger.info('User created', { component: 'ProfileScreen', action: 'saveProfile' });
       }
       HapticFeedback.success();
       Alert.alert('Профиль сохранен', 'Данные успешно обновлены');
     } catch (err) {
-      console.error('[ProfileScreen] Error saving profile', err);
+      logger.error('Error saving profile', err instanceof Error ? err : new Error(String(err)), { component: 'ProfileScreen', action: 'saveProfile' });
       if (isMountedRef.current) {
         setError('Не удалось сохранить профиль. Попробуйте позже');
       }
@@ -427,9 +428,9 @@ export default function ProfileScreen() {
       HapticFeedback.medium();
       await logoutUser();
       Alert.alert('Вы вышли из профиля');
-      console.log('[ProfileScreen] User logged out');
+      logger.info('User logged out', { component: 'ProfileScreen', action: 'handleLogout' });
     } catch (err) {
-      console.error('[ProfileScreen] Logout error', err);
+      logger.error('Logout error', err instanceof Error ? err : new Error(String(err)), { component: 'ProfileScreen', action: 'handleLogout' });
       Alert.alert('Ошибка', 'Не удалось выйти из профиля');
     }
   };
@@ -437,13 +438,13 @@ export default function ProfileScreen() {
   const handleToggleTwoFactor = () => {
     HapticFeedback.selection();
     setTwoFactorEnabled((prev) => !prev);
-    console.log('[ProfileScreen] 2FA toggled');
+    logger.info('2FA toggled', { component: 'ProfileScreen', action: 'handleToggle2FA', enabled: !twoFactorEnabled });
   };
 
   const handleTogglePayment = () => {
     HapticFeedback.selection();
     setPaymentLinked((prev) => !prev);
-    console.log('[ProfileScreen] Payment toggle');
+    logger.info('Payment toggle', { component: 'ProfileScreen', action: 'handleTogglePayment' });
   };
 
   if (isLoading) {
@@ -913,7 +914,7 @@ export default function ProfileScreen() {
             onPress={() => {
               setRole(option.value);
               HapticFeedback.selection();
-              console.log('[ProfileScreen] Role selected', option.value);
+              logger.info('Role selected', { component: 'ProfileScreen', action: 'selectRole', role: option.value });
             }}
             testID={`profile-role-${option.value}`}
           >
@@ -942,9 +943,9 @@ export default function ProfileScreen() {
                   try {
                     await updateUser({ language: lang.value });
                     i18n.changeLanguage(lang.value);
-                    console.log('[ProfileScreen] Language changed to', lang.value);
+                    logger.info('Language changed', { component: 'ProfileScreen', action: 'changeLanguage', language: lang.value });
                   } catch (error) {
-                    console.error('[ProfileScreen] Error updating language', error);
+                    logger.error('Error updating language', error instanceof Error ? error : new Error(String(error)), { component: 'ProfileScreen', action: 'changeLanguage' });
                   }
                 } else {
                   // Если пользователя нет, просто меняем язык

@@ -27,6 +27,7 @@ import {
 } from '@/utils/customEmojis';
 import { initializeTestCustomEmojis } from '@/utils/initCustomEmojis';
 import { HapticFeedback } from '@/constants/haptics';
+import { logger } from '@/utils/logger';
 
 export default function CustomEmojisScreen() {
   const { theme } = useThemeMode();
@@ -46,7 +47,7 @@ export default function CustomEmojisScreen() {
       const emojis = await loadCustomEmojis();
       setCustomEmojis(emojis);
     } catch (error) {
-      console.error('[CustomEmojisScreen] Failed to load emojis:', error);
+      logger.error('Failed to load emojis', error instanceof Error ? error : new Error(String(error)), { component: 'CustomEmojisScreen', action: 'loadEmojis' });
     }
   };
 
@@ -82,7 +83,7 @@ export default function CustomEmojisScreen() {
               HapticFeedback.medium();
               await loadEmojis();
             } catch (error) {
-              console.error('[CustomEmojisScreen] Failed to delete emoji:', error);
+              logger.error('Failed to delete emoji', error instanceof Error ? error : new Error(String(error)), { component: 'CustomEmojisScreen', action: 'deleteEmoji', emojiId: emoji.id });
               Alert.alert('Ошибка', 'Не удалось удалить эмодзи');
             }
           },

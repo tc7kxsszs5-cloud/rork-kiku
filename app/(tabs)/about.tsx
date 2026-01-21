@@ -4,6 +4,7 @@ import { AlertOctagon, Image as ImageIcon, Clock, Users, Lock, FileText, Eye } f
 import { useTranslation } from 'react-i18next';
 import appIcon from '@/assets/images/icon.png';
 import { PayPalButton, QuickDonateButton } from '@/components/PayPalButton';
+import { logger } from '@/utils/logger';
 
 const PROJECT_URL = 'https://rork.app/p/d8v7u672uumlfpscvnbps';
 
@@ -23,7 +24,7 @@ export default function AboutScreen() {
 
   const handleOpenProjectUrl = () => {
     Linking.openURL(PROJECT_URL).catch((error) => {
-      console.log('Failed to open project URL', error);
+      logger.error('Failed to open project URL', error instanceof Error ? error : new Error(String(error)), { component: 'AboutScreen', action: 'handleOpenProjectUrl' });
     });
   };
 
