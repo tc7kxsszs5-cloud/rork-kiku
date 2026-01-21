@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,12 +10,13 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { MessageCircle, AlertTriangle, Shield, Search, X } from 'lucide-react-native';
+import { MessageCircle, AlertTriangle, Shield, Search, X, Calendar, Users, Filter } from 'lucide-react-native';
 import { useMonitoring } from '@/constants/MonitoringContext';
 import { Chat, RiskLevel } from '@/constants/types';
 import { HapticFeedback } from '@/constants/haptics';
 import { useThemeMode, ThemePalette } from '@/constants/ThemeContext';
 import { ThemeModeToggle } from '@/components/ThemeModeToggle';
+import { SyncStatusIndicator } from '@/components/SyncStatusIndicator';
 
 const RISK_COLORS: Record<RiskLevel, string> = {
   safe: '#10b981',
@@ -33,38 +34,93 @@ const RISK_LABELS: Record<RiskLevel, string> = {
   critical: 'Критический',
 };
 
+type DateFilter = 'all' | 'today' | 'week' | 'month';
+
 export default function MonitoringScreen() {
   const router = useRouter();
   const { chats, unresolvedAlerts } = useMonitoring();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRiskFilter, setSelectedRiskFilter] = useState<RiskLevel | 'all'>('all');
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
+  const [participantFilter, setParticipantFilter] = useState<string | 'all'>('all');
   const searchBarHeight = useRef(new Animated.Value(0)).current;
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const { theme } = useThemeMode();
   const styles = useMemo(() => createStyles(theme), [theme]);
   
   const totalChats = chats.length;
   const totalMessages = chats.reduce((sum, chat) => sum + chat.messages.length, 0);
 
+  // Получаем список всех участников для фильтра
+  const allParticipants = useMemo(() => {
+    const participantsSet = new Set<string>();
+    chats.forEach((chat) => {
+      chat.participants.forEach((p) => participantsSet.add(p));
+      chat.participantNames.forEach((n) => participantsSet.add(n));
+    });
+    return Array.from(participantsSet).sort();
+  }, [chats]);
+
   const filteredChats = useMemo(() => {
     let result = chats;
 
+    // Расширенный поиск по содержимому сообщений и названиям чатов
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter((chat) => {
-        if (chat.isGroup && chat.groupName) {
-          return chat.groupName.toLowerCase().includes(query);
-        }
-        return chat.participantNames.some((name) => name.toLowerCase().includes(query));
+        // Поиск по названию чата/участникам
+        const nameMatch = chat.isGroup && chat.groupName
+          ? chat.groupName.toLowerCase().includes(query)
+          : chat.participantNames.some((name) => name.toLowerCase().includes(query));
+
+        // Поиск по содержимому сообщений
+        const messageMatch = chat.messages.some((msg) =>
+          msg.text.toLowerCase().includes(query)
+        );
+
+        return nameMatch || messageMatch;
       });
     }
 
+    // Фильтр по типу риска
     if (selectedRiskFilter !== 'all') {
       result = result.filter((chat) => chat.overallRisk === selectedRiskFilter);
     }
 
+    // Фильтр по дате (последняя активность)
+    if (dateFilter !== 'all') {
+      const now = Date.now();
+      const dayMs = 24 * 60 * 60 * 1000;
+      let timeThreshold: number;
+
+      switch (dateFilter) {
+        case 'today':
+          timeThreshold = now - dayMs;
+          break;
+        case 'week':
+          timeThreshold = now - 7 * dayMs;
+          break;
+        case 'month':
+          timeThreshold = now - 30 * dayMs;
+          break;
+        default:
+          timeThreshold = 0;
+      }
+
+      result = result.filter((chat) => chat.lastActivity >= timeThreshold);
+    }
+
+    // Фильтр по участнику
+    if (participantFilter !== 'all') {
+      result = result.filter((chat) =>
+        chat.participants.includes(participantFilter) ||
+        chat.participantNames.includes(participantFilter)
+      );
+    }
+
     return result;
-  }, [chats, searchQuery, selectedRiskFilter]);
+  }, [chats, searchQuery, selectedRiskFilter, dateFilter, participantFilter]);
 
   const toggleSearch = () => {
     HapticFeedback.light();
@@ -81,7 +137,7 @@ export default function MonitoringScreen() {
     setSelectedRiskFilter(risk);
   };
 
-  const renderChat = ({ item }: { item: Chat }) => {
+  const renderChat = useCallback(({ item }: { item: Chat }) => {
     const messageCount = item.messages.length;
     const lastActivityText = new Date(item.lastActivity).toLocaleString('ru-RU', {
       day: '2-digit',
@@ -130,7 +186,7 @@ export default function MonitoringScreen() {
         </View>
       </TouchableOpacity>
     );
-  };
+  }, [router, styles]);
 
   return (
     <View style={styles.container}>
@@ -141,6 +197,7 @@ export default function MonitoringScreen() {
             <Text style={styles.headerSubtitle}>Защита переписок с AI</Text>
           </View>
           <View style={styles.headerActions}>
+            <SyncStatusIndicator variant="compact" />
             <TouchableOpacity style={styles.iconButton} onPress={toggleSearch}>
               <Search size={20} color={theme.textPrimary} />
             </TouchableOpacity>
@@ -159,7 +216,7 @@ export default function MonitoringScreen() {
             <Search size={18} color={theme.textSecondary} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Поиск по участникам..."
+              placeholder="Поиск по участникам и содержимому сообщений..."
               value={searchQuery}
               onChangeText={setSearchQuery}
               placeholderTextColor={theme.textSecondary}
@@ -169,8 +226,78 @@ export default function MonitoringScreen() {
                 <X size={18} color={theme.textSecondary} />
               </TouchableOpacity>
             )}
+            <TouchableOpacity
+              style={[styles.filterToggleButton, showAdvancedFilters && styles.filterToggleButtonActive]}
+              onPress={() => {
+                setShowAdvancedFilters(!showAdvancedFilters);
+                HapticFeedback.light();
+              }}
+            >
+              <Filter size={16} color={showAdvancedFilters ? '#fff' : theme.textSecondary} />
+            </TouchableOpacity>
           </View>
         </Animated.View>
+
+        {showAdvancedFilters && (
+          <View style={styles.advancedFiltersContainer}>
+            <View style={styles.advancedFiltersSection}>
+              <View style={styles.filterSectionHeader}>
+                <Calendar size={16} color={theme.textSecondary} />
+                <Text style={styles.filterSectionTitle}>Период</Text>
+              </View>
+              <View style={styles.filterChipsRow}>
+                {(['all', 'today', 'week', 'month'] as DateFilter[]).map((filter) => (
+                  <TouchableOpacity
+                    key={filter}
+                    style={[styles.filterChip, dateFilter === filter && styles.filterChipActive]}
+                    onPress={() => {
+                      setDateFilter(filter);
+                      HapticFeedback.selection();
+                    }}
+                  >
+                    <Text style={[styles.filterChipText, dateFilter === filter && styles.filterChipTextActive]}>
+                      {filter === 'all' ? 'Все' : filter === 'today' ? 'Сегодня' : filter === 'week' ? 'Неделя' : 'Месяц'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {allParticipants.length > 0 && (
+              <View style={styles.advancedFiltersSection}>
+                <View style={styles.filterSectionHeader}>
+                  <Users size={16} color={theme.textSecondary} />
+                  <Text style={styles.filterSectionTitle}>Участник</Text>
+                </View>
+                <View style={styles.filterChipsRow}>
+                  <TouchableOpacity
+                    style={[styles.filterChip, participantFilter === 'all' && styles.filterChipActive]}
+                    onPress={() => {
+                      setParticipantFilter('all');
+                      HapticFeedback.selection();
+                    }}
+                  >
+                    <Text style={[styles.filterChipText, participantFilter === 'all' && styles.filterChipTextActive]}>Все</Text>
+                  </TouchableOpacity>
+                  {allParticipants.slice(0, 5).map((participant) => (
+                    <TouchableOpacity
+                      key={participant}
+                      style={[styles.filterChip, participantFilter === participant && styles.filterChipActive]}
+                      onPress={() => {
+                        setParticipantFilter(participant);
+                        HapticFeedback.selection();
+                      }}
+                    >
+                      <Text style={[styles.filterChipText, participantFilter === participant && styles.filterChipTextActive]}>
+                        {participant.length > 12 ? `${participant.substring(0, 12)}...` : participant}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
+          </View>
+        )}
 
         <View style={styles.filterContainer}>
           <TouchableOpacity
@@ -223,6 +350,17 @@ export default function MonitoringScreen() {
         renderItem={renderChat}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
+        // Оптимизация производительности
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+        removeClippedSubviews={true}
+        updateCellsBatchingPeriod={50}
+        getItemLayout={(data, index) => ({
+          length: 150, // Примерная высота карточки чата
+          offset: 150 * index,
+          index,
+        })}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <MessageCircle size={48} color={theme.borderSoft} />
@@ -324,6 +462,44 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     flex: 1,
     fontSize: 15,
     color: theme.textPrimary,
+  },
+  filterToggleButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: theme.cardMuted,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  filterToggleButtonActive: {
+    backgroundColor: theme.accentPrimary,
+  },
+  advancedFiltersContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    backgroundColor: theme.cardMuted,
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+  advancedFiltersSection: {
+    marginBottom: 12,
+  },
+  filterSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  filterSectionTitle: {
+    fontSize: 13,
+    fontWeight: '600' as const,
+    color: theme.textSecondary,
+  },
+  filterChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
   },
   filterContainer: {
     flexDirection: 'row',

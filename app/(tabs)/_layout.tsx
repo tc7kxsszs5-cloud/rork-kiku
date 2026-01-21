@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { MessageCircle, Info, User, Settings, BarChart3, Smile } from "lucide-react-native";
+import { MessageCircle, Info, User, Settings, BarChart3, Smile, Trophy, BookOpen } from "lucide-react-native";
 import React from "react";
 import { StyleSheet } from "react-native";
 import { useThemeMode } from "@/constants/ThemeContext";
@@ -46,6 +46,20 @@ export default function TabLayout() {
         options={{
           title: "Analytics",
           tabBarIcon: ({ color }: { color: string }) => <BarChart3 color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
+        name="achievements"
+        options={{
+          title: "Достижения",
+          tabBarIcon: ({ color }: { color: string }) => <Trophy color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
+        name="lessons"
+        options={{
+          title: "Уроки",
+          tabBarIcon: ({ color }: { color: string }) => <BookOpen color={color} size={24} />,
         }}
       />
       <Tabs.Screen
