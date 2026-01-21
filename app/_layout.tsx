@@ -21,6 +21,8 @@ import { ReferralProgramProvider } from "@/constants/ReferralProgramContext";
 import { SyncSettingsProvider } from "@/constants/SyncSettingsContext";
 import { SecuritySettingsProvider } from "@/constants/SecuritySettingsContext";
 import { PremiumProvider } from "@/constants/PremiumContext";
+import { ChatBackgroundsProvider } from "@/constants/ChatBackgroundsContext";
+import { AuthProvider } from "@/constants/AuthContext";
 import { ActivationTracker } from "@/components/ActivationTracker";
 import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
@@ -63,7 +65,12 @@ function HeaderBackButton({ fallbackHref, forceFallback }: { fallbackHref: strin
   const router = useRouter();
 
   const handlePress = () => {
-    console.log('[HeaderBackButton] Back pressed. canGoBack=', router.canGoBack(), 'forceFallback=', forceFallback);
+    if (__DEV__) {
+      // Only log in development
+      import('@/utils/logger').then(({ logger }) => {
+        logger.debug('Back button pressed', { component: 'HeaderBackButton', canGoBack: router.canGoBack(), forceFallback });
+      });
+    }
     if (!forceFallback && router.canGoBack()) {
       router.back();
       return;
@@ -95,7 +102,10 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error('[AppErrorBoundary] Caught error', error, info);
+    // Import logger dynamically to avoid circular dependencies
+    import('@/utils/logger').then(({ logger }) => {
+      logger.critical('App error boundary caught error', error, { component: 'AppErrorBoundary', componentStack: info.componentStack });
+    });
   }
 
   private handleReset = () => {
@@ -163,13 +173,15 @@ function AppProviders({ children }: { children: ReactNode }) {
           <ThemeProvider>
             <AgeComplianceProvider>
               <UserProvider>
-                <AnalyticsContext.AnalyticsProvider>
-                  <PremiumProvider>
-                    <ABTestingProvider>
-                      <PersonalizedAIProvider>
-                        <MonitoringProvider>
-                          <ParentalControlsProvider>
-                            <GamificationProvider>
+                <AuthProvider>
+                  <AnalyticsContext.AnalyticsProvider>
+                    <PremiumProvider>
+                      <ABTestingProvider>
+                        <PersonalizedAIProvider>
+                          <MonitoringProvider>
+                            <ChatBackgroundsProvider>
+                              <ParentalControlsProvider>
+                              <GamificationProvider>
                               <PredictiveAnalyticsProvider>
                                 <AIParentingAssistantProvider>
                                   <ReferralProgramProvider>
@@ -184,13 +196,15 @@ function AppProviders({ children }: { children: ReactNode }) {
                                   </ReferralProgramProvider>
                                 </AIParentingAssistantProvider>
                               </PredictiveAnalyticsProvider>
-                            </GamificationProvider>
-                          </ParentalControlsProvider>
-                        </MonitoringProvider>
-                      </PersonalizedAIProvider>
-                    </ABTestingProvider>
-                  </PremiumProvider>
-                </AnalyticsContext.AnalyticsProvider>
+                              </GamificationProvider>
+                              </ParentalControlsProvider>
+                            </ChatBackgroundsProvider>
+                          </MonitoringProvider>
+                        </PersonalizedAIProvider>
+                      </ABTestingProvider>
+                    </PremiumProvider>
+                  </AnalyticsContext.AnalyticsProvider>
+                </AuthProvider>
               </UserProvider>
             </AgeComplianceProvider>
           </ThemeProvider>
@@ -224,7 +238,9 @@ export default function RootLayout() {
 
     SplashScreen.hideAsync()
       .catch((error) => {
-        console.error('[RootLayout] Failed to hide splash screen', error);
+        import('@/utils/logger').then(({ logger }) => {
+          logger.error('Failed to hide splash screen', error instanceof Error ? error : new Error(String(error)), { component: 'RootLayout', action: 'hideSplashScreen' });
+        });
       })
       .finally(() => {
         if (isMounted) {

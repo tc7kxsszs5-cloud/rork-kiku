@@ -13,6 +13,8 @@ import {
 import { HapticFeedback } from './haptics';
 import { isTimeRestricted as checkTimeRestricted } from '@/utils/timeRestrictions';
 import { settingsSyncService } from '@/utils/syncService';
+import { logger } from '@/utils/logger';
+import { handleErrorSilently, showUserFriendlyError } from '@/utils/errorHandler';
 
 const SETTINGS_STORAGE_KEY = '@parental_settings';
 const SOS_ALERTS_STORAGE_KEY = '@sos_alerts';
@@ -81,9 +83,9 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
       }
 
       setLastSyncTimestamp(Date.now());
-      console.log('[ParentalControlsContext] Settings sync completed successfully');
+      logger.info('Settings sync completed successfully', { context: 'ParentalControlsContext', action: 'syncSettings' });
     } catch (error) {
-      console.error('[ParentalControlsContext] Sync error:', error);
+      logger.error('Settings sync error occurred', error instanceof Error ? error : new Error(String(error)), { context: 'ParentalControlsContext', action: 'syncSettings' });
       const syncErr = error instanceof Error ? error : new Error('Sync failed');
       setSyncError(syncErr);
     } finally {
@@ -123,7 +125,7 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
           await syncSettings(true); // Silent sync при загрузке
         }
       } catch (error) {
-        console.error('Error loading parental controls data:', error);
+        handleErrorSilently(error, 'ParentalControlsContext', { action: 'loadData' });
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -182,7 +184,7 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
       setSettings(updatedSettings);
       await AsyncStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updatedSettings));
       await logCompliance('settings_update', userId, updates, true);
-      console.log('Settings updated:', updates);
+      logger.info('Settings updated', { context: 'ParentalControlsContext', action: 'updateSettings', updates });
 
       // Синхронизация после изменения настроек (debounce 2 секунды)
       if (syncTimeoutRef.current) {
@@ -249,7 +251,7 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
       setSosAlerts(updatedAlerts);
       await AsyncStorage.setItem(SOS_ALERTS_STORAGE_KEY, JSON.stringify(updatedAlerts));
       HapticFeedback.success();
-      console.log('SOS resolved:', sosId);
+      logger.info('SOS resolved', { context: 'ParentalControlsContext', action: 'resolveSOS', sosId });
     },
     [sosAlerts]
   );
@@ -288,7 +290,7 @@ export const [ParentalControlsProvider, useParentalControls] = createContextHook
       setContacts(updatedContacts);
       await AsyncStorage.setItem(CONTACTS_STORAGE_KEY, JSON.stringify(updatedContacts));
       await logCompliance('contact_removed', userId, { contactId }, true);
-      console.log('Contact removed:', contactId);
+      logger.info('Contact removed', { context: 'ParentalControlsContext', action: 'removeContact', contactId });
     },
     [contacts, logCompliance]
   );

@@ -3,8 +3,10 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import i18n from './i18n';
+import { logger } from '@/utils/logger';
 
 import { UserRole, ParentGender } from './types';
+import { handleErrorSilently, showUserFriendlyError } from '@/utils/errorHandler';
 
 export interface ChildProfile {
   id: string;
@@ -73,11 +75,11 @@ export const [UserProvider, useUser] = createContextHook(() => {
           const detectedLang = await detectDeviceLanguage();
           if (detectedLang && detectedLang !== i18n.language) {
             i18n.changeLanguage(detectedLang);
-            console.log(`[UserContext] Auto-detected language: ${detectedLang}`);
+            logger.info('Auto-detected language', { context: 'UserContext', language: detectedLang });
           }
         }
       } catch (error) {
-        console.error('Error loading user:', error);
+        handleErrorSilently(error, 'UserContext', { action: 'loadUser' });
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -111,15 +113,11 @@ export const [UserProvider, useUser] = createContextHook(() => {
       await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(newUser));
       setUser(newUser);
 
-      console.log('User identified:', {
-        id: newUser.id,
-        name: newUser.name,
-        childrenCount: newUser.children.length,
-      });
+      logger.info('User identified', { context: 'UserContext', userId: newUser.id, userName: newUser.name, childrenCount: newUser.children.length });
 
       return newUser;
     } catch (error) {
-      console.error('Error identifying user:', error);
+      logger.error('Error identifying user', error instanceof Error ? error : new Error(String(error)), { context: 'UserContext', action: 'identifyUser' });
       throw error;
     }
   }, []);
@@ -138,10 +136,11 @@ export const [UserProvider, useUser] = createContextHook(() => {
         i18n.changeLanguage(updates.language);
       }
 
-      console.log('User updated:', updatedUser.id);
+      logger.info('User updated', { context: 'UserContext', userId: updatedUser.id, action: 'updateUser' });
       return updatedUser;
     } catch (error) {
-      console.error('Error updating user:', error);
+      handleErrorSilently(error, 'UserContext', { action: 'updateUser' });
+      await showUserFriendlyError(error, 'UserContext', { action: 'updateUser' });
       throw error;
     }
   }, [user]);
@@ -202,9 +201,9 @@ export const [UserProvider, useUser] = createContextHook(() => {
       await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
       setUser(updatedUser);
 
-      console.log('Child removed:', childId);
+      logger.info('Child removed', { context: 'UserContext', childId, action: 'removeChild' });
     } catch (error) {
-      console.error('Error removing child:', error);
+      logger.error('Error removing child', error instanceof Error ? error : new Error(String(error)), { context: 'UserContext', action: 'removeChild' });
       throw error;
     }
   }, [user]);
@@ -219,9 +218,10 @@ export const [UserProvider, useUser] = createContextHook(() => {
       await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
       setUser(updatedUser);
 
-      console.log('Active child set:', childId);
+      logger.info('Active child set', { context: 'UserContext', childId, action: 'setActiveChild' });
     } catch (error) {
-      console.error('Error setting active child:', error);
+      handleErrorSilently(error, 'UserContext', { action: 'setActiveChild' });
+      await showUserFriendlyError(error, 'UserContext', { action: 'setActiveChild' });
       throw error;
     }
   }, [user]);
@@ -230,9 +230,10 @@ export const [UserProvider, useUser] = createContextHook(() => {
     try {
       await AsyncStorage.removeItem(USER_STORAGE_KEY);
       setUser(null);
-      console.log('User logged out');
+      logger.info('User logged out', { context: 'UserContext', action: 'logoutUser' });
     } catch (error) {
-      console.error('Error logging out user:', error);
+      handleErrorSilently(error, 'UserContext', { action: 'logoutUser' });
+      await showUserFriendlyError(error, 'UserContext', { action: 'logoutUser' });
       throw error;
     }
   }, []);

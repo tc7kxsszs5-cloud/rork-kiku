@@ -19,6 +19,7 @@ import { chatSyncService, alertSyncService } from '@/utils/syncService';
 import { trpcVanillaClient } from '@/lib/trpc';
 import { useUser } from './UserContext';
 import { logger } from '@/utils/logger';
+import { handleErrorSilently, showUserFriendlyError } from '@/utils/errorHandler';
 
 const LEVEL_ORDER: RiskLevel[] = ['safe', 'low', 'medium', 'high', 'critical'];
 
@@ -120,6 +121,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { trackEvent } = useAnalytics();
   const { personalizeAnalysis } = usePersonalizedAI();
+  const { user } = useUser();
 
   // Функция синхронизации данных
   const syncData = useCallback(async (silent = false) => {
@@ -139,7 +141,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
 
       // 1. Синхронизация чатов - отправляем локальные данные
       const chatsResult = await chatSyncService.syncChats(chats);
-      if (chatsResult.success && chatsResult.data.length > 0) {
+      if (chatsResult.success && chatsResult.data && chatsResult.data.length > 0) {
         // Объединяем с локальными чатами
         const mergedChats = mergeChatsWithServer(chats, chatsResult.data);
         setChats(mergedChats);
@@ -147,7 +149,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
 
       // 2. Получение изменений чатов с сервера
       const serverChatsResult = await chatSyncService.getChats();
-      if (serverChatsResult.success && serverChatsResult.data.length > 0) {
+      if (serverChatsResult.success && serverChatsResult.data && serverChatsResult.data.length > 0) {
         // Merge с локальными чатами
         const mergedChats = mergeChatsWithServer(chats, serverChatsResult.data);
         setChats(mergedChats);
@@ -155,7 +157,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
 
       // 3. Синхронизация алертов - отправляем локальные данные
       const alertsResult = await alertSyncService.syncAlerts(alerts);
-      if (alertsResult.success && alertsResult.data.length > 0) {
+      if (alertsResult.success && alertsResult.data && alertsResult.data.length > 0) {
         // Объединяем с локальными алертами
         const mergedAlerts = mergeAlertsWithServer(alerts, alertsResult.data);
         setAlerts(mergedAlerts);
@@ -163,16 +165,16 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
 
       // 4. Получение изменений алертов с сервера
       const serverAlertsResult = await alertSyncService.getAlerts();
-      if (serverAlertsResult.success && serverAlertsResult.data.length > 0) {
+      if (serverAlertsResult.success && serverAlertsResult.data && serverAlertsResult.data.length > 0) {
         // Merge с локальными алертами
         const mergedAlerts = mergeAlertsWithServer(alerts, serverAlertsResult.data);
         setAlerts(mergedAlerts);
       }
 
       setLastSyncTimestamp(Date.now());
-      console.log('[MonitoringContext] Sync completed successfully');
+      logger.info('Sync completed successfully', { context: 'MonitoringContext' });
     } catch (error) {
-      console.error('[MonitoringContext] Sync error:', error);
+      logger.error('Sync error occurred', error instanceof Error ? error : new Error(String(error)), { context: 'MonitoringContext', action: 'syncData' });
       const syncErr = error instanceof Error ? error : new Error('Sync failed');
       setSyncError(syncErr);
       if (!silent) {
@@ -189,7 +191,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
     // Настройка каналов уведомлений для Android при инициализации
     if (Platform.OS === 'android') {
       setupNotificationChannels().catch((error) => {
-        console.error('[MonitoringContext] Failed to setup notification channels:', error);
+        logger.error('Failed to setup notification channels', error instanceof Error ? error : new Error(String(error)), { context: 'MonitoringContext', action: 'setupNotificationChannels' });
       });
     }
 
@@ -228,7 +230,7 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
       });
       return aiAnalysis;
     } catch (error) {
-      console.error('Error analyzing message:', error);
+      handleErrorSilently(error, 'MonitoringContext', { action: 'analyzeMessage' });
       // Fallback на базовый анализ
       return evaluateMessageRisk(message);
     }
@@ -422,26 +424,26 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
                   }
 
                   // Backend отправка push уведомлений на все устройства родителей
-                  if (user?.id) {
+                  if (user?.id && analysis.riskLevel !== 'safe') {
                     try {
                       await trpcVanillaClient.notifications.sendRiskAlertPush.mutate({
                         userId: user.id,
                         chatId,
                         messageId: newMessage.id,
-                        riskLevel: analysis.riskLevel,
+                        riskLevel: analysis.riskLevel as 'low' | 'medium' | 'high' | 'critical',
                         reasons: analysis.reasons,
                         chatName,
                       });
-                      console.log('[MonitoringContext] Push notification sent to parents via backend');
+                      logger.info('Push notification sent to parents via backend', { context: 'MonitoringContext', action: 'sendRiskAlertPush' });
                     } catch (backendError) {
-                      console.error('[MonitoringContext] Failed to send push via backend (non-critical):', backendError);
+                      logger.error('Failed to send push via backend (non-critical)', backendError instanceof Error ? backendError : new Error(String(backendError)), { context: 'MonitoringContext', action: 'sendRiskAlertPush', critical: false });
                       // Не критично - локальное уведомление уже отправлено
                     }
                   } else {
-                    console.warn('[MonitoringContext] Cannot send push via backend: user.id is missing');
+                    logger.warn('Cannot send push via backend: user.id is missing', { context: 'MonitoringContext', action: 'sendRiskAlertPush' });
                   }
                 } catch (error) {
-                  console.error('[MonitoringContext] Failed to send push notification:', error);
+                  logger.error('Failed to send push notification', error instanceof Error ? error : new Error(String(error)), { context: 'MonitoringContext', action: 'sendRiskAlertPush' });
                 }
               })();
             }

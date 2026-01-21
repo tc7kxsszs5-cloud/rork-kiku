@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { calculateMetrics } from '@/utils/analyticsMetrics';
 import { getStoredVersion, saveStoredVersion, needsMigration, APP_DATA_VERSION } from '@/utils/versioning';
 import { getMigrationManager } from '@/utils/migrations';
+import { logger } from '@/utils/logger';
 
 const ANALYTICS_STORAGE_KEY = '@kiku_analytics';
 const CURRENT_ANALYTICS_VERSION = APP_DATA_VERSION; // Используем текущую версию данных
@@ -42,7 +43,8 @@ export type AnalyticsEvent =
   | 'threat_confirmed'
   | 'parent_child_pair_completed'
   | 'screen_viewed'
-  | 'user_feedback_submitted';
+  | 'user_feedback_submitted'
+  | 'sync_failed';
 
 export interface AnalyticsEventData {
   event: AnalyticsEvent;
@@ -226,13 +228,19 @@ export const [AnalyticsProvider, useAnalytics] = createContextHook<AnalyticsCont
               await AsyncStorage.setItem(ANALYTICS_STORAGE_KEY, JSON.stringify(parsed));
               await saveStoredVersion(ANALYTICS_STORAGE_KEY, CURRENT_ANALYTICS_VERSION);
               
-              console.log(`[AnalyticsContext] Successfully migrated to version ${CURRENT_ANALYTICS_VERSION}`);
+              logger.info(`Successfully migrated to version ${CURRENT_ANALYTICS_VERSION}`, { context: 'AnalyticsContext', action: 'migrate', toVersion: CURRENT_ANALYTICS_VERSION });
             } else {
-              console.error('[AnalyticsContext] Migration failed:', result.error);
+              if (result.error) {
+                const errorMessage = typeof result.error === 'string' ? result.error : String(result.error);
+                const migrationError = new Error(errorMessage);
+                logger.error('Migration failed', migrationError, { context: 'AnalyticsContext', action: 'migrate', errorMessage });
+              } else {
+                logger.error('Migration failed', new Error('Unknown migration error'), { context: 'AnalyticsContext', action: 'migrate' });
+              }
               // Продолжаем с исходными данными
             }
           } catch (migrationError) {
-            console.error('[AnalyticsContext] Migration error:', migrationError);
+            logger.error('Migration error', migrationError instanceof Error ? migrationError : new Error(String(migrationError)), { context: 'AnalyticsContext', action: 'migrate' });
             // Продолжаем с исходными данными
           }
         }
@@ -244,7 +252,7 @@ export const [AnalyticsProvider, useAnalytics] = createContextHook<AnalyticsCont
           setEvents(Array.isArray(events) ? events : []);
         }
       } catch (error) {
-        console.error('[AnalyticsContext] Failed to load analytics:', error);
+        logger.error('Failed to load analytics', error instanceof Error ? error : new Error(String(error)), { context: 'AnalyticsContext', action: 'loadAnalytics' });
       }
     };
     loadAnalytics();
@@ -289,7 +297,7 @@ export const [AnalyticsProvider, useAnalytics] = createContextHook<AnalyticsCont
       return updated.slice(-10000);
     });
 
-    console.log('[Analytics] Event tracked:', event, properties);
+    logger.info('Event tracked', { context: 'AnalyticsContext', action: 'trackEvent', event, properties });
   }, []);
 
   const clearAnalytics = useCallback(async () => {
@@ -297,7 +305,7 @@ export const [AnalyticsProvider, useAnalytics] = createContextHook<AnalyticsCont
     try {
       await AsyncStorage.removeItem(ANALYTICS_STORAGE_KEY);
     } catch (error) {
-      console.error('[AnalyticsContext] Failed to clear analytics:', error);
+      logger.error('Failed to clear analytics', error instanceof Error ? error : new Error(String(error)), { context: 'AnalyticsContext', action: 'clearAnalytics' });
     }
   }, []);
 
