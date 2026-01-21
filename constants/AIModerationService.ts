@@ -1,4 +1,6 @@
 import { RiskLevel, RiskAnalysis } from './types';
+import { analyzeMessageWithRealAI, getAIConfig } from '@/utils/aiService';
+import { logger } from '@/utils/logger';
 
 /**
  * Расширенный сервис AI модерации
@@ -39,14 +41,20 @@ export async function analyzeMessageWithAI(
   // Если включен расширенный AI анализ
   if (finalConfig.useAdvancedAI) {
     try {
-      // Здесь можно интегрировать реальный AI API (OpenAI, Anthropic, etc.)
-      // Пока используем улучшенный эвристический анализ
-      const advancedAnalysis = await analyzeWithAdvancedHeuristics(text);
+      // Используем реальный AI API если настроен
+      const aiConfig = getAIConfig();
+      if (aiConfig.provider !== 'local' && aiConfig.apiKey) {
+        logger.debug('Using real AI API for analysis', { provider: aiConfig.provider });
+        const realAIAnalysis = await analyzeMessageWithRealAI(text, aiConfig);
+        // Объединяем с базовым анализом для большей точности
+        return combineAnalyses(basicAnalysis, realAIAnalysis);
+      }
       
-      // Объединяем результаты
+      // Fallback на улучшенный эвристический анализ
+      const advancedAnalysis = await analyzeWithAdvancedHeuristics(text);
       return combineAnalyses(basicAnalysis, advancedAnalysis);
     } catch (error) {
-      console.error('[AIModeration] Advanced analysis failed, using basic:', error);
+      logger.error('Advanced AI analysis failed, using basic', error instanceof Error ? error : new Error(String(error)));
       return basicAnalysis;
     }
   }
@@ -80,7 +88,7 @@ export async function analyzeImageWithAI(
     
     return { blocked: false, reasons: [], confidence: 0.5 };
   } catch (error) {
-    console.error('[AIModeration] Image analysis failed:', error);
+    logger.error('Image analysis failed', error instanceof Error ? error : new Error(String(error)), { context: 'AIModerationService', action: 'analyzeImageWithAI' });
     return { blocked: false, reasons: [], confidence: 0 };
   }
 }

@@ -2,6 +2,7 @@ import createContextHook from '@nkzw/create-context-hook';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { lightThemeColors, darkThemeColors, SemanticColors } from './ColorSystem';
+import { logger } from '@/utils/logger';
 
 export type ThemeMode = 'sunrise' | 'midnight';
 
@@ -29,6 +30,11 @@ export interface ThemePalette extends SemanticColors {
   chipBackground: string;
   chipText: string;
   isDark: boolean;
+  // Удобные алиасы для часто используемых цветов
+  primary: string;
+  success: string;
+  warning: string;
+  danger: string;
 }
 
 const THEME_STORAGE_KEY = '@theme_mode_preference';
@@ -59,6 +65,11 @@ const createThemePalette = (semanticColors: SemanticColors, isDark: boolean): Th
     chipBackground: semanticColors.surface.secondary,
     chipText: semanticColors.text.primary,
     isDark,
+    // Удобные алиасы
+    primary: semanticColors.interactive.primary,
+    success: semanticColors.status.safe,
+    warning: semanticColors.status.warning,
+    danger: semanticColors.status.danger,
   };
 };
 
@@ -102,10 +113,10 @@ export const [ThemeProvider, useThemeMode] = createContextHook<ThemeContextValue
         const storedMode = await AsyncStorage.getItem(THEME_STORAGE_KEY);
         if (storedMode && (storedMode === 'sunrise' || storedMode === 'midnight') && isMounted) {
           setThemeModeState(storedMode);
-          console.log('[ThemeContext] Loaded mode from storage', storedMode);
+          logger.info('Loaded mode from storage', { context: 'ThemeContext', action: 'loadTheme', mode: storedMode });
         }
       } catch (error) {
-        console.error('[ThemeContext] Failed to load theme mode', error);
+        logger.error('Failed to load theme mode', error instanceof Error ? error : new Error(String(error)), { context: 'ThemeContext', action: 'loadTheme' });
       } finally {
         if (isMounted) {
           setIsReady(true);
@@ -132,7 +143,7 @@ export const [ThemeProvider, useThemeMode] = createContextHook<ThemeContextValue
   const setThemeMode = useCallback(
     (mode: ThemeMode) => {
       setThemeModeState((current) => (current === mode ? current : mode));
-      persistMode(mode).catch((error) => console.error(error));
+      persistMode(mode).catch((error) => logger.error('Failed to persist theme mode in setThemeMode', error instanceof Error ? error : new Error(String(error)), { context: 'ThemeContext', action: 'setThemeMode', mode }));
     },
     [persistMode],
   );

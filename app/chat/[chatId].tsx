@@ -12,18 +12,23 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { Send, AlertTriangle, Mic, X, AlertOctagon, Smile } from 'lucide-react-native';
 import { EmojiPicker } from '@/components/EmojiPicker';
 import { EmojiRenderer } from '@/components/EmojiRenderer';
+import { ChatBackgroundPicker } from '@/components/ChatBackgroundPicker';
 import { replaceTextSmileys } from '@/utils/emojiUtils';
 import { useMonitoring } from '@/constants/MonitoringContext';
 import { useParentalControls } from '@/constants/ParentalControlsContext';
 import { useUser } from '@/constants/UserContext';
+import { useChatBackgrounds } from '@/constants/ChatBackgroundsContext';
+import { useAuth } from '@/constants/AuthContext';
 import { Message, RiskLevel } from '@/constants/types';
 import { HapticFeedback } from '@/constants/haptics';
 import { Audio } from 'expo-av';
 import { useIsMounted } from '@/hooks/useIsMounted';
+import { logger } from '@/utils/logger';
 
 const RISK_COLORS: Record<RiskLevel, string> = {
   safe: '#10b981',
@@ -41,21 +46,28 @@ const RISK_LABELS: Record<RiskLevel, string> = {
   critical: 'Критический',
 };
 
+// Анимации для сообщений (для детского интерфейса)
+const messageAnimations = new Map<string, Animated.Value>();
+
 export default function ChatScreen() {
   const { chatId } = useLocalSearchParams<{ chatId: string }>();
   const { chats, addMessage, isAnalyzing } = useMonitoring();
   const { triggerSOS } = useParentalControls();
   const { user } = useUser();
+  const { getChatBackground } = useChatBackgrounds();
+  const { canChangeChatBackgrounds } = useAuth();
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
   const micScaleAnim = useRef(new Animated.Value(1)).current;
   const sendButtonScaleAnim = useRef(new Animated.Value(1)).current;
   const isMountedRef = useIsMounted();
 
   const chat = chats.find((c) => c.id === chatId);
+  const chatBackground = chatId ? getChatBackground(chatId) : null;
 
   if (!chat) {
     return (
@@ -112,7 +124,7 @@ export default function ChatScreen() {
         ])
       ).start();
     } catch (err) {
-      console.error('Failed to start recording:', err);
+      logger.error('Failed to start recording', err instanceof Error ? err : new Error(String(err)), { component: 'ChatScreen', action: 'startRecording' });
       HapticFeedback.error();
     }
   };
@@ -165,7 +177,7 @@ export default function ChatScreen() {
         setRecording(null);
       }
     } catch (err) {
-      console.error('Failed to cancel recording:', err);
+      logger.error('Failed to cancel recording', err instanceof Error ? err : new Error(String(err)), { component: 'ChatScreen', action: 'cancelRecording' });
     }
   };
 
@@ -232,7 +244,7 @@ export default function ChatScreen() {
         [{ text: 'OK', style: 'default' }]
       );
     } catch (error) {
-      console.error('Failed to trigger SOS:', error);
+      logger.error('Failed to trigger SOS', error instanceof Error ? error : new Error(String(error)), { component: 'ChatScreen', action: 'handleSOSTrigger', chatId });
       Alert.alert('Ошибка', 'Не удалось отправить SOS сигнал');
     }
   };
@@ -272,46 +284,137 @@ export default function ChatScreen() {
     HapticFeedback.light();
   };
 
-  const renderMessage = ({ item }: { item: Message }) => {
+  const renderMessage = ({ item, index }: { item: Message; index: number }) => {
     const isCurrentUser = item.senderId === user?.id;
+    
+    // Создаем анимацию для сообщения, если её нет
+    if (!messageAnimations.has(item.id)) {
+      const animValue = new Animated.Value(0);
+      messageAnimations.set(item.id, animValue);
+      
+      // Анимация появления сообщения (для детей - веселая!)
+      Animated.spring(animValue, {
+        toValue: 1,
+        tension: 50,
+        friction: 7,
+        useNativeDriver: true,
+      }).start();
+    }
+    
+    const messageAnim = messageAnimations.get(item.id) || new Animated.Value(1);
+    const scaleAnim = messageAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.5, 1],
+    });
+    const opacityAnim = messageAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 1],
+    });
+
+    // Яркие градиенты для детских сообщений
+    const childGradients = isCurrentUser
+      ? [
+          ['#FFD700', '#FFA500'], // Золотой → оранжевый
+          ['#FF6B9D', '#C44569'], // Розовый → малиновый
+          ['#4ECDC4', '#44A08D'], // Бирюзовый → зеленый
+        ]
+      : [['#E8F4FD', '#D4E9F7']]; // Светло-голубой для других
+
+    const gradientIndex = index % childGradients.length;
+    const gradientColors = childGradients[gradientIndex];
 
     return (
-      <View style={[styles.messageContainer, isCurrentUser ? styles.messageRight : styles.messageLeft]}>
-        <View style={[styles.messageBubble, isCurrentUser ? styles.bubbleRight : styles.bubbleLeft]}>
-          {chat.isGroup && <Text style={styles.senderName}>{item.senderName}</Text>}
-          <EmojiRenderer text={item.text} emojiSize={20} style={styles.messageText} />
-          
-          {!item.analyzed && (
-            <View style={styles.analyzingBadge}>
-              <Text style={styles.analyzingText}>Анализ...</Text>
-            </View>
-          )}
+      <Animated.View
+        style={[
+          styles.messageContainer,
+          isCurrentUser ? styles.messageRight : styles.messageLeft,
+          {
+            transform: [{ scale: scaleAnim }],
+            opacity: opacityAnim,
+          },
+        ]}
+      >
+        {isCurrentUser ? (
+          // Свои сообщения - с ярким градиентом
+          <LinearGradient
+            colors={gradientColors as [string, string]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.messageBubble, styles.bubbleRight, styles.bubbleGradient]}
+          >
+            {chat.isGroup && <Text style={styles.senderNameWhite}>{item.senderName}</Text>}
+            <EmojiRenderer text={item.text} emojiSize={22} style={styles.messageTextWhite} />
+            
+            {/* Технические детали для мониторинга (как в оригинале) */}
+            {!item.analyzed && (
+              <View style={styles.analyzingBadgeWhite}>
+                <Text style={styles.analyzingTextWhite}>Анализ...</Text>
+              </View>
+            )}
 
-          {item.analyzed && item.riskLevel && item.riskLevel !== 'safe' && (
-            <View style={[styles.riskBadge, { backgroundColor: RISK_COLORS[item.riskLevel] }]}>
-              <AlertTriangle size={12} color="#fff" />
-              <Text style={styles.riskText}>{RISK_LABELS[item.riskLevel]}</Text>
-            </View>
-          )}
+            {item.analyzed && item.riskLevel && item.riskLevel !== 'safe' && (
+              <View style={[styles.riskBadgeWhite, { backgroundColor: RISK_COLORS[item.riskLevel] }]}>
+                <AlertTriangle size={12} color="#fff" />
+                <Text style={styles.riskTextWhite}>{RISK_LABELS[item.riskLevel]}</Text>
+              </View>
+            )}
 
-          {item.riskReasons && item.riskReasons.length > 0 && (
-            <View style={styles.reasonsContainer}>
-              {item.riskReasons.map((reason, index) => (
-                <Text key={index} style={styles.reasonText}>
-                  • {reason}
-                </Text>
-              ))}
-            </View>
-          )}
+            {item.riskReasons && item.riskReasons.length > 0 && (
+              <View style={styles.reasonsContainerWhite}>
+                {item.riskReasons.map((reason, index) => (
+                  <Text key={index} style={styles.reasonTextWhite}>
+                    • {reason}
+                  </Text>
+                ))}
+              </View>
+            )}
 
-          <Text style={styles.timestamp}>
-            {new Date(item.timestamp).toLocaleTimeString('ru-RU', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </Text>
-        </View>
-      </View>
+            <Text style={styles.timestampWhite}>
+              {new Date(item.timestamp).toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </Text>
+          </LinearGradient>
+        ) : (
+          // Сообщения других - светлый фон с рамкой
+          <View style={[styles.messageBubble, styles.bubbleLeft]}>
+            {chat.isGroup && <Text style={styles.senderName}>{item.senderName}</Text>}
+            <EmojiRenderer text={item.text} emojiSize={22} style={styles.messageText} />
+            
+            {/* Технические детали для мониторинга (как в оригинале) */}
+            {!item.analyzed && (
+              <View style={styles.analyzingBadge}>
+                <Text style={styles.analyzingText}>Анализ...</Text>
+              </View>
+            )}
+
+            {item.analyzed && item.riskLevel && item.riskLevel !== 'safe' && (
+              <View style={[styles.riskBadge, { backgroundColor: RISK_COLORS[item.riskLevel] }]}>
+                <AlertTriangle size={12} color="#fff" />
+                <Text style={styles.riskText}>{RISK_LABELS[item.riskLevel]}</Text>
+              </View>
+            )}
+
+            {item.riskReasons && item.riskReasons.length > 0 && (
+              <View style={styles.reasonsContainer}>
+                {item.riskReasons.map((reason, index) => (
+                  <Text key={index} style={styles.reasonText}>
+                    • {reason}
+                  </Text>
+                ))}
+              </View>
+            )}
+
+            <Text style={styles.timestamp}>
+              {new Date(item.timestamp).toLocaleTimeString('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </Text>
+          </View>
+        )}
+      </Animated.View>
     );
   };
 
@@ -322,6 +425,17 @@ export default function ChatScreen() {
           title: chat.isGroup ? chat.groupName : chat.participantNames.join(' и '),
           headerRight: () => (
             <View style={styles.headerRightContainer}>
+              {canChangeChatBackgrounds() && (
+                <TouchableOpacity
+                  style={styles.backgroundButton}
+                  onPress={() => {
+                    HapticFeedback.light();
+                    setShowBackgroundPicker(true);
+                  }}
+                >
+                  <Text style={styles.backgroundButtonText}>🎨</Text>
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
                 style={styles.sosButton}
                 onPress={handleSOSTrigger}
@@ -336,16 +450,37 @@ export default function ChatScreen() {
         }}
       />
       <KeyboardAvoidingView
-        style={styles.container}
+        style={[
+          styles.container,
+          chatBackground?.type === 'solid' && chatBackground.color
+            ? { backgroundColor: chatBackground.color }
+            : {},
+        ]}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={100}
       >
+        {chatBackground && chatBackground.type === 'gradient' && chatBackground.gradient ? (
+          <LinearGradient
+            colors={chatBackground.gradient as [string, string]}
+            start={chatBackground.gradientDirection?.start || { x: 0, y: 0 }}
+            end={chatBackground.gradientDirection?.end || { x: 1, y: 1 }}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
+        ) : null}
         <FlatList
+          style={styles.messagesListContainer}
           data={chat.messages}
           renderItem={renderMessage}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.messagesList}
           inverted={false}
+          // Оптимизация производительности
+          initialNumToRender={15}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+          removeClippedSubviews={true}
+          updateCellsBatchingPeriod={50}
         />
 
         {isAnalyzing && (
@@ -429,6 +564,16 @@ export default function ChatScreen() {
         onClose={() => setShowEmojiPicker(false)}
         onEmojiSelect={handleEmojiSelect}
       />
+
+      {/* Background Picker Modal */}
+      <ChatBackgroundPicker
+        visible={showBackgroundPicker}
+        onClose={() => setShowBackgroundPicker(false)}
+        chatId={chatId}
+        onSelect={() => {
+          setShowBackgroundPicker(false);
+        }}
+      />
     </>
   );
 }
@@ -436,13 +581,16 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff9e6',
+    backgroundColor: '#FFFBF0', // Более теплый желтый фон для детей
   },
   errorText: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
     marginTop: 50,
+  },
+  messagesListContainer: {
+    flex: 1,
   },
   messagesList: {
     padding: 16,
@@ -459,26 +607,31 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   messageBubble: {
-    padding: 12,
-    borderRadius: 16,
+    padding: 14,
+    borderRadius: 20,
+    minWidth: 60,
+  },
+  bubbleGradient: {
+    borderBottomRightRadius: 6,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 5,
   },
   bubbleLeft: {
     backgroundColor: '#fff',
-    borderBottomLeftRadius: 4,
+    borderBottomLeftRadius: 6,
+    borderWidth: 2,
+    borderColor: '#E8F4FD',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   bubbleRight: {
-    backgroundColor: '#FFD700',
-    borderBottomRightRadius: 4,
-    shadowColor: '#FFD700',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 3,
+    borderBottomRightRadius: 6,
   },
   senderName: {
     fontSize: 12,
@@ -487,14 +640,62 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   messageText: {
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: 17,
+    lineHeight: 24,
     color: '#1a1a1a',
+    fontWeight: '500' as const,
+  },
+  messageTextWhite: {
+    fontSize: 17,
+    lineHeight: 24,
+    color: '#fff',
+    fontWeight: '600' as const,
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   timestamp: {
     fontSize: 11,
-    marginTop: 4,
-    opacity: 0.5,
+    marginTop: 6,
+    opacity: 0.6,
+    fontWeight: '500' as const,
+  },
+  timestampWhite: {
+    fontSize: 11,
+    marginTop: 6,
+    color: 'rgba(255,255,255,0.9)',
+    fontWeight: '600' as const,
+  },
+  senderNameWhite: {
+    fontSize: 13,
+    fontWeight: '700' as const,
+    marginBottom: 6,
+    color: '#fff',
+    textShadowColor: 'rgba(0,0,0,0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  safeBadge: {
+    marginTop: 8,
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  safeBadgeLight: {
+    marginTop: 8,
+    alignSelf: 'flex-start',
+    backgroundColor: '#ECFDF5',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   analyzingBadge: {
     marginTop: 8,
@@ -504,10 +705,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignSelf: 'flex-start',
   },
+  analyzingBadgeWhite: {
+    marginTop: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
   analyzingText: {
     fontSize: 11,
     color: '#3b82f6',
     fontWeight: '500' as const,
+  },
+  analyzingTextWhite: {
+    fontSize: 11,
+    color: '#fff',
+    fontWeight: '600' as const,
   },
   riskBadge: {
     flexDirection: 'row',
@@ -519,7 +733,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignSelf: 'flex-start',
   },
+  riskBadgeWhite: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  },
   riskText: {
+    fontSize: 11,
+    color: '#fff',
+    fontWeight: '600' as const,
+  },
+  riskTextWhite: {
     fontSize: 11,
     color: '#fff',
     fontWeight: '600' as const,
@@ -530,16 +760,39 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.1)',
   },
+  reasonsContainerWhite: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.3)',
+  },
   reasonText: {
     fontSize: 12,
     opacity: 0.8,
     marginBottom: 2,
+  },
+  reasonTextWhite: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.9)',
+    marginBottom: 2,
+    fontWeight: '500' as const,
   },
   headerRightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     marginRight: 8,
+  },
+  backgroundButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backgroundButtonText: {
+    fontSize: 18,
   },
   sosButton: {
     width: 36,
@@ -590,37 +843,48 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   emojiButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
+    backgroundColor: '#FFF9C4',
+    borderWidth: 2,
+    borderColor: '#FFD700',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   input: {
     flex: 1,
     backgroundColor: '#fff',
-    borderRadius: 22,
+    borderRadius: 24,
     paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingVertical: 14,
     marginRight: 10,
     maxHeight: 100,
-    fontSize: 16,
+    fontSize: 17,
     borderWidth: 2,
-    borderColor: '#f0f0f0',
+    borderColor: '#FFE5B4',
+    fontWeight: '500' as const,
   },
   sendButton: {
     backgroundColor: '#FFD700',
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#FFD700',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 5,
+    borderWidth: 2,
+    borderColor: '#FFA500',
   },
   sendButtonDisabled: {
     backgroundColor: '#e5e5e5',
@@ -675,15 +939,20 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   micButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#FFF9C4',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
     borderWidth: 2,
     borderColor: '#FFD700',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   transcribingButton: {
     width: 44,
