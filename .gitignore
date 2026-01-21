@@ -33,15 +33,67 @@ yarn-error.*
 COMMAND*.md
 COMMIT*.md
 COMMIT*.sh
+COMMIT*.txt
 FIX_*.md
+CHECK_*.md
+EXECUTE_*.sh
+EXECUTE_*.md
 GITHUB_*.md
 HOW_*.md
 LINK_*.md
 WHEN_*.md
 WHY_*.md
+WHERE_*.md
 ERROR_*.md
 TEST_*.md
 TYPESCRIPT_*.md
+DEBUG_*.md
+EMERGENCY_*.md
+FINAL_*.md
+NUCLEAR_*.md
+ULTIMATE_*.md
+
+# Personal notes and tasks
+TODO_*.md
+MY_OFFER_*.md
+TODAY_PLAN.md
+PLAN_FOR_TOMORROW*.md
+REMAINING_TASKS.md
+RECOMMENDED_*.md
+APPLY_TO_*.md
+WHAT_TO_KEEP_*.md
+CLEANUP_PLAN.md
+
+# Temporary instructions
+START_ON_PHONE*.md
+CONNECT_TO_PHONE*.md
+NO_CONNECT*.md
+QUICK_COMMIT_*.md
+COMMANDS_*.md
+COMMANDS_*.txt
+GIT_*.md
+GIT_*.txt
+
+# Personal materials
+FOUNDER_RESUME_*.md
+FOUNDER_SHORT_PITCH_*.md
+GOTOVYE_EMAILS_*.md
+KAK_OTPRAVIT_*.md
+KOMU_NAPRAVIT_*.md
+РЕЗЮМЕ_*.md
+
+# Temporary plans
+IMPLEMENTATION_*.md
+CRITICAL_FEATURES_*.md
+FULL_IMPLEMENTATION_PLAN.md
+SYNC_ARCHITECTURE_PLAN.md
+
+# Personal setup
+ADD_TOKEN_TO_CURSOR.md
+CURSOR_SETUP_CHECK.md
+TOKEN_SECURITY_CHECK.md
+MANAGE_GITHUB_TOKENS.md
+CHECK_CURSOR_TOKEN_REQUEST.md
 
 # local env files
 .env*.local
