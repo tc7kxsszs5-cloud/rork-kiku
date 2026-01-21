@@ -1,14 +1,24 @@
 // Jest setup file for React Native / Expo
 // Этот файл выполняется перед каждым тестом
 
+const React = require('react');
+
 // Моки для React Native модулей
-// Используем простой мок без requireActual для совместимости с Bun
-jest.mock('react-native', () => ({
-  Platform: {
-    OS: 'ios',
-    select: (dict: any) => dict.ios || dict.default,
-  },
-}));
+jest.mock('react-native', () => {
+  return {
+    Platform: {
+      OS: 'ios',
+      select: (dict: any) => dict.ios || dict.default,
+    },
+    View: ({ children, testID, ...props }: any) => React.createElement('View', { testID, ...props }, children),
+    Text: ({ children, testID, ...props }: any) => React.createElement('Text', { testID, ...props }, children),
+    TouchableOpacity: ({ children, onPress, testID, ...props }: any) =>
+      React.createElement('TouchableOpacity', { onPress, testID, ...props }, children),
+    StyleSheet: {
+      create: (styles: any) => styles,
+    },
+  };
+});
 
 // Мок для Expo модулей
 jest.mock('expo-constants', () => ({
@@ -110,7 +120,9 @@ global.fetch = jest.fn(() =>
 );
 
 // Увеличиваем timeout для async операций
-jest.setTimeout(10000);
+if (typeof jest !== 'undefined') {
+  jest.setTimeout(10000);
+}
 
 // Подавляем console.warn в тестах (можно включить для отладки)
 // global.console = {

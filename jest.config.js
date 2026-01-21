@@ -42,8 +42,15 @@ module.exports = {
   cache: true,
   cacheDirectory: '<rootDir>/.jest-cache',
   
-  // Очистка моков между тестами
-  clearMocks: true,
-  resetMocks: true,
-  restoreMocks: true,
+  // Исправление проблемы с readonly property
+  // Отключаем изоляцию модулей для некоторых случаев
+  // Это может помочь с проблемой readonly property
+  testEnvironment: 'node',
+  
+  // Дополнительные настройки для обхода проблем с readonly
+  globals: {
+    'ts-jest': {
+      isolatedModules: false,
+    },
+  },
 };
