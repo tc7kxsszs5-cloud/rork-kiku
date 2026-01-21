@@ -36,6 +36,7 @@ import {
   MessageCircle,
 } from 'lucide-react-native';
 import { useUser } from '@/constants/UserContext';
+import { useAuth } from '@/constants/AuthContext';
 import { useMonitoring } from '@/constants/MonitoringContext';
 import { useNotifications, PushPermissionState } from '@/constants/NotificationsContext';
 import { NotificationTestType } from '@/constants/types';
@@ -174,11 +175,13 @@ const DIAGNOSTIC_LABELS: Record<NotificationTestType, string> = {
 };
 
 export default function ProfileScreen() {
-  const { user, isLoading, identifyUser, updateUser, logoutUser } = useUser();
+  const { user, isLoading, identifyUser, updateUser, logoutUser, removeChild } = useUser();
+  const { createChildProfile, switchToChildMode } = useAuth();
   const { i18n: i18nInstance } = useTranslation();
   // Определяем роль на основе наличия детей: если есть дети - родитель, если нет - ребенок
   // const isParent = useMemo(() => user ? (user.children?.length > 0 || user.email) : false, [user]);
   const isChild = useMemo(() => user ? (!user.children?.length && !user.email) : false, [user]);
+  const isParent = useMemo(() => user?.role === 'parent' || (user?.children?.length ?? 0) > 0, [user]);
   const { settings } = useParentalControls();
   const { chats } = useMonitoring();
   const router = useRouter();
@@ -796,6 +799,110 @@ export default function ProfileScreen() {
           />
         </View>
       </View>
+
+      {/* Управление детьми (только для родителей) */}
+      {isParent && (
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Управление детьми</Text>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={async () => {
+                HapticFeedback.light();
+                Alert.prompt(
+                  'Добавить ребенка',
+                  'Введите имя ребенка:',
+                  [
+                    { text: 'Отмена', style: 'cancel' },
+                    {
+                      text: 'Добавить',
+                      onPress: (childName?: string) => {
+                        if (childName && childName.trim()) {
+                          (async () => {
+                            try {
+                              await createChildProfile({
+                                name: childName.trim(),
+                                permissions: {
+                                  canChangeChatBackgrounds: true,
+                                  canChangeNotificationSounds: true,
+                                  canAddContacts: false,
+                                },
+                              });
+                              Alert.alert('Успешно', 'Ребенок добавлен');
+                            } catch (error: any) {
+                              Alert.alert('Ошибка', error.message || 'Не удалось добавить ребенка');
+                            }
+                          })();
+                        }
+                      },
+                    },
+                  ],
+                  'plain-text'
+                );
+              }}
+            >
+              <Text style={styles.addButtonText}>+ Добавить</Text>
+            </TouchableOpacity>
+          </View>
+          {user?.children && user.children.length > 0 ? (
+            user.children.map((child) => (
+              <View key={child.id} style={styles.childCard}>
+                <View style={styles.childCardContent}>
+                  <View style={styles.childCardInfo}>
+                    <Text style={styles.childCardName}>{child.name}</Text>
+                    {child.age && <Text style={styles.childCardAge}>{child.age} лет</Text>}
+                  </View>
+                  <View style={styles.childCardActions}>
+                    <TouchableOpacity
+                      style={styles.childActionButton}
+                      onPress={async () => {
+                        HapticFeedback.light();
+                        const success = await switchToChildMode(child.id);
+                        if (success) {
+                          Alert.alert('Режим переключен', `Теперь вы работаете как ${child.name}`);
+                        } else {
+                          Alert.alert('Ошибка', 'Не удалось переключиться в режим ребенка');
+                        }
+                      }}
+                    >
+                      <Text style={styles.childActionText}>Переключиться</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.childActionButton, styles.childActionButtonDanger]}
+                      onPress={() => {
+                        HapticFeedback.warning();
+                        Alert.alert(
+                          'Удалить ребенка',
+                          `Вы уверены, что хотите удалить ${child.name}?`,
+                          [
+                            { text: 'Отмена', style: 'cancel' },
+                            {
+                              text: 'Удалить',
+                              style: 'destructive',
+                              onPress: async () => {
+                                try {
+                                  await removeChild(child.id);
+                                  Alert.alert('Успешно', 'Ребенок удален');
+                                } catch (error: any) {
+                                  Alert.alert('Ошибка', error.message || 'Не удалось удалить ребенка');
+                                }
+                              },
+                            },
+                          ]
+                        );
+                      }}
+                    >
+                      <Text style={[styles.childActionText, styles.childActionTextDanger]}>Удалить</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.emptyText}>Нет добавленных детей</Text>
+          )}
+        </View>
+      )}
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Роль в системе</Text>
@@ -1542,6 +1649,77 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     marginTop: 12,
     fontSize: 14,
     color: theme.textSecondary,
+  },
+  // Управление детьми
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  addButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: theme.interactive.primary,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  childCard: {
+    backgroundColor: theme.card,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+  },
+  childCardContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  childCardInfo: {
+    flex: 1,
+  },
+  childCardName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: theme.text.primary,
+    marginBottom: 4,
+  },
+  childCardAge: {
+    fontSize: 13,
+    color: theme.text.secondary,
+  },
+  childCardActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  childActionButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: theme.interactive.primary,
+    borderRadius: 8,
+  },
+  childActionButtonDanger: {
+    backgroundColor: '#EF4444',
+  },
+  childActionText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  childActionTextDanger: {
+    color: '#fff',
+  },
+  emptyText: {
+    fontSize: 14,
+    color: theme.text.tertiary,
+    textAlign: 'center',
+    padding: 20,
   },
   // Детские стили
   childContentContainer: {
