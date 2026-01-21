@@ -52,19 +52,27 @@ module.exports = {
 __tests__/
   unit/                    # Простые и средние тесты
     utils/
-      retryUtils.test.ts
-      syncService.test.ts
-    services/
-      aiModeration.test.ts
+      analyticsMetrics.test.ts
+      riskEvaluation.test.ts
+      timeRestrictions.test.ts
+      validation.test.ts
+      ...
   
   integration/             # Сложные тесты
+    app/
+      startup.test.tsx     # Тесты запуска приложения
     contexts/
-      MonitoringContext.test.tsx
-      ParentalControlsContext.test.tsx
+      MonitoringContext.test.tsx      # Тесты мониторинга
+      ParentalControlsContext.test.tsx # Тесты родительского контроля
+      UserContext.test.tsx             # Тесты пользователя
   
   e2e/                     # Очень сложные тесты
     screens/
-      monitoring.test.tsx
+      monitoring.test.tsx  # E2E тесты экрана мониторинга
+    processes/
+      ai-analysis.test.tsx    # E2E тесты AI анализа
+      sos-process.test.tsx     # E2E тесты SOS процесса
+      lifecycle.test.tsx       # E2E тесты жизнедеятельности
 ```
 
 ## Конфигурация для разных уровней сложности
@@ -93,8 +101,17 @@ bun test --testPathPattern=unit
 # Только integration тесты
 bun test --testPathPattern=integration
 
+# Только E2E тесты
+bun test --testPathPattern=e2e
+
 # Конкретный файл
 bun test retryUtils.test.ts
+
+# Тесты запуска приложения
+bun test startup.test.tsx
+
+# Тесты процессов жизнедеятельности
+bun test lifecycle.test.tsx
 
 # С покрытием
 bun test --coverage
@@ -150,3 +167,108 @@ describe('MonitoringContext', () => {
   });
 });
 ```
+
+## Типы тестов в проекте
+
+### 1. Unit тесты (`__tests__/unit/`)
+Тестируют отдельные функции и утилиты:
+- `analyticsMetrics.test.ts` - вычисление аналитических метрик
+- `riskEvaluation.test.ts` - оценка рисков
+- `timeRestrictions.test.ts` - временные ограничения
+- `validation.test.ts` - валидация данных
+
+### 2. Integration тесты (`__tests__/integration/`)
+
+#### Тесты запуска приложения (`app/startup.test.tsx`)
+Проверяют инициализацию всех провайдеров:
+- ✅ Инициализация всех контекстов без ошибок
+- ✅ Загрузка данных из AsyncStorage
+- ✅ Обработка ошибок при загрузке
+- ✅ Правильный порядок провайдеров
+
+#### Тесты контекстов (`contexts/`)
+- **MonitoringContext.test.tsx** - мониторинг чатов, анализ сообщений, алерты
+- **ParentalControlsContext.test.tsx** - родительские настройки, SOS, контакты, временные ограничения
+- **UserContext.test.tsx** - пользовательские данные, профили, дети
+
+### 3. E2E тесты (`__tests__/e2e/`)
+
+#### Тесты экранов (`screens/`)
+- **monitoring.test.tsx** - полный flow работы с чатами и сообщениями
+
+#### Тесты процессов (`processes/`)
+- **ai-analysis.test.tsx** - полный цикл AI анализа от получения сообщения до создания алерта
+- **sos-process.test.tsx** - полный цикл SOS от триггера до разрешения
+- **lifecycle.test.tsx** - полный цикл жизнедеятельности приложения
+
+## Покрытие тестами
+
+### Что покрыто тестами:
+
+✅ **Запуск приложения**
+- Инициализация всех провайдеров
+- Загрузка данных из хранилища
+- Обработка ошибок
+
+✅ **Мониторинг**
+- Добавление сообщений
+- AI анализ текста и изображений
+- Создание алертов
+- Управление алертами
+
+✅ **Родительский контроль**
+- Настройки безопасности
+- SOS функциональность
+- Управление контактами
+- Временные ограничения
+- Compliance логирование
+
+✅ **Пользователь**
+- Создание и обновление профиля
+- Управление детьми
+- Выход из профиля
+
+✅ **Процессы жизнедеятельности**
+- Полный цикл от создания пользователя до SOS
+- Настройка контроля и мониторинг нарушений
+- Обработка ошибок
+- Производительность
+
+## Запуск всех тестов
+
+```bash
+# Все тесты с покрытием
+bun run test:coverage
+
+# Только unit тесты (быстро)
+bun run test:unit
+
+# Только integration тесты
+bun run test:integration
+
+# Только E2E тесты (медленно, последовательно)
+bun run test:e2e
+
+# CI/CD проверка (все проверки)
+bun run ci:all
+```
+
+## Добавление новых тестов
+
+### Для нового контекста:
+1. Создайте файл `__tests__/integration/contexts/YourContext.test.tsx`
+2. Используйте `createWrapper()` для обертки провайдеров
+3. Тестируйте все основные функции контекста
+4. Проверяйте загрузку/сохранение в AsyncStorage
+
+### Для нового процесса:
+1. Создайте файл `__tests__/e2e/processes/your-process.test.tsx`
+2. Тестируйте полный цикл процесса
+3. Проверяйте интеграцию между контекстами
+4. Тестируйте обработку ошибок
+
+### Для нового экрана:
+1. Создайте файл `__tests__/e2e/screens/your-screen.test.tsx`
+2. Используйте `@testing-library/react-native` для рендеринга
+3. Тестируйте основные user flows
+4. Проверяйте навигацию
