@@ -11,6 +11,18 @@ export default {
     confirm: 'Confirm',
     yes: 'Yes',
     no: 'No',
+    errors: {
+      networkError: 'Network problem. Check your connection.',
+      syncFailed: 'Failed to sync data. Please try again later.',
+      loadFailed: 'Failed to load data. Check your connection.',
+      saveFailed: 'Failed to save data. Please try again.',
+      permissionDenied: 'Insufficient access rights. Check your settings.',
+      storageError: 'Data storage error. Please try again.',
+      analysisFailed: 'Failed to analyze message. Please try again.',
+      sosFailed: 'Failed to send SOS signal. Check your internet.',
+      authFailed: 'Authentication error. Please try logging in again.',
+      default: 'An error occurred. Please try again.',
+    },
   },
   tabs: {
     home: 'Home',
