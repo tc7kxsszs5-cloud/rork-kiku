@@ -1,4 +1,24 @@
-import { NotificationDeviceRecord, NotificationTestResult } from '@/constants/types';
+// Types defined locally for backend
+export interface NotificationDeviceRecord {
+  deviceId: string;
+  pushToken: string;
+  platform: 'ios' | 'android' | 'web';
+  appVersion?: string;
+  userId?: string;
+  permissions?: string;
+  lastSyncedAt: number;
+  lastTestedAt?: number;
+  testResults: NotificationTestResult[];
+}
+
+export interface NotificationTestResult {
+  id: string;
+  type: 'permissions' | 'token' | 'delivery' | 'sync';
+  status: 'passed' | 'failed';
+  message: string;
+  timestamp: number;
+  deviceLabel?: string;
+}
 
 const MAX_TEST_RESULTS = 10;
 
