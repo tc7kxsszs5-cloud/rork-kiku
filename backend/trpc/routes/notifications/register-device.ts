@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { publicProcedure } from '../../create-context';
-import { upsertDeviceRecord } from './store';
+import { publicProcedure } from '../../create-context.js';
+import { upsertDeviceRecord } from './store.js';
 
 export const registerDeviceProcedure = publicProcedure
   .input(

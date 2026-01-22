@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { publicProcedure } from '../../create-context';
-import { listDeviceRecords, getDeviceRecord } from './store';
+import { publicProcedure } from '../../create-context.js';
+import { listDeviceRecords, getDeviceRecord } from './store.js';
 
 // Интерфейс для Expo Push Notification
 interface ExpoPushMessage {

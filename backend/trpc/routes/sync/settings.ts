@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publicProcedure, createTRPCRouter } from "../create-context";
+import { publicProcedure, createTRPCRouter } from "../../create-context.js";
 
 const settingsStore = new Map<string, { settings: any; timestamp: number }>();
 const lastSyncStore = new Map<string, number>();
