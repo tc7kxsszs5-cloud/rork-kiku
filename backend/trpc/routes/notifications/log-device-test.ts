@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { publicProcedure } from '../../create-context';
-import { appendTestResults } from './store';
+import { publicProcedure } from '../../create-context.js';
+import { appendTestResults } from './store.js';
 
 const testResultSchema = z.object({
   id: z.string().min(3),

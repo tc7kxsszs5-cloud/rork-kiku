@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { publicProcedure } from '../../create-context';
-import { getDeviceRecord, listDeviceRecords } from './store';
+import { publicProcedure } from '../../create-context.js';
+import { getDeviceRecord, listDeviceRecords } from './store.js';
 
 export const getSyncStatusProcedure = publicProcedure
   .input(z.object({ deviceId: z.string().optional() }).optional())
