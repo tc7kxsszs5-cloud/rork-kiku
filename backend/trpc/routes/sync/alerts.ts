@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { publicProcedure, createTRPCRouter } from "@/backend/trpc/create-context";
-import { getDeltaAlerts } from "@/utils/syncHelpers";
+import { publicProcedure, createTRPCRouter } from "../create-context";
+import { getDeltaAlerts } from "../../../utils/syncHelpers";
 
 const alertsStore = new Map<string, { alerts: any[]; timestamp: number }>();
 const lastSyncStore = new Map<string, number>();

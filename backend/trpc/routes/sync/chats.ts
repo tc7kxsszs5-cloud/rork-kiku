@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { publicProcedure, createTRPCRouter } from "@/backend/trpc/create-context";
-import { getDeltaChats } from "@/utils/syncHelpers";
+import { publicProcedure, createTRPCRouter } from "../create-context";
+import { getDeltaChats } from "../../../utils/syncHelpers";
 
 // In-memory хранилище для синхронизации (в production использовать БД)
 const chatsStore = new Map<string, { chats: any[]; timestamp: number }>();
