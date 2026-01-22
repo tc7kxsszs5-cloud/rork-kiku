@@ -1,12 +1,13 @@
-import { createTRPCRouter } from "./create-context";
-import hiRoute from "./routes/example/hi/route";
-import { registerDeviceProcedure } from "./routes/notifications/register-device";
-import { getSyncStatusProcedure } from "./routes/notifications/get-sync-status";
-import { logDeviceTestProcedure } from "./routes/notifications/log-device-test";
-import { sendPushToDeviceProcedure, sendPushToUserProcedure, sendRiskAlertPushProcedure } from "./routes/notifications/send-push";
-import { syncChatsRouter } from "./routes/sync/chats";
-import { syncAlertsRouter } from "./routes/sync/alerts";
-import { syncSettingsRouter } from "./routes/sync/settings";
+import { createTRPCRouter } from "./create-context.js";
+import hiRoute from "./routes/example/hi/route.js";
+import { registerDeviceProcedure } from "./routes/notifications/register-device.js";
+import { getSyncStatusProcedure } from "./routes/notifications/get-sync-status.js";
+import { logDeviceTestProcedure } from "./routes/notifications/log-device-test.js";
+import { sendPushToDeviceProcedure, sendPushToUserProcedure, sendRiskAlertPushProcedure } from "./routes/notifications/send-push.js";
+import { syncChatsRouter } from "./routes/sync/chats.js";
+import { syncAlertsRouter } from "./routes/sync/alerts.js";
+import { syncSettingsRouter } from "./routes/sync/settings.js";
+import { dbCheckProcedure } from "./routes/test/db-check.js";
 
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
@@ -24,6 +25,9 @@ export const appRouter = createTRPCRouter({
     chats: syncChatsRouter,
     alerts: syncAlertsRouter,
     settings: syncSettingsRouter,
+  }),
+  test: createTRPCRouter({
+    dbCheck: dbCheckProcedure,
   }),
 });
 

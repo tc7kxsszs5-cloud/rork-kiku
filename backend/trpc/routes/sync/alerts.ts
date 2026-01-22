@@ -1,9 +1,7 @@
 import { z } from "zod";
-import { publicProcedure, createTRPCRouter } from "../create-context";
-import { getDeltaAlerts } from "../../../utils/syncHelpers";
-
-const alertsStore = new Map<string, { alerts: any[]; timestamp: number }>();
-const lastSyncStore = new Map<string, number>();
+import { publicProcedure, createTRPCRouter } from "../../create-context.js";
+import { getDeltaAlerts } from "../../../utils/syncHelpers.js";
+import { supabase } from "../../../utils/supabase.js";
 
 const mergeAlerts = (serverAlerts: any[], clientAlerts: any[]): any[] => {
   const alertMap = new Map<string, any>();
@@ -24,6 +22,74 @@ const mergeAlerts = (serverAlerts: any[], clientAlerts: any[]): any[] => {
   return Array.from(alertMap.values()).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 };
 
+// Получить алерты из базы данных
+const getAlertsFromDB = async (deviceId: string): Promise<any[]> => {
+  if (!supabase) {
+    throw new Error("Supabase клиент не инициализирован");
+  }
+
+  const { data, error } = await supabase
+    .from('alerts')
+    .select('*')
+    .eq('device_id', deviceId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[getAlertsFromDB] Error:', error);
+    return [];
+  }
+
+  return data || [];
+};
+
+// Сохранить алерты в базу данных
+const saveAlertsToDB = async (deviceId: string, alerts: any[]): Promise<void> => {
+  if (!supabase) {
+    throw new Error("Supabase клиент не инициализирован");
+  }
+
+  const alertsToSave = alerts.map((alert) => ({
+    id: alert.id,
+    device_id: deviceId,
+    chat_id: alert.chatId || alert.chat_id,
+    message_id: alert.messageId || alert.message_id,
+    alert_type: alert.alertType || alert.alert_type || '',
+    severity: alert.severity || 'medium',
+    title: alert.title || '',
+    description: alert.description,
+    risk_level: alert.riskLevel || alert.risk_level || 'medium',
+    status: alert.status || 'active',
+    created_at: alert.createdAt || alert.created_at || Date.now(),
+    resolved_at: alert.resolvedAt || alert.resolved_at,
+    metadata: alert.metadata || null,
+  }));
+
+  // Используем upsert для обновления существующих и создания новых
+  const { error } = await supabase
+    .from('alerts')
+    .upsert(alertsToSave, { onConflict: 'id' });
+
+  if (error) {
+    console.error('[saveAlertsToDB] Error:', error);
+    throw error;
+  }
+};
+
+// Обновить статус синхронизации алертов
+const updateAlertsSyncStatus = async (deviceId: string, timestamp: number): Promise<void> => {
+  if (!supabase) {
+    return;
+  }
+
+  await supabase
+    .from('sync_status')
+    .upsert({
+      device_id: deviceId,
+      last_alerts_sync: timestamp,
+      updated_at: timestamp,
+    }, { onConflict: 'device_id' });
+};
+
 export const syncAlertsProcedure = publicProcedure
   .input(
     z.object({
@@ -32,46 +98,61 @@ export const syncAlertsProcedure = publicProcedure
       lastSyncTimestamp: z.number().optional(),
     })
   )
-  .mutation(({ input }) => {
+  .mutation(async ({ input }) => {
     const { deviceId, alerts, lastSyncTimestamp = 0 } = input;
     const timestamp = Date.now();
 
-    const stored = alertsStore.get(deviceId);
-    const serverAlerts = stored?.alerts || [];
+    try {
+      // Получаем существующие алерты из базы данных
+      const serverAlerts = await getAlertsFromDB(deviceId);
 
-    if (alerts && alerts.length > 0) {
-      const mergedAlerts = mergeAlerts(serverAlerts, alerts);
-      alertsStore.set(deviceId, {
-        alerts: mergedAlerts,
-        timestamp,
-      });
-    }
+      if (alerts && alerts.length > 0) {
+        // Merge логика - объединяем серверные и клиентские алерты
+        const mergedAlerts = mergeAlerts(serverAlerts, alerts);
+        
+        // Сохраняем объединенные алерты в базу данных
+        await saveAlertsToDB(deviceId, mergedAlerts);
+      }
 
-    lastSyncStore.set(deviceId, timestamp);
+      // Обновляем статус синхронизации
+      await updateAlertsSyncStatus(deviceId, timestamp);
 
-    if (lastSyncTimestamp > 0) {
-      const storedData = alertsStore.get(deviceId);
-      const allAlerts = storedData?.alerts || [];
-      const deltaAlerts = getDeltaAlerts(allAlerts, lastSyncTimestamp);
+      // Если запрошен incremental sync - возвращаем только изменения
+      if (lastSyncTimestamp > 0) {
+        const allAlerts = await getAlertsFromDB(deviceId);
+        const deltaAlerts = getDeltaAlerts(allAlerts, lastSyncTimestamp);
+        
+        return {
+          success: true,
+          alerts: deltaAlerts,
+          lastSyncTimestamp: timestamp,
+          serverTimestamp: timestamp,
+          isDelta: true,
+          count: deltaAlerts.length,
+        };
+      }
+
+      // Полная синхронизация - возвращаем все алерты
+      const allAlerts = await getAlertsFromDB(deviceId);
+      
       return {
         success: true,
-        alerts: deltaAlerts,
+        alerts: allAlerts,
         lastSyncTimestamp: timestamp,
         serverTimestamp: timestamp,
-        isDelta: true,
-        count: deltaAlerts.length,
+        isDelta: false,
+        count: allAlerts.length,
+      };
+    } catch (error) {
+      console.error('[syncAlertsProcedure] Error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        alerts: [],
+        lastSyncTimestamp: timestamp,
+        serverTimestamp: timestamp,
       };
     }
-
-    const storedData = alertsStore.get(deviceId);
-    return {
-      success: true,
-      alerts: storedData?.alerts || [],
-      lastSyncTimestamp: timestamp,
-      serverTimestamp: timestamp,
-      isDelta: false,
-      count: storedData?.alerts?.length || 0,
-    };
   });
 
 export const getAlertsProcedure = publicProcedure
@@ -81,34 +162,56 @@ export const getAlertsProcedure = publicProcedure
       lastSyncTimestamp: z.number().optional(),
     })
   )
-  .query(({ input }) => {
+  .query(async ({ input }) => {
     const { deviceId, lastSyncTimestamp = 0 } = input;
-    const storedData = alertsStore.get(deviceId);
-    const allAlerts = storedData?.alerts || [];
-    const lastSync = lastSyncStore.get(deviceId) || 0;
 
-    if (lastSyncTimestamp > 0) {
-      const deltaAlerts = getDeltaAlerts(allAlerts, lastSyncTimestamp);
+    try {
+      const allAlerts = await getAlertsFromDB(deviceId);
+      
+      // Получаем последний timestamp синхронизации
+      let lastSync = 0;
+      if (supabase) {
+        const { data } = await supabase
+          .from('sync_status')
+          .select('last_alerts_sync')
+          .eq('device_id', deviceId)
+          .single();
+        lastSync = data?.last_alerts_sync || 0;
+      }
+
+      // Incremental sync если запрошен
+      if (lastSyncTimestamp > 0) {
+        const deltaAlerts = getDeltaAlerts(allAlerts, lastSyncTimestamp);
+        return {
+          alerts: deltaAlerts,
+          lastSyncTimestamp: lastSync,
+          serverTimestamp: Date.now(),
+          isDelta: true,
+          count: deltaAlerts.length,
+        };
+      }
+
+      // Полная синхронизация
       return {
-        alerts: deltaAlerts,
+        alerts: allAlerts,
         lastSyncTimestamp: lastSync,
         serverTimestamp: Date.now(),
-        isDelta: true,
-        count: deltaAlerts.length,
+        isDelta: false,
+        count: allAlerts.length,
+      };
+    } catch (error) {
+      console.error('[getAlertsProcedure] Error:', error);
+      return {
+        alerts: [],
+        lastSyncTimestamp: 0,
+        serverTimestamp: Date.now(),
+        isDelta: false,
+        count: 0,
       };
     }
-
-    return {
-      alerts: allAlerts,
-      lastSyncTimestamp: lastSync,
-      serverTimestamp: Date.now(),
-      isDelta: false,
-      count: allAlerts.length,
-    };
   });
 
 export const syncAlertsRouter = createTRPCRouter({
   sync: syncAlertsProcedure,
   get: getAlertsProcedure,
 });
-
