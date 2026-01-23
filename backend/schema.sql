@@ -79,3 +79,14 @@ CREATE TABLE IF NOT EXISTS sync_status (
   last_settings_sync BIGINT,
   updated_at BIGINT NOT NULL
 );
+
+-- 6. Таблица настроек родительского контроля
+CREATE TABLE IF NOT EXISTS settings (
+  device_id TEXT PRIMARY KEY,
+  settings_data JSONB NOT NULL,
+  updated_at BIGINT NOT NULL,
+  created_at BIGINT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_settings_device_id ON settings(device_id);
+CREATE INDEX IF NOT EXISTS idx_settings_updated_at ON settings(updated_at);
