@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { publicProcedure, createTRPCRouter } from "../../create-context.js";
 import { supabase } from "../../../utils/supabase.js";
+import { syncSettingsInputSchema, getSettingsInputSchema } from "../../../utils/validationSchemas.js";
+import { rateLimiters } from "../../middleware/rateLimit.js";
 
 // Merge настройки (клиентские перезаписывают серверные если новее)
 const mergeSettings = (serverSettings: any, clientSettings: any): any => {
@@ -127,11 +129,8 @@ export const syncSettingsProcedure = publicProcedure
   });
 
 export const getSettingsProcedure = publicProcedure
-  .input(
-    z.object({
-      deviceId: z.string(),
-    })
-  )
+  .use(rateLimiters.sync)
+  .input(getSettingsInputSchema)
   .query(async ({ input }) => {
     const { deviceId } = input;
     const timestamp = Date.now();

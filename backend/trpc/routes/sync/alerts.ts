@@ -2,6 +2,8 @@ import { z } from "zod";
 import { publicProcedure, createTRPCRouter } from "../../create-context.js";
 import { getDeltaAlerts } from "../../../utils/syncHelpers.js";
 import { supabase } from "../../../utils/supabase.js";
+import { syncAlertsInputSchema, getAlertsInputSchema } from "../../../utils/validationSchemas.js";
+import { rateLimiters } from "../../middleware/rateLimit.js";
 
 const mergeAlerts = (serverAlerts: any[], clientAlerts: any[]): any[] => {
   const alertMap = new Map<string, any>();
@@ -91,13 +93,8 @@ const updateAlertsSyncStatus = async (deviceId: string, timestamp: number): Prom
 };
 
 export const syncAlertsProcedure = publicProcedure
-  .input(
-    z.object({
-      deviceId: z.string(),
-      alerts: z.array(z.any()).optional(),
-      lastSyncTimestamp: z.number().optional(),
-    })
-  )
+  .use(rateLimiters.sync)
+  .input(syncAlertsInputSchema)
   .mutation(async ({ input }) => {
     const { deviceId, alerts, lastSyncTimestamp = 0 } = input;
     const timestamp = Date.now();
@@ -156,12 +153,8 @@ export const syncAlertsProcedure = publicProcedure
   });
 
 export const getAlertsProcedure = publicProcedure
-  .input(
-    z.object({
-      deviceId: z.string(),
-      lastSyncTimestamp: z.number().optional(),
-    })
-  )
+  .use(rateLimiters.sync)
+  .input(getAlertsInputSchema)
   .query(async ({ input }) => {
     const { deviceId, lastSyncTimestamp = 0 } = input;
 

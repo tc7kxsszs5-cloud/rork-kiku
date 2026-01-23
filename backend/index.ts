@@ -7,7 +7,34 @@ import type { Context as HonoContext } from "hono";
 
 const app = new Hono();
 
-app.use("*", cors());
+// Secure CORS configuration
+app.use("*", cors({
+  origin: (origin) => {
+    // Allow requests from known origins
+    const allowedOrigins = [
+      'https://d8v7u672uumlfpscvnbps.rork.live',
+      'http://localhost:8081',
+      'http://localhost:19006',
+      'exp://localhost:8081',
+    ];
+
+    // In production, only allow specific origins
+    if (process.env.NODE_ENV === 'production') {
+      return allowedOrigins.includes(origin || '') ? origin : null;
+    }
+
+    // In development, allow localhost
+    if (origin && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+      return origin;
+    }
+
+    return allowedOrigins.includes(origin || '') ? origin : null;
+  },
+  allowMethods: ['GET', 'POST', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400, // 24 hours
+  credentials: true,
+}));
 
 app.use(
   "/api/trpc/*",
@@ -25,16 +52,27 @@ app.get("/", (c: HonoContext) => {
 });
 
 app.onError((err: Error, c: HonoContext) => {
-  console.error('[Hono] Error:', err);
+  // Log full error for debugging (but don't expose to client)
+  console.error('[Hono] Error:', {
+    message: err.message,
+    stack: err.stack,
+    path: c.req.path,
+  });
+  
+  // Don't expose internal error details to clients
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  const errorMessage = isDevelopment 
+    ? err.message 
+    : 'An internal error occurred. Please try again later.';
   
   if (c.req.path.startsWith('/api/trpc')) {
-    return c.text(`Error: ${err.message}`, 500);
+    return c.text(`Error: ${errorMessage}`, 500);
   }
   
   return c.json(
     {
       error: {
-        message: err.message || 'Internal server error',
+        message: errorMessage,
         status: 'error',
       },
     },
