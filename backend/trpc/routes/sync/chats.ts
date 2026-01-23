@@ -2,6 +2,8 @@ import { z } from "zod";
 import { publicProcedure, createTRPCRouter } from "../../create-context.js";
 import { getDeltaChats } from "../../../utils/syncHelpers.js";
 import { supabase } from "../../../utils/supabase.js";
+import { syncChatsInputSchema, getChatsInputSchema } from "../../../utils/validationSchemas.js";
+import { rateLimiters } from "../../middleware/rateLimit.js";
 
 // Улучшенная merge логика
 const mergeChats = (serverChats: any[], clientChats: any[]): any[] => {
@@ -195,13 +197,8 @@ const updateSyncStatus = async (deviceId: string, timestamp: number): Promise<vo
 };
 
 export const syncChatsProcedure = publicProcedure
-  .input(
-    z.object({
-      deviceId: z.string(),
-      chats: z.array(z.any()).optional(),
-      lastSyncTimestamp: z.number().optional(),
-    })
-  )
+  .use(rateLimiters.sync)
+  .input(syncChatsInputSchema)
   .mutation(async ({ input }) => {
     const { deviceId, chats, lastSyncTimestamp = 0 } = input;
     const timestamp = Date.now();
@@ -319,12 +316,8 @@ export const syncChatsProcedure = publicProcedure
   });
 
 export const getChatsProcedure = publicProcedure
-  .input(
-    z.object({
-      deviceId: z.string(),
-      lastSyncTimestamp: z.number().optional(),
-    })
-  )
+  .use(rateLimiters.sync)
+  .input(getChatsInputSchema)
   .query(async ({ input }) => {
     const { deviceId, lastSyncTimestamp = 0 } = input;
 
