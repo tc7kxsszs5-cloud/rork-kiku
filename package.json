@@ -3,12 +3,18 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "bunx rork start -p d8v7u672uumlfpscvnbps --tunnel",
+    "postinstall": "node scripts/patch-jest-runtime.js",
+    "start": "./scripts/smart-start.sh",
+    "start:rork": "./scripts/smart-start.sh",
+    "start:rork:tunnel": "./scripts/start-tunnel-smart.sh",
+    "start:rork:tunnel:direct": "echo '⚠️  Tunnel режим нестабилен. Используйте bun run start (LAN) для надежной работы.' && bunx rork start -p d8v7u672uumlfpscvnbps --tunnel --scheme rork-app",
+    "start:rork:tunnel:timeout": "./scripts/start-tunnel-with-timeout.sh",
+    "start:rork:lan": "bunx rork start -p d8v7u672uumlfpscvnbps --lan --scheme rork-app",
     "start:expo": "bunx expo start",
     "start:local": "EXPO_USE_DEV_CLIENT=false bunx expo start --lan",
     "start:simple": "EXPO_NO_DOTENV=1 bunx expo start --lan --no-dev",
     "start:clear": "bunx expo start --lan --clear",
-    "start:web": "bunx expo start --web",
+    "start:web": "bunx expo start --web --port 8082",
     "start-web": "bunx expo start --web",
     "start-web-dev": "DEBUG=expo* bunx rork start -p d8v7u672uumlfpscvnbps --web --tunnel",
     "lint": "expo lint",
@@ -26,6 +32,14 @@
     "test:bun": "bun test __tests__/unit",
     "test:jest": "bunx jest --testPathPattern=\"integration|e2e|soundNotifications\" --maxWorkers=2",
     "test:all": "bun test __tests__/unit && bunx jest --testPathPattern=\"integration|e2e|soundNotifications\" --maxWorkers=2",
+    "test:startup": "bun run scripts/test-app-startup.ts",
+    "test:deep": "bun run scripts/deep-config-test.ts",
+    "test:config": "bun run test:startup && bun run test:deep",
+    "test:all-config": "./scripts/test-all-config.sh",
+    "fix": "./scripts/quick-fix.sh",
+    "fix:startup": "./scripts/fix-startup-issues.sh",
+    "kill-ports": "./scripts/kill-ports.sh",
+    "diagnose": "bun run scripts/comprehensive-diagnosis.ts",
     "ci:install": "bun install",
     "ci:lint": "bun run lint",
     "ci:tsc": "bunx tsc --noEmit",
@@ -33,7 +47,14 @@
     "ci:all": "bun run ci:install && bun run ci:lint && bun run ci:tsc && bun run ci:test",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "ios:sim": "bunx expo start --ios",
+    "ios:sim": "./scripts/ios-sim-auto.sh",
+    "ios:sim:auto": "./scripts/ios-sim-auto.sh",
+    "ios:sim:safe": "./scripts/ios-sim-safe.sh",
+    "ios:sim:fix": "./scripts/fix-simulator.sh",
+    "ios:sim:boot": "./scripts/boot-simulator.sh",
+    "ios:debug": "./scripts/ios-sim-debug.sh",
+    "ios:setup": "./scripts/setup-ios.sh",
+    "ios:cocoapods": "./scripts/install-cocoapods.sh",
     "android:emulator": "bunx expo start --android"
   },
   "dependencies": {
@@ -74,6 +95,7 @@
     "expo-status-bar": "~3.0.9",
     "expo-symbols": "~1.0.8",
     "expo-system-ui": "~6.0.9",
+    "expo-updates": "~29.0.16",
     "expo-web-browser": "~15.0.10",
     "hono": "^4.10.6",
     "i18next": "^25.6.3",
@@ -106,6 +128,12 @@
     "jest-expo": "~54.0.16",
     "react-test-renderer": "19.1.0",
     "typescript": "5.9.2"
+  },
+  "overrides": {
+    "stack-utils": "2.0.6"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "private": true
 }
