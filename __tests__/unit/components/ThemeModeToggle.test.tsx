@@ -1,50 +1,35 @@
 /**
- * Тесты для компонента ThemeModeToggle
- * Проверяет переключение темы, варианты, взаимодействие
+ * Тесты для ThemeModeToggle
+ * Проверяет переключение темы, варианты отображения, иконки
  */
 
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { ThemeModeToggle } from '@/components/ThemeModeToggle';
-import { ThemeProvider } from '@/constants/ThemeContext';
 
-// Мок для ThemeContext
-const mockToggleThemeMode = jest.fn();
-const mockThemeMode = 'sunrise';
-
+// Моки
 jest.mock('@/constants/ThemeContext', () => ({
-  useThemeMode: () => ({
-    themeMode: mockThemeMode,
-    toggleThemeMode: mockToggleThemeMode,
+  useThemeMode: jest.fn(() => ({
+    themeMode: 'sunrise',
+    toggleThemeMode: jest.fn(),
     theme: {
-      chipBackground: '#FFFFFF',
+      chipBackground: '#ffffff',
       chipText: '#000000',
-      accentPrimary: '#FF6B35',
+      accentPrimary: '#4A90E2',
     },
-  }),
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
+  })),
 }));
 
-// Мок для haptics
 jest.mock('@/constants/haptics', () => ({
   HapticFeedback: {
     selection: jest.fn(),
   },
 }));
 
-// Мок для lucide-react-native
 jest.mock('lucide-react-native', () => ({
-  Sun: ({ size, color, testID }: any) => (
-    <div testID={testID || 'sun-icon'} data-size={size} data-color={color} />
-  ),
-  Moon: ({ size, color, testID }: any) => (
-    <div testID={testID || 'moon-icon'} data-size={size} data-color={color} />
-  ),
+  Sun: () => null,
+  Moon: () => null,
 }));
-
-const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <ThemeProvider>{children}</ThemeProvider>
-);
 
 describe('ThemeModeToggle', () => {
   beforeEach(() => {
@@ -52,154 +37,141 @@ describe('ThemeModeToggle', () => {
   });
 
   describe('Рендеринг', () => {
-    it('должен рендериться с compact вариантом по умолчанию', () => {
-      const { getByTestId } = render(
-        <ThemeModeToggle />,
-        { wrapper: TestWrapper }
-      );
+    it('должен отображать компонент переключения темы', () => {
+      const { getByTestId } = render(<ThemeModeToggle />);
       expect(getByTestId('theme-toggle-button')).toBeTruthy();
     });
 
-    it('должен рендериться с expanded вариантом', () => {
-      const { getByTestId } = render(
-        <ThemeModeToggle variant="expanded" />,
-        { wrapper: TestWrapper }
-      );
-      expect(getByTestId('theme-toggle-button')).toBeTruthy();
+    it('должен использовать кастомный testID', () => {
+      const { getByTestId } = render(<ThemeModeToggle testID="custom-toggle" />);
+      expect(getByTestId('custom-toggle')).toBeTruthy();
     });
 
-    it('должен отображать правильный label для sunrise темы', () => {
-      const { getByText } = render(
-        <ThemeModeToggle variant="compact" />,
-        { wrapper: TestWrapper }
-      );
+    it('должен показывать "День" в compact режиме для sunrise темы', () => {
+      const { getByText } = render(<ThemeModeToggle variant="compact" />);
       expect(getByText('День')).toBeTruthy();
     });
 
-    it('должен отображать правильный label для expanded варианта в sunrise', () => {
-      const { getByText } = render(
-        <ThemeModeToggle variant="expanded" />,
-        { wrapper: TestWrapper }
-      );
+    it('должен показывать "Светлый режим" в expanded режиме для sunrise темы', () => {
+      const { getByText } = render(<ThemeModeToggle variant="expanded" />);
       expect(getByText('Светлый режим')).toBeTruthy();
     });
 
-    it('должен применять кастомный testID', () => {
-      const { getByTestId } = render(
-        <ThemeModeToggle testID="custom-toggle" />,
-        { wrapper: TestWrapper }
-      );
-      expect(getByTestId('custom-toggle')).toBeTruthy();
+    it('должен показывать "Ночь" в compact режиме для midnight темы', () => {
+      const { useThemeMode } = require('@/constants/ThemeContext');
+      useThemeMode.mockReturnValue({
+        themeMode: 'midnight',
+        toggleThemeMode: jest.fn(),
+        theme: {
+          chipBackground: '#000000',
+          chipText: '#ffffff',
+          accentPrimary: '#4A90E2',
+        },
+      });
+
+      const { getByText } = render(<ThemeModeToggle variant="compact" />);
+      expect(getByText('Ночь')).toBeTruthy();
+    });
+
+    it('должен показывать "Ночной режим" в expanded режиме для midnight темы', () => {
+      const { useThemeMode } = require('@/constants/ThemeContext');
+      useThemeMode.mockReturnValue({
+        themeMode: 'midnight',
+        toggleThemeMode: jest.fn(),
+        theme: {
+          chipBackground: '#000000',
+          chipText: '#ffffff',
+          accentPrimary: '#4A90E2',
+        },
+      });
+
+      const { getByText } = render(<ThemeModeToggle variant="expanded" />);
+      expect(getByText('Ночной режим')).toBeTruthy();
     });
   });
 
   describe('Переключение темы', () => {
     it('должен вызывать toggleThemeMode при нажатии', () => {
-      const { getByTestId } = render(
-        <ThemeModeToggle />,
-        { wrapper: TestWrapper }
-      );
-      const button = getByTestId('theme-toggle-button');
-      fireEvent.press(button);
-      expect(mockToggleThemeMode).toHaveBeenCalledTimes(1);
-    });
-
-    it('должен вызывать haptic feedback при нажатии', () => {
-      const { HapticFeedback } = require('@/constants/haptics');
-      const { getByTestId } = render(
-        <ThemeModeToggle />,
-        { wrapper: TestWrapper }
-      );
-      const button = getByTestId('theme-toggle-button');
-      fireEvent.press(button);
-      expect(HapticFeedback.selection).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('Варианты', () => {
-    it('compact вариант должен иметь правильные стили', () => {
-      const { getByTestId } = render(
-        <ThemeModeToggle variant="compact" />,
-        { wrapper: TestWrapper }
-      );
-      const button = getByTestId('theme-toggle-button');
-      expect(button).toBeTruthy();
-    });
-
-    it('expanded вариант должен иметь правильные стили', () => {
-      const { getByTestId } = render(
-        <ThemeModeToggle variant="expanded" />,
-        { wrapper: TestWrapper }
-      );
-      const button = getByTestId('theme-toggle-button');
-      expect(button).toBeTruthy();
-    });
-  });
-
-  describe('Иконки', () => {
-    it('должен показывать Sun иконку для sunrise темы', () => {
-      const { getByTestId } = render(
-        <ThemeModeToggle />,
-        { wrapper: TestWrapper }
-      );
-      // Проверяем что компонент рендерится (иконка внутри)
-      expect(getByTestId('theme-toggle-button')).toBeTruthy();
-    });
-
-    it('должен показывать Moon иконку для midnight темы', () => {
-      // Мокаем midnight тему
-      jest.spyOn(require('@/constants/ThemeContext'), 'useThemeMode').mockReturnValue({
-        themeMode: 'midnight',
-        toggleThemeMode: mockToggleThemeMode,
+      const { useThemeMode } = require('@/constants/ThemeContext');
+      const mockToggle = jest.fn();
+      useThemeMode.mockReturnValue({
+        themeMode: 'sunrise',
+        toggleThemeMode: mockToggle,
         theme: {
-          chipBackground: '#000000',
-          chipText: '#FFFFFF',
+          chipBackground: '#ffffff',
+          chipText: '#000000',
           accentPrimary: '#4A90E2',
         },
       });
 
-      const { getByTestId } = render(
-        <ThemeModeToggle />,
-        { wrapper: TestWrapper }
-      );
-      expect(getByTestId('theme-toggle-button')).toBeTruthy();
+      const { getByTestId } = render(<ThemeModeToggle />);
+      fireEvent.press(getByTestId('theme-toggle-button'));
+
+      expect(mockToggle).toHaveBeenCalled();
+    });
+
+    it('должен вызывать HapticFeedback при переключении', () => {
+      const { HapticFeedback } = require('@/constants/haptics');
+      const { getByTestId } = render(<ThemeModeToggle />);
+      
+      fireEvent.press(getByTestId('theme-toggle-button'));
+
+      expect(HapticFeedback.selection).toHaveBeenCalled();
     });
   });
 
-  describe('Кастомные стили', () => {
-    it('должен применять кастомный style', () => {
+  describe('Варианты отображения', () => {
+    it('должен применять compact стили для variant="compact"', () => {
+      const { getByTestId } = render(<ThemeModeToggle variant="compact" />);
+      const button = getByTestId('theme-toggle-button');
+      expect(button.props.style).toContainEqual(
+        expect.objectContaining({
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+        })
+      );
+    });
+
+    it('должен применять expanded стили для variant="expanded"', () => {
+      const { getByTestId } = render(<ThemeModeToggle variant="expanded" />);
+      const button = getByTestId('theme-toggle-button');
+      expect(button.props.style).toContainEqual(
+        expect.objectContaining({
+          paddingHorizontal: 18,
+          paddingVertical: 10,
+        })
+      );
+    });
+
+    it('должен использовать compact по умолчанию', () => {
+      const { getByTestId } = render(<ThemeModeToggle />);
+      const button = getByTestId('theme-toggle-button');
+      expect(button.props.style).toContainEqual(
+        expect.objectContaining({
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+        })
+      );
+    });
+  });
+
+  describe('Стилизация', () => {
+    it('должен применять переданный style', () => {
       const customStyle = { marginTop: 10 };
-      const { getByTestId } = render(
-        <ThemeModeToggle style={customStyle} />,
-        { wrapper: TestWrapper }
-      );
+      const { getByTestId } = render(<ThemeModeToggle style={customStyle} />);
       const button = getByTestId('theme-toggle-button');
-      expect(button).toBeTruthy();
-    });
-  });
-
-  describe('Edge cases', () => {
-    it('должен обрабатывать множественные нажатия', () => {
-      const { getByTestId } = render(
-        <ThemeModeToggle />,
-        { wrapper: TestWrapper }
-      );
-      const button = getByTestId('theme-toggle-button');
-      
-      fireEvent.press(button);
-      fireEvent.press(button);
-      fireEvent.press(button);
-      
-      expect(mockToggleThemeMode).toHaveBeenCalledTimes(3);
+      expect(button.props.style).toContainEqual(customStyle);
     });
 
-    it('должен иметь правильный activeOpacity', () => {
-      const { getByTestId } = render(
-        <ThemeModeToggle />,
-        { wrapper: TestWrapper }
-      );
+    it('должен использовать цвета из темы', () => {
+      const { getByTestId } = render(<ThemeModeToggle />);
       const button = getByTestId('theme-toggle-button');
-      expect(button.props.activeOpacity).toBe(0.85);
+      expect(button.props.style).toContainEqual(
+        expect.objectContaining({
+          backgroundColor: '#ffffff',
+          borderColor: '#4A90E2',
+        })
+      );
     });
   });
 });
