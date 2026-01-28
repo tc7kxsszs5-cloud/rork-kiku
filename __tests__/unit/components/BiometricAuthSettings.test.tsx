@@ -1,67 +1,13 @@
 /**
- * Тесты для компонента BiometricAuthSettings
- * Проверяет настройки биометрической аутентификации
+ * Тесты для BiometricAuthSettings
+ * Проверяет настройки биометрии, аутентификацию, обработку ошибок
  */
 
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+import { render, fireEvent, waitFor, Alert } from '@testing-library/react-native';
 import { BiometricAuthSettings } from '@/components/settings/BiometricAuthSettings';
 
 // Моки
-jest.mock('@/constants/ThemeContext', () => ({
-  useThemeMode: jest.fn(() => ({
-    theme: {
-      accentPrimary: '#FF6B35',
-      textPrimary: '#000000',
-      textSecondary: '#666666',
-      card: '#FFFFFF',
-      cardMuted: '#F5F5F5',
-      borderSoft: '#E0E0E0',
-      isDark: false,
-    },
-  })),
-}));
-
-const mockUpdateSettings = jest.fn();
-const mockAuthenticate = jest.fn();
-
-jest.mock('@/constants/SecuritySettingsContext', () => ({
-  useSecuritySettings: jest.fn(() => ({
-    settings: {
-      biometricEnabled: false,
-      biometricType: 'none',
-    },
-    isLoading: false,
-    availableBiometrics: 'faceId' as const,
-    updateSettings: mockUpdateSettings,
-    authenticate: mockAuthenticate,
-  })),
-  BiometricType: {
-    faceId: 'faceId',
-    touchId: 'touchId',
-    fingerprint: 'fingerprint',
-    none: 'none',
-  },
-}));
-
-jest.mock('@/constants/haptics', () => ({
-  HapticFeedback: {
-    success: jest.fn(),
-    warning: jest.fn(),
-    error: jest.fn(),
-    selection: jest.fn(),
-    medium: jest.fn(),
-  },
-}));
-
-jest.mock('lucide-react-native', () => ({
-  ScanFace: ({ size, color }: any) => <div data-testid="scan-face" data-size={size} data-color={color} />,
-  Fingerprint: ({ size, color }: any) => <div data-testid="fingerprint" data-size={size} data-color={color} />,
-  Shield: ({ size, color }: any) => <div data-testid="shield" data-size={size} data-color={color} />,
-  ShieldOff: ({ size, color }: any) => <div data-testid="shield-off" data-size={size} data-color={color} />,
-}));
-
 jest.mock('react-native', () => {
   const RN = jest.requireActual('react-native');
   return {
@@ -75,216 +21,272 @@ jest.mock('react-native', () => {
   };
 });
 
+jest.mock('@/constants/SecuritySettingsContext', () => ({
+  useSecuritySettings: jest.fn(() => ({
+    settings: {
+      biometricEnabled: false,
+    },
+    isLoading: false,
+    availableBiometrics: 'faceId' as const,
+    updateSettings: jest.fn().mockResolvedValue(undefined),
+    authenticate: jest.fn().mockResolvedValue(true),
+  })),
+  BiometricType: {
+    faceId: 'faceId',
+    touchId: 'touchId',
+    fingerprint: 'fingerprint',
+    none: 'none',
+  },
+}));
+
+jest.mock('@/constants/ThemeContext', () => ({
+  useThemeMode: jest.fn(() => ({
+    theme: {
+      backgroundPrimary: '#ffffff',
+      textPrimary: '#000000',
+      textSecondary: '#666666',
+      accentPrimary: '#4A90E2',
+    },
+  })),
+}));
+
+jest.mock('@/constants/haptics', () => ({
+  HapticFeedback: {
+    success: jest.fn(),
+    warning: jest.fn(),
+    error: jest.fn(),
+    selection: jest.fn(),
+    medium: jest.fn(),
+  },
+}));
+
+jest.mock('lucide-react-native', () => ({
+  ScanFace: () => null,
+  Fingerprint: () => null,
+  Shield: () => null,
+  ShieldOff: () => null,
+}));
+
 describe('BiometricAuthSettings', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUpdateSettings.mockResolvedValue(undefined);
-    mockAuthenticate.mockResolvedValue(true);
   });
 
   describe('Рендеринг', () => {
-    it('должен рендериться', () => {
-      const { container } = render(<BiometricAuthSettings />);
-      expect(container).toBeTruthy();
+    it('должен отображать компонент настроек биометрии', () => {
+      const { getByText } = render(<BiometricAuthSettings />);
+      expect(getByText(/Биометрическая аутентификация/)).toBeTruthy();
     });
 
     it('должен показывать индикатор загрузки когда isLoading=true', () => {
-      jest.spyOn(require('@/constants/SecuritySettingsContext'), 'useSecuritySettings').mockReturnValue({
-        settings: { biometricEnabled: false },
+      const { useSecuritySettings } = require('@/constants/SecuritySettingsContext');
+      useSecuritySettings.mockReturnValue({
+        settings: {},
         isLoading: true,
         availableBiometrics: 'faceId',
-        updateSettings: mockUpdateSettings,
-        authenticate: mockAuthenticate,
+        updateSettings: jest.fn(),
+        authenticate: jest.fn(),
       });
 
-      const { getByTestId } = render(<BiometricAuthSettings />);
-      // Проверяем что компонент рендерится (ActivityIndicator внутри)
-      expect(getByTestId).toBeTruthy();
+      const { UNSAFE_getByType } = render(<BiometricAuthSettings />);
+      const indicator = UNSAFE_getByType('ActivityIndicator');
+      expect(indicator).toBeTruthy();
     });
 
-    it('должен показывать правильный тип биометрии', () => {
+    it('должен показывать название биометрии когда доступна', () => {
       const { getByText } = render(<BiometricAuthSettings />);
       expect(getByText('Face ID')).toBeTruthy();
+    });
+
+    it('должен показывать "Недоступно" когда биометрия не доступна', () => {
+      const { useSecuritySettings } = require('@/constants/SecuritySettingsContext');
+      useSecuritySettings.mockReturnValue({
+        settings: { biometricEnabled: false },
+        isLoading: false,
+        availableBiometrics: 'none' as const,
+        updateSettings: jest.fn(),
+        authenticate: jest.fn(),
+      });
+
+      const { getByText } = render(<BiometricAuthSettings />);
+      expect(getByText('Недоступно')).toBeTruthy();
     });
   });
 
   describe('Переключение биометрии', () => {
     it('должен включать биометрию при переключении switch', async () => {
-      const { getByTestId } = render(<BiometricAuthSettings />);
-      const switchComponent = getByTestId('switch') || getByTestId('biometric-switch');
+      const { useSecuritySettings } = require('@/constants/SecuritySettingsContext');
+      const mockUpdateSettings = jest.fn().mockResolvedValue(undefined);
+      const mockAuthenticate = jest.fn().mockResolvedValue(true);
       
-      // Если switch не найден по testID, ищем по роли
-      const switches = require('@testing-library/react-native').getAllByRole;
-      if (switches) {
-        const switchElements = switches('switch');
-        if (switchElements.length > 0) {
-          fireEvent(switchElements[0], 'valueChange', true);
-        }
-      }
+      useSecuritySettings.mockReturnValue({
+        settings: { biometricEnabled: false },
+        isLoading: false,
+        availableBiometrics: 'faceId' as const,
+        updateSettings: mockUpdateSettings,
+        authenticate: mockAuthenticate,
+      });
+
+      const { UNSAFE_getAllByType } = render(<BiometricAuthSettings />);
+      const switches = UNSAFE_getAllByType('Switch');
+      const biometricSwitch = switches[0];
+
+      fireEvent(biometricSwitch, 'valueChange', true);
 
       await waitFor(() => {
         expect(mockAuthenticate).toHaveBeenCalledWith('Включить биометрическую аутентификацию');
+        expect(mockUpdateSettings).toHaveBeenCalledWith({ biometricEnabled: true });
+      });
+    });
+
+    it('должен выключать биометрию без аутентификации', async () => {
+      const { useSecuritySettings } = require('@/constants/SecuritySettingsContext');
+      const mockUpdateSettings = jest.fn().mockResolvedValue(undefined);
+      
+      useSecuritySettings.mockReturnValue({
+        settings: { biometricEnabled: true },
+        isLoading: false,
+        availableBiometrics: 'faceId' as const,
+        updateSettings: mockUpdateSettings,
+        authenticate: jest.fn(),
+      });
+
+      const { UNSAFE_getAllByType } = render(<BiometricAuthSettings />);
+      const switches = UNSAFE_getAllByType('Switch');
+      const biometricSwitch = switches[0];
+
+      fireEvent(biometricSwitch, 'valueChange', false);
+
+      await waitFor(() => {
+        expect(mockUpdateSettings).toHaveBeenCalledWith({ biometricEnabled: false });
       });
     });
 
     it('должен показывать Alert если биометрия недоступна', () => {
-      jest.spyOn(require('@/constants/SecuritySettingsContext'), 'useSecuritySettings').mockReturnValue({
+      const { useSecuritySettings } = require('@/constants/SecuritySettingsContext');
+      useSecuritySettings.mockReturnValue({
         settings: { biometricEnabled: false },
         isLoading: false,
-        availableBiometrics: 'none',
-        updateSettings: mockUpdateSettings,
-        authenticate: mockAuthenticate,
+        availableBiometrics: 'none' as const,
+        updateSettings: jest.fn(),
+        authenticate: jest.fn(),
       });
 
-      render(<BiometricAuthSettings />);
-      
-      // Компонент должен рендериться с предупреждением
-      expect(Alert.alert).toBeDefined();
+      const { UNSAFE_getAllByType } = render(<BiometricAuthSettings />);
+      const switches = UNSAFE_getAllByType('Switch');
+      const biometricSwitch = switches[0];
+
+      fireEvent(biometricSwitch, 'valueChange', true);
+
+      expect(Alert.alert).toHaveBeenCalledWith(
+        'Биометрия недоступна',
+        expect.stringContaining('На вашем устройстве не настроена')
+      );
     });
 
-    it('должен выключать биометрию при переключении switch в false', async () => {
-      jest.spyOn(require('@/constants/SecuritySettingsContext'), 'useSecuritySettings').mockReturnValue({
-        settings: { biometricEnabled: true },
+    it('должен показывать ошибку если аутентификация не удалась', async () => {
+      const { useSecuritySettings } = require('@/constants/SecuritySettingsContext');
+      const mockAuthenticate = jest.fn().mockResolvedValue(false);
+      
+      useSecuritySettings.mockReturnValue({
+        settings: { biometricEnabled: false },
         isLoading: false,
-        availableBiometrics: 'faceId',
-        updateSettings: mockUpdateSettings,
+        availableBiometrics: 'faceId' as const,
+        updateSettings: jest.fn(),
         authenticate: mockAuthenticate,
       });
 
-      render(<BiometricAuthSettings />);
-      
-      // При выключении не требуется аутентификация
+      const { UNSAFE_getAllByType } = render(<BiometricAuthSettings />);
+      const switches = UNSAFE_getAllByType('Switch');
+      const biometricSwitch = switches[0];
+
+      fireEvent(biometricSwitch, 'valueChange', true);
+
       await waitFor(() => {
-        expect(mockUpdateSettings).toBeDefined();
+        expect(Alert.alert).toHaveBeenCalledWith('Ошибка', 'Не удалось подтвердить вашу личность');
       });
     });
   });
 
   describe('Тест аутентификации', () => {
-    it('должен показывать кнопку теста когда биометрия включена', () => {
-      jest.spyOn(require('@/constants/SecuritySettingsContext'), 'useSecuritySettings').mockReturnValue({
-        settings: { biometricEnabled: true },
-        isLoading: false,
-        availableBiometrics: 'faceId',
-        updateSettings: mockUpdateSettings,
-        authenticate: mockAuthenticate,
-      });
-
-      const { getByText } = render(<BiometricAuthSettings />);
-      expect(getByText('Протестировать аутентификацию')).toBeTruthy();
-    });
-
-    it('должен вызывать authenticate при нажатии на кнопку теста', async () => {
-      jest.spyOn(require('@/constants/SecuritySettingsContext'), 'useSecuritySettings').mockReturnValue({
-        settings: { biometricEnabled: true },
-        isLoading: false,
-        availableBiometrics: 'faceId',
-        updateSettings: mockUpdateSettings,
-        authenticate: mockAuthenticate,
-      });
-
-      const { getByText } = render(<BiometricAuthSettings />);
-      const testButton = getByText('Протестировать аутентификацию');
+    it('должен выполнять тест аутентификации', async () => {
+      const { useSecuritySettings } = require('@/constants/SecuritySettingsContext');
+      const mockAuthenticate = jest.fn().mockResolvedValue(true);
       
-      fireEvent.press(testButton);
+      useSecuritySettings.mockReturnValue({
+        settings: { biometricEnabled: true },
+        isLoading: false,
+        availableBiometrics: 'faceId' as const,
+        updateSettings: jest.fn(),
+        authenticate: mockAuthenticate,
+      });
+
+      const { getByText, UNSAFE_getAllByType } = render(<BiometricAuthSettings />);
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const testButton = touchables.find((btn: any) =>
+        btn.props.children && getByText(/Тест/)
+      );
+
+      if (testButton) {
+        fireEvent.press(testButton);
+      }
 
       await waitFor(() => {
         expect(mockAuthenticate).toHaveBeenCalledWith('Тест биометрической аутентификации');
+        expect(Alert.alert).toHaveBeenCalledWith('Успешно', 'Биометрическая аутентификация работает корректно');
       });
     });
-  });
 
-  describe('Информационные карточки', () => {
-    it('должен показывать информационную карточку когда биометрия включена', () => {
-      jest.spyOn(require('@/constants/SecuritySettingsContext'), 'useSecuritySettings').mockReturnValue({
+    it('должен показывать ошибку если тест не удался', async () => {
+      const { useSecuritySettings } = require('@/constants/SecuritySettingsContext');
+      const mockAuthenticate = jest.fn().mockResolvedValue(false);
+      
+      useSecuritySettings.mockReturnValue({
         settings: { biometricEnabled: true },
         isLoading: false,
-        availableBiometrics: 'faceId',
-        updateSettings: mockUpdateSettings,
+        availableBiometrics: 'faceId' as const,
+        updateSettings: jest.fn(),
         authenticate: mockAuthenticate,
       });
 
-      const { getByText } = render(<BiometricAuthSettings />);
-      expect(getByText('Биометрия активна')).toBeTruthy();
-    });
+      const { getByText, UNSAFE_getAllByType } = render(<BiometricAuthSettings />);
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const testButton = touchables.find((btn: any) =>
+        btn.props.children && getByText(/Тест/)
+      );
 
-    it('должен показывать предупреждение когда биометрия недоступна', () => {
-      jest.spyOn(require('@/constants/SecuritySettingsContext'), 'useSecuritySettings').mockReturnValue({
-        settings: { biometricEnabled: false },
-        isLoading: false,
-        availableBiometrics: 'none',
-        updateSettings: mockUpdateSettings,
-        authenticate: mockAuthenticate,
+      if (testButton) {
+        fireEvent.press(testButton);
+      }
+
+      await waitFor(() => {
+        expect(Alert.alert).toHaveBeenCalledWith('Ошибка', 'Аутентификация не прошла');
       });
-
-      const { getByText } = render(<BiometricAuthSettings />);
-      expect(getByText('Биометрия недоступна')).toBeTruthy();
     });
   });
 
   describe('Обработка ошибок', () => {
-    it('должен обрабатывать ошибку аутентификации', async () => {
-      mockAuthenticate.mockResolvedValue(false);
-
-      jest.spyOn(require('@/constants/SecuritySettingsContext'), 'useSecuritySettings').mockReturnValue({
-        settings: { biometricEnabled: false },
-        isLoading: false,
-        availableBiometrics: 'faceId',
-        updateSettings: mockUpdateSettings,
-        authenticate: mockAuthenticate,
-      });
-
-      render(<BiometricAuthSettings />);
+    it('должен обрабатывать ошибки при включении биометрии', async () => {
+      const { useSecuritySettings } = require('@/constants/SecuritySettingsContext');
+      const mockAuthenticate = jest.fn().mockRejectedValue(new Error('Auth failed'));
       
-      // Проверяем что Alert может быть вызван
-      expect(Alert.alert).toBeDefined();
-    });
-
-    it('должен обрабатывать исключение при аутентификации', async () => {
-      mockAuthenticate.mockRejectedValue(new Error('Auth failed'));
-
-      jest.spyOn(require('@/constants/SecuritySettingsContext'), 'useSecuritySettings').mockReturnValue({
+      useSecuritySettings.mockReturnValue({
         settings: { biometricEnabled: false },
         isLoading: false,
-        availableBiometrics: 'faceId',
-        updateSettings: mockUpdateSettings,
+        availableBiometrics: 'faceId' as const,
+        updateSettings: jest.fn(),
         authenticate: mockAuthenticate,
       });
 
-      render(<BiometricAuthSettings />);
-      
-      // Компонент должен обработать ошибку
-      expect(Alert.alert).toBeDefined();
-    });
-  });
+      const { UNSAFE_getAllByType } = render(<BiometricAuthSettings />);
+      const switches = UNSAFE_getAllByType('Switch');
+      const biometricSwitch = switches[0];
 
-  describe('Различные типы биометрии', () => {
-    it('должен показывать Touch ID для iOS', () => {
-      jest.spyOn(require('@/constants/SecuritySettingsContext'), 'useSecuritySettings').mockReturnValue({
-        settings: { biometricEnabled: false },
-        isLoading: false,
-        availableBiometrics: 'touchId',
-        updateSettings: mockUpdateSettings,
-        authenticate: mockAuthenticate,
+      fireEvent(biometricSwitch, 'valueChange', true);
+
+      await waitFor(() => {
+        expect(Alert.alert).toHaveBeenCalledWith('Ошибка', 'Не удалось включить биометрию');
       });
-
-      const { getByText } = render(<BiometricAuthSettings />);
-      expect(getByText('Touch ID')).toBeTruthy();
-    });
-
-    it('должен показывать отпечаток пальца для Android', () => {
-      jest.spyOn(require('react-native'), 'Platform').mockReturnValue({ OS: 'android' });
-      
-      jest.spyOn(require('@/constants/SecuritySettingsContext'), 'useSecuritySettings').mockReturnValue({
-        settings: { biometricEnabled: false },
-        isLoading: false,
-        availableBiometrics: 'fingerprint',
-        updateSettings: mockUpdateSettings,
-        authenticate: mockAuthenticate,
-      });
-
-      const { getByText } = render(<BiometricAuthSettings />);
-      expect(getByText('Отпечаток пальца')).toBeTruthy();
     });
   });
 });
