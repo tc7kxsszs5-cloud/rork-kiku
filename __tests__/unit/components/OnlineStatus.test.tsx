@@ -1,17 +1,17 @@
 /**
- * Тесты для компонента OnlineStatus
- * Проверяет отображение статуса онлайн/офлайн
+ * Тесты для OnlineStatus
+ * Проверяет отображение статуса онлайн/офлайн, размеры, текст
  */
 
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { render, waitFor } from '@testing-library/react-native';
 import { OnlineStatus } from '@/components/OnlineStatus';
 
-// Моки для контекстов
+// Моки
 jest.mock('@/constants/ThemeContext', () => ({
   useThemeMode: jest.fn(() => ({
     theme: {
-      backgroundPrimary: '#FFFFFF',
+      backgroundPrimary: '#ffffff',
       textSecondary: '#666666',
     },
   })),
@@ -29,74 +29,91 @@ describe('OnlineStatus', () => {
   });
 
   describe('Рендеринг', () => {
-    it('должен рендериться', () => {
-      const { container } = render(<OnlineStatus />);
-      expect(container).toBeTruthy();
-    });
-
-    it('должен показывать точку статуса', () => {
+    it('должен отображать компонент статуса', () => {
       const { UNSAFE_getByType } = render(<OnlineStatus />);
-      // Проверяем что компонент рендерится
-      expect(UNSAFE_getByType).toBeTruthy();
+      const view = UNSAFE_getByType('View');
+      expect(view).toBeTruthy();
     });
 
-    it('должен скрывать текст по умолчанию', () => {
+    it('должен показывать зеленый кружок когда пользователь онлайн', () => {
+      const { useAuth } = require('@/constants/AuthContext');
+      useAuth.mockReturnValue({ isAuthenticated: true });
+
+      const { UNSAFE_getByType } = render(<OnlineStatus />);
+      const dot = UNSAFE_getByType('View').props.children.find(
+        (child: any) => child?.props?.style?.backgroundColor === '#22c55e'
+      );
+      expect(dot).toBeTruthy();
+    });
+
+    it('должен показывать серый кружок когда пользователь офлайн', () => {
+      const { useAuth } = require('@/constants/AuthContext');
+      useAuth.mockReturnValue({ isAuthenticated: false });
+
+      const { UNSAFE_getByType } = render(<OnlineStatus />);
+      const dot = UNSAFE_getByType('View').props.children.find(
+        (child: any) => child?.props?.style?.backgroundColor === '#9ca3af'
+      );
+      expect(dot).toBeTruthy();
+    });
+  });
+
+  describe('Размеры', () => {
+    it('должен использовать размер small', () => {
+      const { UNSAFE_getByType } = render(<OnlineStatus size="small" />);
+      const dot = UNSAFE_getByType('View').props.children.find(
+        (child: any) => child?.props?.style?.width === 8
+      );
+      expect(dot).toBeTruthy();
+    });
+
+    it('должен использовать размер medium по умолчанию', () => {
+      const { UNSAFE_getByType } = render(<OnlineStatus />);
+      const dot = UNSAFE_getByType('View').props.children.find(
+        (child: any) => child?.props?.style?.width === 12
+      );
+      expect(dot).toBeTruthy();
+    });
+
+    it('должен использовать размер large', () => {
+      const { UNSAFE_getByType } = render(<OnlineStatus size="large" />);
+      const dot = UNSAFE_getByType('View').props.children.find(
+        (child: any) => child?.props?.style?.width === 16
+      );
+      expect(dot).toBeTruthy();
+    });
+  });
+
+  describe('Текст статуса', () => {
+    it('не должен показывать текст по умолчанию', () => {
       const { queryByText } = render(<OnlineStatus />);
       expect(queryByText('В сети')).toBeNull();
       expect(queryByText('Не в сети')).toBeNull();
     });
 
-    it('должен показывать текст когда showText=true', () => {
+    it('должен показывать текст "В сети" когда showText=true и пользователь онлайн', () => {
+      const { useAuth } = require('@/constants/AuthContext');
+      useAuth.mockReturnValue({ isAuthenticated: true });
+
       const { getByText } = render(<OnlineStatus showText={true} />);
-      // Проверяем что текст отображается
-      expect(getByText).toBeTruthy();
+      expect(getByText('В сети')).toBeTruthy();
+    });
+
+    it('должен показывать текст "Не в сети" когда showText=true и пользователь офлайн', () => {
+      const { useAuth } = require('@/constants/AuthContext');
+      useAuth.mockReturnValue({ isAuthenticated: false });
+
+      const { getByText } = render(<OnlineStatus showText={true} />);
+      expect(getByText('Не в сети')).toBeTruthy();
     });
   });
 
-  describe('Размеры', () => {
-    it('должен использовать small размер', () => {
-      const { container } = render(<OnlineStatus size="small" />);
-      expect(container).toBeTruthy();
-    });
-
-    it('должен использовать medium размер по умолчанию', () => {
-      const { container } = render(<OnlineStatus />);
-      expect(container).toBeTruthy();
-    });
-
-    it('должен использовать large размер', () => {
-      const { container } = render(<OnlineStatus size="large" />);
-      expect(container).toBeTruthy();
-    });
-  });
-
-  describe('Статус онлайн', () => {
-    it('должен показывать зеленую точку когда пользователь онлайн', () => {
-      const { container } = render(<OnlineStatus />);
-      expect(container).toBeTruthy();
-    });
-
-    it('должен показывать серую точку когда пользователь офлайн', () => {
-      // Мокаем офлайн статус
-      jest.spyOn(require('@/constants/AuthContext'), 'useAuth').mockReturnValue({
-        isAuthenticated: false,
-      });
-
-      const { container } = render(<OnlineStatus />);
-      expect(container).toBeTruthy();
-    });
-  });
-
-  describe('Кастомные пропсы', () => {
-    it('должен применять кастомный userId', () => {
-      const { container } = render(<OnlineStatus userId="user-123" />);
-      expect(container).toBeTruthy();
-    });
-
-    it('должен применять кастомный style', () => {
+  describe('Стилизация', () => {
+    it('должен применять переданный style', () => {
       const customStyle = { marginTop: 10 };
-      const { container } = render(<OnlineStatus style={customStyle} />);
-      expect(container).toBeTruthy();
+      const { UNSAFE_getByType } = render(<OnlineStatus style={customStyle} />);
+      const container = UNSAFE_getByType('View');
+      expect(container.props.style).toContainEqual(customStyle);
     });
   });
 });
