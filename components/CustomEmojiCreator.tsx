@@ -20,7 +20,12 @@ import {
   Modal,
 } from 'react-native';
 import { X, Upload, Save, Image as ImageIcon } from 'lucide-react-native';
-import * as ImagePicker from 'expo-image-picker';
+// Оптимизированный импорт: используем только нужные функции
+import {
+  requestMediaLibraryPermissionsAsync,
+  launchImageLibraryAsync,
+  MediaTypeOptions,
+} from 'expo-image-picker';
 import { useThemeMode } from '@/constants/ThemeContext';
 import { CustomEmojiData } from './CustomEmoji';
 import { addCustomEmoji } from '@/utils/customEmojis';
@@ -48,14 +53,14 @@ export function CustomEmojiCreator({
 
   const pickImage = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } = await requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert('Ошибка', 'Нужно разрешение на доступ к галерее');
         return;
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      const result = await launchImageLibraryAsync({
+        mediaTypes: MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 0.8,
