@@ -1,6 +1,6 @@
 /**
- * Тесты для ChatBackgroundPicker компонента
- * Проверяет выбор фонов, рендеринг, взаимодействие
+ * Тесты для ChatBackgroundPicker
+ * Проверяет выбор фона чата, отображение фонов, взаимодействие с контекстом
  */
 
 import React from 'react';
@@ -11,9 +11,24 @@ import { ChatBackgroundPicker } from '@/components/ChatBackgroundPicker';
 jest.mock('@/constants/ChatBackgroundsContext', () => ({
   useChatBackgrounds: jest.fn(() => ({
     backgrounds: [
-      { id: 'bg-1', name: 'Белый', type: 'color', value: '#FFFFFF' },
-      { id: 'bg-2', name: 'Синий', type: 'color', value: '#4A90E2' },
-      { id: 'bg-3', name: 'Градиент', type: 'gradient', value: ['#FF6B35', '#FFB020'] },
+      {
+        id: 'bg-1',
+        name: 'Синий',
+        type: 'color',
+        value: '#4A90E2',
+      },
+      {
+        id: 'bg-2',
+        name: 'Градиент',
+        type: 'gradient',
+        value: ['#FF6B9D', '#C44569'],
+      },
+      {
+        id: 'bg-3',
+        name: 'Зеленый',
+        type: 'color',
+        value: '#52C41A',
+      },
     ],
     setChatBackground: jest.fn().mockResolvedValue(undefined),
   })),
@@ -24,147 +39,135 @@ jest.mock('@/constants/ThemeContext', () => ({
     theme: {
       text: '#000000',
       textSecondary: '#666666',
-      borderSoft: '#e0e0e0',
+      borderSoft: '#cccccc',
     },
   })),
 }));
 
 describe('ChatBackgroundPicker', () => {
-  const defaultProps = {
-    chatId: 'chat-1',
-    visible: true,
-    onSelect: jest.fn(),
-    onClose: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('Рендеринг', () => {
-    it('должен отображать компонент когда visible=true', () => {
-      const { getByText } = render(<ChatBackgroundPicker {...defaultProps} />);
-      
+    it('должен отображать пикер фонов', () => {
+      const { getByText } = render(
+        <ChatBackgroundPicker chatId="chat-1" />
+      );
+
       expect(getByText('Выберите фон чата')).toBeTruthy();
+    });
+
+    it('должен отображать все доступные фоны', () => {
+      const { getByText } = render(
+        <ChatBackgroundPicker chatId="chat-1" />
+      );
+
+      expect(getByText('Синий')).toBeTruthy();
+      expect(getByText('Градиент')).toBeTruthy();
+      expect(getByText('Зеленый')).toBeTruthy();
     });
 
     it('не должен отображаться когда visible=false', () => {
       const { queryByText } = render(
-        <ChatBackgroundPicker {...defaultProps} visible={false} />
+        <ChatBackgroundPicker chatId="chat-1" visible={false} />
       );
-      
-      expect(queryByText('Выберите фон чата')).toBeNull();
-    });
 
-    it('должен отображать все доступные фоны', () => {
-      const { getByText } = render(<ChatBackgroundPicker {...defaultProps} />);
-      
-      expect(getByText('Белый')).toBeTruthy();
-      expect(getByText('Синий')).toBeTruthy();
-      expect(getByText('Градиент')).toBeTruthy();
+      expect(queryByText('Выберите фон чата')).toBeNull();
     });
   });
 
   describe('Выбор фона', () => {
-    it('должен вызывать setChatBackground при выборе', async () => {
+    it('должен вызывать setChatBackground при выборе фона', async () => {
       const { useChatBackgrounds } = require('@/constants/ChatBackgroundsContext');
-      const setChatBackground = jest.fn().mockResolvedValue(undefined);
+      const mockSetChatBackground = jest.fn().mockResolvedValue(undefined);
       useChatBackgrounds.mockReturnValue({
         backgrounds: [
-          { id: 'bg-1', name: 'Белый', type: 'color', value: '#FFFFFF' },
+          {
+            id: 'bg-1',
+            name: 'Синий',
+            type: 'color',
+            value: '#4A90E2',
+          },
         ],
-        setChatBackground,
+        setChatBackground: mockSetChatBackground,
       });
 
-      const { getByText } = render(<ChatBackgroundPicker {...defaultProps} />);
-      const background = getByText('Белый');
+      const { getByText, UNSAFE_getAllByType } = render(
+        <ChatBackgroundPicker chatId="chat-1" />
+      );
 
-      fireEvent.press(background);
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const backgroundButton = touchables.find((btn: any) =>
+        btn.props.onPress && getByText('Синий')
+      );
+
+      if (backgroundButton) {
+        await fireEvent.press(backgroundButton);
+      }
 
       await waitFor(() => {
-        expect(setChatBackground).toHaveBeenCalledWith('chat-1', 'bg-1');
+        expect(mockSetChatBackground).toHaveBeenCalledWith('chat-1', 'bg-1');
       });
     });
 
-    it('должен вызывать onSelect callback', async () => {
-      const onSelect = jest.fn();
-      const { getByText } = render(
-        <ChatBackgroundPicker {...defaultProps} onSelect={onSelect} />
+    it('должен вызывать onSelect при выборе фона', async () => {
+      const mockOnSelect = jest.fn();
+      const { getByText, UNSAFE_getAllByType } = render(
+        <ChatBackgroundPicker chatId="chat-1" onSelect={mockOnSelect} />
       );
-      
-      const background = getByText('Белый');
-      fireEvent.press(background);
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const backgroundButton = touchables.find((btn: any) =>
+        btn.props.onPress && getByText('Синий')
+      );
+
+      if (backgroundButton) {
+        await fireEvent.press(backgroundButton);
+      }
 
       await waitFor(() => {
-        expect(onSelect).toHaveBeenCalledWith('bg-1');
+        expect(mockOnSelect).toHaveBeenCalledWith('bg-1');
       });
     });
 
-    it('должен вызывать onClose после выбора', async () => {
-      const onClose = jest.fn();
-      const { getByText } = render(
-        <ChatBackgroundPicker {...defaultProps} onClose={onClose} />
+    it('должен вызывать onClose после выбора фона', async () => {
+      const mockOnClose = jest.fn();
+      const { getByText, UNSAFE_getAllByType } = render(
+        <ChatBackgroundPicker chatId="chat-1" onClose={mockOnClose} />
       );
-      
-      const background = getByText('Белый');
-      fireEvent.press(background);
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const backgroundButton = touchables.find((btn: any) =>
+        btn.props.onPress && getByText('Синий')
+      );
+
+      if (backgroundButton) {
+        await fireEvent.press(backgroundButton);
+      }
 
       await waitFor(() => {
-        expect(onClose).toHaveBeenCalled();
+        expect(mockOnClose).toHaveBeenCalled();
       });
     });
   });
 
-  describe('Типы фонов', () => {
-    it('должен отображать цветовые фоны', () => {
-      const { getByText } = render(<ChatBackgroundPicker {...defaultProps} />);
-      
-      expect(getByText('Белый')).toBeTruthy();
-      expect(getByText('Синий')).toBeTruthy();
-    });
-
-    it('должен отображать градиентные фоны', () => {
-      const { getByText } = render(<ChatBackgroundPicker {...defaultProps} />);
-      
-      expect(getByText('Градиент')).toBeTruthy();
-    });
-  });
-
-  describe('Props', () => {
-    it('должен работать без опциональных props', () => {
+  describe('Отображение фонов', () => {
+    it('должен отображать цветные фоны с правильным цветом', () => {
       const { getByText } = render(
         <ChatBackgroundPicker chatId="chat-1" />
       );
-      
-      expect(getByText('Выберите фон чата')).toBeTruthy();
+
+      expect(getByText('Синий')).toBeTruthy();
+      expect(getByText('Зеленый')).toBeTruthy();
     });
 
-    it('должен работать с onSelect', async () => {
-      const onSelect = jest.fn();
+    it('должен отображать градиентные фоны', () => {
       const { getByText } = render(
-        <ChatBackgroundPicker chatId="chat-1" onSelect={onSelect} />
+        <ChatBackgroundPicker chatId="chat-1" />
       );
-      
-      const background = getByText('Белый');
-      fireEvent.press(background);
 
-      await waitFor(() => {
-        expect(onSelect).toHaveBeenCalled();
-      });
-    });
-
-    it('должен работать с onClose', async () => {
-      const onClose = jest.fn();
-      const { getByText } = render(
-        <ChatBackgroundPicker chatId="chat-1" onClose={onClose} />
-      );
-      
-      const background = getByText('Белый');
-      fireEvent.press(background);
-
-      await waitFor(() => {
-        expect(onClose).toHaveBeenCalled();
-      });
+      expect(getByText('Градиент')).toBeTruthy();
     });
   });
 });

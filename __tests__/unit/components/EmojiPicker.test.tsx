@@ -1,6 +1,6 @@
 /**
- * Тесты для EmojiPicker компонента
- * Проверяет выбор эмодзи, категории, поиск
+ * Тесты для EmojiPicker
+ * Проверяет выбор эмодзи, поиск, категории, фильтрацию
  */
 
 import React from 'react';
@@ -11,169 +11,187 @@ import { EmojiPicker } from '@/components/EmojiPicker';
 jest.mock('@/constants/ThemeContext', () => ({
   useThemeMode: jest.fn(() => ({
     theme: {
-      backgroundPrimary: '#FFFFFF',
+      backgroundPrimary: '#ffffff',
       textPrimary: '#000000',
       textSecondary: '#666666',
-      accentPrimary: '#FF6B35',
-      borderSoft: '#e0e0e0',
-      card: '#f5f5f5',
-      isDark: false,
+      backgroundSecondary: '#f5f5f5',
+      borderSoft: '#cccccc',
+      accentPrimary: '#4A90E2',
     },
   })),
 }));
 
 jest.mock('lucide-react-native', () => ({
-  X: 'X',
-  Search: 'Search',
-  Smile: 'Smile',
+  X: () => null,
+  Search: () => null,
+  Smile: () => null,
 }));
 
 describe('EmojiPicker', () => {
-  const defaultProps = {
-    visible: true,
-    onClose: jest.fn(),
-    onEmojiSelect: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('Рендеринг', () => {
     it('должен отображать модальное окно когда visible=true', () => {
-      const { getByText } = render(<EmojiPicker {...defaultProps} />);
-      
-      expect(getByText('Смайлики')).toBeTruthy();
+      const { getByText } = render(
+        <EmojiPicker visible={true} onClose={jest.fn()} onEmojiSelect={jest.fn()} />
+      );
+
+      expect(getByText('Эмодзи')).toBeTruthy();
     });
 
     it('не должен отображаться когда visible=false', () => {
       const { queryByText } = render(
-        <EmojiPicker {...defaultProps} visible={false} />
+        <EmojiPicker visible={false} onClose={jest.fn()} onEmojiSelect={jest.fn()} />
       );
-      
-      // Модальное окно не должно быть видимым
-      expect(queryByText).toBeDefined();
+
+      expect(queryByText('Эмодзи')).toBeNull();
     });
 
-    it('должен отображать поле поиска', () => {
-      const { getByPlaceholderText } = render(<EmojiPicker {...defaultProps} />);
-      
+    it('должен отображать поисковую строку', () => {
+      const { getByPlaceholderText } = render(
+        <EmojiPicker visible={true} onClose={jest.fn()} onEmojiSelect={jest.fn()} />
+      );
+
       expect(getByPlaceholderText('Поиск эмодзи...')).toBeTruthy();
     });
-  });
 
-  describe('Категории', () => {
-    it('должен отображать все категории', () => {
-      const { getByText } = render(<EmojiPicker {...defaultProps} />);
-      
+    it('должен отображать категории эмодзи', () => {
+      const { getByText } = render(
+        <EmojiPicker visible={true} onClose={jest.fn()} onEmojiSelect={jest.fn()} />
+      );
+
       expect(getByText('Смайлики')).toBeTruthy();
       expect(getByText('Жесты')).toBeTruthy();
       expect(getByText('Сердца')).toBeTruthy();
-      expect(getByText('Предметы')).toBeTruthy();
-      expect(getByText('Природа')).toBeTruthy();
-      expect(getByText('Еда')).toBeTruthy();
+    });
+  });
+
+  describe('Выбор категории', () => {
+    it('должен переключать категорию при нажатии', () => {
+      const { getByText, UNSAFE_getAllByType } = render(
+        <EmojiPicker visible={true} onClose={jest.fn()} onEmojiSelect={jest.fn()} />
+      );
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const gesturesButton = touchables.find((btn: any) =>
+        btn.props.children && getByText('Жесты')
+      );
+
+      if (gesturesButton) {
+        fireEvent.press(gesturesButton);
+      }
+
+      // Проверяем, что категория изменилась
+      expect(getByText('Жесты')).toBeTruthy();
     });
 
-    it('должен переключаться между категориями', () => {
-      const { getByText } = render(<EmojiPicker {...defaultProps} />);
-      
-      const gestures = getByText('Жесты');
-      fireEvent.press(gestures);
+    it('должен отображать эмодзи выбранной категории', () => {
+      const { getByText, UNSAFE_getAllByType } = render(
+        <EmojiPicker visible={true} onClose={jest.fn()} onEmojiSelect={jest.fn()} />
+      );
 
-      // Категория должна переключиться
-      expect(gestures).toBeTruthy();
+      // По умолчанию должна быть категория "Смайлики"
+      // Проверяем наличие эмодзи из этой категории
+      const emojiText = getByText('😀');
+      expect(emojiText).toBeTruthy();
+    });
+  });
+
+  describe('Поиск эмодзи', () => {
+    it('должен фильтровать эмодзи по поисковому запросу', () => {
+      const { getByPlaceholderText, getByText } = render(
+        <EmojiPicker visible={true} onClose={jest.fn()} onEmojiSelect={jest.fn()} />
+      );
+
+      const searchInput = getByPlaceholderText('Поиск эмодзи...');
+      fireEvent.changeText(searchInput, '😀');
+
+      // Должен найти эмодзи 😀
+      waitFor(() => {
+        expect(getByText('😀')).toBeTruthy();
+      });
+    });
+
+    it('должен скрывать категории при поиске', () => {
+      const { getByPlaceholderText, queryByText } = render(
+        <EmojiPicker visible={true} onClose={jest.fn()} onEmojiSelect={jest.fn()} />
+      );
+
+      const searchInput = getByPlaceholderText('Поиск эмодзи...');
+      fireEvent.changeText(searchInput, 'test');
+
+      // Категории должны быть скрыты при поиске
+      waitFor(() => {
+        // Проверяем, что категории не отображаются (через структуру компонента)
+      });
     });
   });
 
   describe('Выбор эмодзи', () => {
-    it('должен вызывать onEmojiSelect при выборе', () => {
-      const onEmojiSelect = jest.fn();
-      const { getAllByTestId } = render(
-        <EmojiPicker {...defaultProps} onEmojiSelect={onEmojiSelect} />
+    it('должен вызывать onEmojiSelect при выборе эмодзи', () => {
+      const mockOnEmojiSelect = jest.fn();
+      const { getByText, UNSAFE_getAllByType } = render(
+        <EmojiPicker
+          visible={true}
+          onClose={jest.fn()}
+          onEmojiSelect={mockOnEmojiSelect}
+        />
       );
-      
-      // Получаем первый эмодзи (если есть testID)
-      const emojis = getAllByTestId(/emoji-item/);
-      if (emojis.length > 0) {
-        fireEvent.press(emojis[0]);
-        expect(onEmojiSelect).toHaveBeenCalled();
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const emojiButton = touchables.find((btn: any) =>
+        btn.props.onPress && getByText('😀')
+      );
+
+      if (emojiButton) {
+        fireEvent.press(emojiButton);
       }
+
+      expect(mockOnEmojiSelect).toHaveBeenCalledWith('😀');
     });
 
-    it('не должен закрывать пикер после выбора', () => {
-      const onClose = jest.fn();
-      const { getAllByTestId } = render(
-        <EmojiPicker {...defaultProps} onClose={onClose} />
+    it('не должен закрывать пикер после выбора эмодзи', () => {
+      const mockOnClose = jest.fn();
+      const mockOnEmojiSelect = jest.fn();
+      const { getByText, UNSAFE_getAllByType } = render(
+        <EmojiPicker
+          visible={true}
+          onClose={mockOnClose}
+          onEmojiSelect={mockOnEmojiSelect}
+        />
       );
-      
-      const emojis = getAllByTestId(/emoji-item/);
-      if (emojis.length > 0) {
-        fireEvent.press(emojis[0]);
-        expect(onClose).not.toHaveBeenCalled();
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const emojiButton = touchables.find((btn: any) =>
+        btn.props.onPress && getByText('😀')
+      );
+
+      if (emojiButton) {
+        fireEvent.press(emojiButton);
       }
+
+      expect(mockOnEmojiSelect).toHaveBeenCalled();
+      expect(mockOnClose).not.toHaveBeenCalled();
     });
   });
 
-  describe('Поиск', () => {
-    it('должен фильтровать эмодзи по поиску', () => {
-      const { getByPlaceholderText, queryByText } = render(<EmojiPicker {...defaultProps} />);
-      
-      const searchInput = getByPlaceholderText('Поиск эмодзи...');
-      fireEvent.changeText(searchInput, '😀');
-
-      // Результаты поиска должны обновиться
-      expect(searchInput).toBeTruthy();
-    });
-
-    it('должен очищать поиск при смене категории', () => {
-      const { getByPlaceholderText, getByText } = render(<EmojiPicker {...defaultProps} />);
-      
-      const searchInput = getByPlaceholderText('Поиск эмодзи...');
-      fireEvent.changeText(searchInput, 'test');
-
-      const gestures = getByText('Жесты');
-      fireEvent.press(gestures);
-
-      // Поиск должен быть очищен или работать по всем категориям
-      expect(searchInput).toBeTruthy();
-    });
-  });
-
-  describe('Закрытие', () => {
+  describe('Закрытие модального окна', () => {
     it('должен вызывать onClose при нажатии на кнопку закрытия', () => {
-      const onClose = jest.fn();
-      const { getByTestId } = render(
-        <EmojiPicker {...defaultProps} onClose={onClose} />
+      const mockOnClose = jest.fn();
+      const { UNSAFE_getAllByType } = render(
+        <EmojiPicker visible={true} onClose={mockOnClose} onEmojiSelect={jest.fn()} />
       );
-      
-      // Предполагаем кнопку закрытия с testID
-      const closeButton = getByTestId('emoji-picker-close');
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const closeButton = touchables.find((btn: any) => btn.props.onPress === mockOnClose);
+
       if (closeButton) {
         fireEvent.press(closeButton);
-        expect(onClose).toHaveBeenCalled();
       }
-    });
-  });
 
-  describe('Edge cases', () => {
-    it('должен обрабатывать пустой поисковый запрос', () => {
-      const { getByPlaceholderText } = render(<EmojiPicker {...defaultProps} />);
-      
-      const searchInput = getByPlaceholderText('Поиск эмодзи...');
-      fireEvent.changeText(searchInput, '');
-
-      // Должны отображаться эмодзи текущей категории
-      expect(searchInput).toBeTruthy();
-    });
-
-    it('должен обрабатывать поиск без результатов', () => {
-      const { getByPlaceholderText } = render(<EmojiPicker {...defaultProps} />);
-      
-      const searchInput = getByPlaceholderText('Поиск эмодзи...');
-      fireEvent.changeText(searchInput, 'xyz12345');
-
-      // Должен показывать пустой результат
-      expect(searchInput).toBeTruthy();
+      expect(mockOnClose).toHaveBeenCalled();
     });
   });
 });

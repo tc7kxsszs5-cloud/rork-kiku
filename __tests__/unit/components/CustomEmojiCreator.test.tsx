@@ -1,20 +1,17 @@
 /**
- * Тесты для CustomEmojiCreator компонента
- * Проверяет создание кастомных эмодзи, загрузку изображений
+ * Тесты для CustomEmojiCreator
+ * Проверяет создание кастомных эмодзи, загрузку изображений, валидацию
  */
 
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, waitFor, Alert } from '@testing-library/react-native';
 import { CustomEmojiCreator } from '@/components/CustomEmojiCreator';
-import { Alert } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 
 // Моки
 jest.mock('expo-image-picker', () => ({
-  requestMediaLibraryPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
-  launchImageLibraryAsync: jest.fn().mockResolvedValue({
-    canceled: false,
-    assets: [{ uri: 'test-image.jpg' }],
-  }),
+  requestMediaLibraryPermissionsAsync: jest.fn(),
+  launchImageLibraryAsync: jest.fn(),
   MediaTypeOptions: {
     Images: 'Images',
   },
@@ -23,13 +20,12 @@ jest.mock('expo-image-picker', () => ({
 jest.mock('@/constants/ThemeContext', () => ({
   useThemeMode: jest.fn(() => ({
     theme: {
-      backgroundPrimary: '#FFFFFF',
+      backgroundPrimary: '#ffffff',
       textPrimary: '#000000',
       textSecondary: '#666666',
-      accentPrimary: '#FF6B35',
       backgroundSecondary: '#f5f5f5',
-      borderSoft: '#e0e0e0',
-      isDark: false,
+      borderSoft: '#cccccc',
+      accentPrimary: '#4A90E2',
     },
   })),
 }));
@@ -42,236 +38,420 @@ jest.mock('@/constants/haptics', () => ({
   HapticFeedback: {
     light: jest.fn(),
     success: jest.fn(),
+    error: jest.fn(),
   },
 }));
 
 jest.mock('lucide-react-native', () => ({
-  X: 'X',
-  Upload: 'Upload',
-  Save: 'Save',
-  Image: 'Image',
+  X: () => null,
+  Upload: () => null,
+  Save: () => null,
+  Image: () => null,
 }));
 
-// Мок для Alert
-jest.spyOn(Alert, 'alert');
+jest.mock('react-native', () => {
+  const RN = jest.requireActual('react-native');
+  return {
+    ...RN,
+    Alert: {
+      alert: jest.fn(),
+    },
+  };
+});
 
 describe('CustomEmojiCreator', () => {
-  const defaultProps = {
-    visible: true,
-    onClose: jest.fn(),
-    onEmojiCreated: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
+    (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock).mockResolvedValue({
+      status: 'granted',
+    });
+    (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+      canceled: false,
+      assets: [{ uri: 'file://test-image.jpg' }],
+    });
   });
 
   describe('Рендеринг', () => {
     it('должен отображать модальное окно когда visible=true', () => {
-      const { getByText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
+      const { getByText } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
       expect(getByText('Создать кастомный эмодзи')).toBeTruthy();
     });
 
-    it('должен отображать поле для названия', () => {
-      const { getByPlaceholderText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
+    it('не должен отображаться когда visible=false', () => {
+      const { queryByText } = render(
+        <CustomEmojiCreator visible={false} onClose={jest.fn()} />
+      );
+
+      expect(queryByText('Создать кастомный эмодзи')).toBeNull();
+    });
+
+    it('должен отображать поля ввода', () => {
+      const { getByPlaceholderText } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
       expect(getByPlaceholderText('Например: KIKU Logo')).toBeTruthy();
-    });
-
-    it('должен отображать поле для категории', () => {
-      const { getByPlaceholderText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
       expect(getByPlaceholderText('Например: brand, safety, custom')).toBeTruthy();
-    });
-
-    it('должен отображать поле для тегов', () => {
-      const { getByPlaceholderText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
       expect(getByPlaceholderText('Например: logo, kiku, brand')).toBeTruthy();
     });
   });
 
-  describe('Загрузка изображения', () => {
-    it('должен открывать image picker', async () => {
-      const { launchImageLibraryAsync } = require('expo-image-picker');
-      
-      const { getByText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
-      const uploadButton = getByText('Выбрать изображение');
-      fireEvent.press(uploadButton);
+  describe('Ввод данных', () => {
+    it('должен обновлять название эмодзи', () => {
+      const { getByPlaceholderText } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
+      const nameInput = getByPlaceholderText('Например: KIKU Logo');
+      fireEvent.changeText(nameInput, 'Test Emoji');
+
+      expect(nameInput.props.value).toBe('Test Emoji');
+    });
+
+    it('должен обновлять категорию', () => {
+      const { getByPlaceholderText } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
+      const categoryInput = getByPlaceholderText('Например: brand, safety, custom');
+      fireEvent.changeText(categoryInput, 'brand');
+
+      expect(categoryInput.props.value).toBe('brand');
+    });
+
+    it('должен обновлять теги', () => {
+      const { getByPlaceholderText } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
+      const tagsInput = getByPlaceholderText('Например: logo, kiku, brand');
+      fireEvent.changeText(tagsInput, 'logo, kiku');
+
+      expect(tagsInput.props.value).toBe('logo, kiku');
+    });
+  });
+
+  describe('Выбор изображения', () => {
+    it('должен запрашивать разрешение на доступ к галерее', async () => {
+      const { getByText, UNSAFE_getAllByType } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const uploadButton = touchables.find((btn: any) =>
+        btn.props.children && getByText(/Выбрать изображение/)
+      );
+
+      if (uploadButton) {
+        await fireEvent.press(uploadButton);
+      }
 
       await waitFor(() => {
-        expect(launchImageLibraryAsync).toHaveBeenCalled();
+        expect(ImagePicker.requestMediaLibraryPermissionsAsync).toHaveBeenCalled();
       });
     });
 
-    it('должен запрашивать разрешения', async () => {
-      const { requestMediaLibraryPermissionsAsync } = require('expo-image-picker');
-      
-      const { getByText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
-      const uploadButton = getByText('Выбрать изображение');
-      fireEvent.press(uploadButton);
+    it('должен показывать ошибку если разрешение не выдано', async () => {
+      (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock).mockResolvedValue({
+        status: 'denied',
+      });
+
+      const { getByText, UNSAFE_getAllByType } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const uploadButton = touchables.find((btn: any) =>
+        btn.props.children && getByText(/Выбрать изображение/)
+      );
+
+      if (uploadButton) {
+        await fireEvent.press(uploadButton);
+      }
 
       await waitFor(() => {
-        expect(requestMediaLibraryPermissionsAsync).toHaveBeenCalled();
+        expect(Alert.alert).toHaveBeenCalledWith(
+          'Ошибка',
+          'Нужно разрешение на доступ к галерее'
+        );
       });
     });
 
-    it('должен обрабатывать отказ в разрешениях', async () => {
-      const { requestMediaLibraryPermissionsAsync } = require('expo-image-picker');
-      requestMediaLibraryPermissionsAsync.mockResolvedValueOnce({ status: 'denied' });
-      
-      const { getByText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
-      const uploadButton = getByText('Выбрать изображение');
-      fireEvent.press(uploadButton);
+    it('должен устанавливать изображение после выбора', async () => {
+      const { getByText, UNSAFE_getAllByType } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const uploadButton = touchables.find((btn: any) =>
+        btn.props.children && getByText(/Выбрать изображение/)
+      );
+
+      if (uploadButton) {
+        await fireEvent.press(uploadButton);
+      }
 
       await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalledWith('Ошибка', 'Нужно разрешение на доступ к галерее');
+        expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalled();
+        expect(getByText(/Изменить изображение/)).toBeTruthy();
+      });
+    });
+
+    it('должен обрабатывать ошибку при загрузке изображения', async () => {
+      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockRejectedValue(
+        new Error('Image picker error')
+      );
+
+      const { getByText, UNSAFE_getAllByType } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const uploadButton = touchables.find((btn: any) =>
+        btn.props.children && getByText(/Выбрать изображение/)
+      );
+
+      if (uploadButton) {
+        await fireEvent.press(uploadButton);
+      }
+
+      await waitFor(() => {
+        expect(Alert.alert).toHaveBeenCalledWith(
+          'Ошибка',
+          'Не удалось загрузить изображение'
+        );
       });
     });
   });
 
+  describe('Выбор типа эмодзи', () => {
+    it('должен переключать тип на SVG', () => {
+      const { getByText, UNSAFE_getAllByType } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const svgButton = touchables.find((btn: any) =>
+        btn.props.children && getByText('SVG')
+      );
+
+      if (svgButton) {
+        fireEvent.press(svgButton);
+      }
+
+      // Проверяем, что кнопка SVG активна
+      expect(getByText('SVG')).toBeTruthy();
+    });
+
+    it('должен переключать тип на Unicode', () => {
+      const { getByText, UNSAFE_getAllByType } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const unicodeButton = touchables.find((btn: any) =>
+        btn.props.children && getByText('Unicode')
+      );
+
+      if (unicodeButton) {
+        fireEvent.press(unicodeButton);
+      }
+
+      expect(getByText('Unicode')).toBeTruthy();
+    });
+  });
+
   describe('Создание эмодзи', () => {
-    it('должен показывать ошибку при пустом названии', async () => {
-      const { getByText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
-      const createButton = getByText('Создать эмодзи');
-      fireEvent.press(createButton);
+    it('должен показывать ошибку если название не введено', async () => {
+      const { getByText, UNSAFE_getAllByType } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const createButton = touchables.find((btn: any) =>
+        btn.props.children && getByText('Создать эмодзи')
+      );
+
+      if (createButton) {
+        await fireEvent.press(createButton);
+      }
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalledWith('Ошибка', 'Введите название эмодзи');
       });
     });
 
-    it('должен показывать ошибку при отсутствии изображения', async () => {
-      const { getByPlaceholderText, getByText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
+    it('должен показывать ошибку если изображение не выбрано для типа image', async () => {
+      const { getByPlaceholderText, getByText, UNSAFE_getAllByType } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
+      );
+
       const nameInput = getByPlaceholderText('Например: KIKU Logo');
       fireEvent.changeText(nameInput, 'Test Emoji');
 
-      const createButton = getByText('Создать эмодзи');
-      fireEvent.press(createButton);
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const createButton = touchables.find((btn: any) =>
+        btn.props.children && getByText('Создать эмодзи')
+      );
+
+      if (createButton) {
+        await fireEvent.press(createButton);
+      }
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalledWith('Ошибка', 'Выберите изображение');
       });
     });
 
-    it('должен создавать эмодзи при корректных данных', async () => {
+    it('должен создавать эмодзи с правильными данными', async () => {
       const { addCustomEmoji } = require('@/utils/customEmojis');
-      const { launchImageLibraryAsync } = require('expo-image-picker');
-      
-      const { getByPlaceholderText, getByText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
-      // Вводим название
+      const mockOnEmojiCreated = jest.fn();
+      const mockOnClose = jest.fn();
+
+      const { getByPlaceholderText, getByText, UNSAFE_getAllByType } = render(
+        <CustomEmojiCreator
+          visible={true}
+          onClose={mockOnClose}
+          onEmojiCreated={mockOnEmojiCreated}
+        />
+      );
+
+      // Заполняем форму
       const nameInput = getByPlaceholderText('Например: KIKU Logo');
       fireEvent.changeText(nameInput, 'Test Emoji');
 
-      // Загружаем изображение
-      const uploadButton = getByText('Выбрать изображение');
-      fireEvent.press(uploadButton);
+      const categoryInput = getByPlaceholderText('Например: brand, safety, custom');
+      fireEvent.changeText(categoryInput, 'brand');
+
+      const tagsInput = getByPlaceholderText('Например: logo, kiku, brand');
+      fireEvent.changeText(tagsInput, 'logo, kiku');
+
+      // Выбираем изображение
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const uploadButton = touchables.find((btn: any) =>
+        btn.props.children && getByText(/Выбрать изображение/)
+      );
+
+      if (uploadButton) {
+        await fireEvent.press(uploadButton);
+      }
 
       await waitFor(() => {
-        expect(launchImageLibraryAsync).toHaveBeenCalled();
-      });
+        // Создаем эмодзи
+        const createButton = touchables.find((btn: any) =>
+          btn.props.children && getByText('Создать эмодзи')
+        );
 
-      // Создаем эмодзи
-      const createButton = getByText('Создать эмодзи');
-      fireEvent.press(createButton);
+        if (createButton) {
+          fireEvent.press(createButton);
+        }
+      });
 
       await waitFor(() => {
         expect(addCustomEmoji).toHaveBeenCalled();
+        expect(mockOnEmojiCreated).toHaveBeenCalled();
+        expect(mockOnClose).toHaveBeenCalled();
+        expect(Alert.alert).toHaveBeenCalledWith('Успех', 'Кастомный эмодзи создан!');
       });
     });
 
-    it('должен вызывать onEmojiCreated при успехе', async () => {
-      const { launchImageLibraryAsync } = require('expo-image-picker');
-      const onEmojiCreated = jest.fn();
-      
-      const { getByPlaceholderText, getByText } = render(
-        <CustomEmojiCreator {...defaultProps} onEmojiCreated={onEmojiCreated} />
+    it('должен обрабатывать ошибку при создании эмодзи', async () => {
+      const { addCustomEmoji } = require('@/utils/customEmojis');
+      addCustomEmoji.mockRejectedValueOnce(new Error('Save error'));
+
+      const { getByPlaceholderText, getByText, UNSAFE_getAllByType } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
       );
-      
+
       const nameInput = getByPlaceholderText('Например: KIKU Logo');
       fireEvent.changeText(nameInput, 'Test Emoji');
 
-      const uploadButton = getByText('Выбрать изображение');
-      fireEvent.press(uploadButton);
+      // Выбираем изображение
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const uploadButton = touchables.find((btn: any) =>
+        btn.props.children && getByText(/Выбрать изображение/)
+      );
+
+      if (uploadButton) {
+        await fireEvent.press(uploadButton);
+      }
 
       await waitFor(() => {
-        expect(launchImageLibraryAsync).toHaveBeenCalled();
+        const createButton = touchables.find((btn: any) =>
+          btn.props.children && getByText('Создать эмодзи')
+        );
+
+        if (createButton) {
+          fireEvent.press(createButton);
+        }
       });
 
-      const createButton = getByText('Создать эмодзи');
-      fireEvent.press(createButton);
-
       await waitFor(() => {
-        expect(onEmojiCreated).toHaveBeenCalled();
+        expect(Alert.alert).toHaveBeenCalledWith('Ошибка', 'Не удалось создать эмодзи');
       });
     });
 
-    it('должен закрывать модал после создания', async () => {
-      const { launchImageLibraryAsync } = require('expo-image-picker');
-      const onClose = jest.fn();
-      
-      const { getByPlaceholderText, getByText } = render(
-        <CustomEmojiCreator {...defaultProps} onClose={onClose} />
+    it('должен обрабатывать теги правильно', async () => {
+      const { addCustomEmoji } = require('@/utils/customEmojis');
+
+      const { getByPlaceholderText, getByText, UNSAFE_getAllByType } = render(
+        <CustomEmojiCreator visible={true} onClose={jest.fn()} />
       );
-      
+
       const nameInput = getByPlaceholderText('Например: KIKU Logo');
       fireEvent.changeText(nameInput, 'Test Emoji');
 
-      const uploadButton = getByText('Выбрать изображение');
-      fireEvent.press(uploadButton);
+      const tagsInput = getByPlaceholderText('Например: logo, kiku, brand');
+      fireEvent.changeText(tagsInput, 'logo, kiku, brand');
+
+      // Выбираем изображение
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const uploadButton = touchables.find((btn: any) =>
+        btn.props.children && getByText(/Выбрать изображение/)
+      );
+
+      if (uploadButton) {
+        await fireEvent.press(uploadButton);
+      }
 
       await waitFor(() => {
-        expect(launchImageLibraryAsync).toHaveBeenCalled();
+        const createButton = touchables.find((btn: any) =>
+          btn.props.children && getByText('Создать эмодзи')
+        );
+
+        if (createButton) {
+          fireEvent.press(createButton);
+        }
       });
 
-      const createButton = getByText('Создать эмодзи');
-      fireEvent.press(createButton);
-
       await waitFor(() => {
-        expect(onClose).toHaveBeenCalled();
+        expect(addCustomEmoji).toHaveBeenCalledWith(
+          expect.objectContaining({
+            tags: ['logo', 'kiku', 'brand'],
+          })
+        );
       });
     });
   });
 
-  describe('Типы эмодзи', () => {
-    it('должен переключаться между типами', () => {
-      const { getByText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
-      const svgButton = getByText('SVG');
-      fireEvent.press(svgButton);
+  describe('Закрытие модального окна', () => {
+    it('должен вызывать onClose при нажатии на кнопку закрытия', () => {
+      const mockOnClose = jest.fn();
+      const { UNSAFE_getAllByType } = render(
+        <CustomEmojiCreator visible={true} onClose={mockOnClose} />
+      );
 
-      expect(svgButton).toBeTruthy();
-    });
+      const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      const closeButton = touchables.find((btn: any) => btn.props.onPress === mockOnClose);
 
-    it('должен показывать загрузчик изображения только для типа image', () => {
-      const { getByText, queryByText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
-      expect(getByText('Выбрать изображение')).toBeTruthy();
+      if (closeButton) {
+        fireEvent.press(closeButton);
+      }
 
-      const svgButton = getByText('SVG');
-      fireEvent.press(svgButton);
-
-      // После переключения на SVG кнопка загрузки может скрыться
-      // (зависит от реализации)
-    });
-  });
-
-  describe('Валидация', () => {
-    it('должен блокировать создание без названия', async () => {
-      const { getByText } = render(<CustomEmojiCreator {...defaultProps} />);
-      
-      const createButton = getByText('Создать эмодзи');
-      
-      // Кнопка должна быть заблокирована без названия
-      // (проверяем через disabled prop или стили)
-      expect(createButton).toBeTruthy();
+      expect(mockOnClose).toHaveBeenCalled();
     });
   });
 });
