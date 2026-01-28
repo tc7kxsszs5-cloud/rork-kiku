@@ -23,21 +23,25 @@ export function SyncSettings() {
 
   const handleToggleAutoSync = async (value: boolean) => {
     HapticFeedback.selection();
+    // updateSettings обрабатывает ошибки внутри контекста
     await updateSettings({ autoSyncEnabled: value });
   };
 
   const handleFrequencyChange = async (frequency: SyncFrequency) => {
     HapticFeedback.selection();
+    // updateSettings обрабатывает ошибки внутри контекста
     await updateSettings({ frequency });
   };
 
   const handleSourceChange = async (source: SyncSource) => {
     HapticFeedback.selection();
+    // updateSettings обрабатывает ошибки внутри контекста
     await updateSettings({ source });
   };
 
   const handleManualSync = async () => {
     HapticFeedback.medium();
+    // triggerSync обрабатывает ошибки внутри контекста
     await triggerSync();
   };
 

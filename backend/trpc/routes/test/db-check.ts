@@ -63,6 +63,31 @@ export const dbCheckProcedure = publicProcedure.query(async () => {
       };
     }
 
+    // Проверяем существование таблицы parents
+    let tableExists = false;
+    let tableError: string | null = null;
+    
+    try {
+      const { error: tableCheckError } = await supabase
+        .from('parents')
+        .select('id')
+        .limit(1);
+      
+      // Если ошибка связана с отсутствием таблицы
+      if (tableCheckError) {
+        if (tableCheckError.code === '42P01' || tableCheckError.message.includes('does not exist')) {
+          tableExists = false;
+          tableError = 'Таблица parents не существует. Нужно применить SQL схему в Supabase.';
+        } else {
+          tableError = tableCheckError.message;
+        }
+      } else {
+        tableExists = true;
+      }
+    } catch (err) {
+      tableError = err instanceof Error ? err.message : 'Неизвестная ошибка';
+    }
+
     // Подключение работает!
     return {
       success: true,
@@ -71,6 +96,10 @@ export const dbCheckProcedure = publicProcedure.query(async () => {
       supabaseUrl: SUPABASE_URL.replace(/\/$/, ''),
       note: "Используется Supabase Client SDK. Готов к работе с базой данных!",
       authCheck: authError ? "Нет активной сессии (нормально для backend)" : "Сессия активна",
+      tableCheck: {
+        parents: tableExists ? 'Существует' : 'Не существует',
+        error: tableError,
+      },
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";

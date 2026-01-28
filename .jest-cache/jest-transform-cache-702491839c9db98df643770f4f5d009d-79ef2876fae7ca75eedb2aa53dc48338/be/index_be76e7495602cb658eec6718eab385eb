@@ -1,0 +1,252 @@
+2e1ad4f7931d0ddb909b6908dfaecf06
+function cov_3zmzi3cr2() {
+  var path = "/Users/mac/Desktop/rork-kiku/utils/migrations/index.ts";
+  var hash = "8a9935b6f859200ed15487122ef2c22c8c2746a9";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/mac/Desktop/rork-kiku/utils/migrations/index.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 16,
+          column: 18
+        },
+        end: {
+          line: 16,
+          column: 40
+        }
+      },
+      "1": {
+        start: {
+          line: 19,
+          column: 2
+        },
+        end: {
+          line: 19,
+          column: 36
+        }
+      },
+      "2": {
+        start: {
+          line: 20,
+          column: 2
+        },
+        end: {
+          line: 20,
+          column: 35
+        }
+      },
+      "3": {
+        start: {
+          line: 21,
+          column: 2
+        },
+        end: {
+          line: 21,
+          column: 31
+        }
+      },
+      "4": {
+        start: {
+          line: 23,
+          column: 2
+        },
+        end: {
+          line: 23,
+          column: 17
+        }
+      },
+      "5": {
+        start: {
+          line: 29,
+          column: 54
+        },
+        end: {
+          line: 29,
+          column: 58
+        }
+      },
+      "6": {
+        start: {
+          line: 35,
+          column: 2
+        },
+        end: {
+          line: 37,
+          column: 3
+        }
+      },
+      "7": {
+        start: {
+          line: 36,
+          column: 4
+        },
+        end: {
+          line: 36,
+          column: 54
+        }
+      },
+      "8": {
+        start: {
+          line: 38,
+          column: 2
+        },
+        end: {
+          line: 38,
+          column: 32
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "createMigrationManager",
+        decl: {
+          start: {
+            line: 15,
+            column: 16
+          },
+          end: {
+            line: 15,
+            column: 38
+          }
+        },
+        loc: {
+          start: {
+            line: 15,
+            column: 59
+          },
+          end: {
+            line: 24,
+            column: 1
+          }
+        },
+        line: 15
+      },
+      "1": {
+        name: "getMigrationManager",
+        decl: {
+          start: {
+            line: 34,
+            column: 16
+          },
+          end: {
+            line: 34,
+            column: 35
+          }
+        },
+        loc: {
+          start: {
+            line: 34,
+            column: 56
+          },
+          end: {
+            line: 39,
+            column: 1
+          }
+        },
+        line: 34
+      }
+    },
+    branchMap: {
+      "0": {
+        loc: {
+          start: {
+            line: 35,
+            column: 2
+          },
+          end: {
+            line: 37,
+            column: 3
+          }
+        },
+        type: "if",
+        locations: [{
+          start: {
+            line: 35,
+            column: 2
+          },
+          end: {
+            line: 37,
+            column: 3
+          }
+        }, {
+          start: {
+            line: undefined,
+            column: undefined
+          },
+          end: {
+            line: undefined,
+            column: undefined
+          }
+        }],
+        line: 35
+      }
+    },
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0
+    },
+    b: {
+      "0": [0, 0]
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "8a9935b6f859200ed15487122ef2c22c8c2746a9"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_3zmzi3cr2 = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_3zmzi3cr2();
+import { MigrationManager } from './migrationManager';
+import { analyticsV1ToV2 } from './analytics/v1-to-v2';
+import { messagesV1ToV2 } from './messages/v1-to-v2';
+import { userV1ToV2 } from './user/v1-to-v2';
+export function createMigrationManager() {
+  cov_3zmzi3cr2().f[0]++;
+  var manager = (cov_3zmzi3cr2().s[0]++, new MigrationManager());
+  cov_3zmzi3cr2().s[1]++;
+  manager.register(analyticsV1ToV2);
+  cov_3zmzi3cr2().s[2]++;
+  manager.register(messagesV1ToV2);
+  cov_3zmzi3cr2().s[3]++;
+  manager.register(userV1ToV2);
+  cov_3zmzi3cr2().s[4]++;
+  return manager;
+}
+var globalMigrationManager = (cov_3zmzi3cr2().s[5]++, null);
+export function getMigrationManager() {
+  cov_3zmzi3cr2().f[1]++;
+  cov_3zmzi3cr2().s[6]++;
+  if (!globalMigrationManager) {
+    cov_3zmzi3cr2().b[0][0]++;
+    cov_3zmzi3cr2().s[7]++;
+    globalMigrationManager = createMigrationManager();
+  } else {
+    cov_3zmzi3cr2().b[0][1]++;
+  }
+  cov_3zmzi3cr2().s[8]++;
+  return globalMigrationManager;
+}
+export * from './types';
+export { MigrationManager } from './migrationManager';
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJNaWdyYXRpb25NYW5hZ2VyIiwiYW5hbHl0aWNzVjFUb1YyIiwibWVzc2FnZXNWMVRvVjIiLCJ1c2VyVjFUb1YyIiwiY3JlYXRlTWlncmF0aW9uTWFuYWdlciIsImNvdl8zem16aTNjcjIiLCJmIiwibWFuYWdlciIsInMiLCJyZWdpc3RlciIsImdsb2JhbE1pZ3JhdGlvbk1hbmFnZXIiLCJnZXRNaWdyYXRpb25NYW5hZ2VyIiwiYiJdLCJzb3VyY2VzIjpbImluZGV4LnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxuICog0KbQtdC90YLRgNCw0LvQuNC30L7QstCw0L3QvdGL0Lkg0Y3QutGB0L/QvtGA0YIg0LLRgdC10YUg0LzQuNCz0YDQsNGG0LjQuVxuICogXG4gKiDQoNC10LPQuNGB0YLRgNC40YDRg9C10YIg0LLRgdC1INC80LjQs9GA0LDRhtC40Lgg0LTQu9GPINC40YHQv9C+0LvRjNC30L7QstCw0L3QuNGPINCyIE1pZ3JhdGlvbk1hbmFnZXJcbiAqL1xuXG5pbXBvcnQgeyBNaWdyYXRpb25NYW5hZ2VyIH0gZnJvbSAnLi9taWdyYXRpb25NYW5hZ2VyJztcbmltcG9ydCB7IGFuYWx5dGljc1YxVG9WMiB9IGZyb20gJy4vYW5hbHl0aWNzL3YxLXRvLXYyJztcbmltcG9ydCB7IG1lc3NhZ2VzVjFUb1YyIH0gZnJvbSAnLi9tZXNzYWdlcy92MS10by12Mic7XG5pbXBvcnQgeyB1c2VyVjFUb1YyIH0gZnJvbSAnLi91c2VyL3YxLXRvLXYyJztcblxuLyoqXG4gKiDQodC+0LfQtNCw0YLRjCDQvNC10L3QtdC00LbQtdGAINC80LjQs9GA0LDRhtC40Lkg0YEg0LfQsNGA0LXQs9C40YHRgtGA0LjRgNC+0LLQsNC90L3Ri9C80Lgg0LzQuNCz0YDQsNGG0LjRj9C80LhcbiAqL1xuZXhwb3J0IGZ1bmN0aW9uIGNyZWF0ZU1pZ3JhdGlvbk1hbmFnZXIoKTogTWlncmF0aW9uTWFuYWdlciB7XG4gIGNvbnN0IG1hbmFnZXIgPSBuZXcgTWlncmF0aW9uTWFuYWdlcigpO1xuXG4gIC8vINCg0LXQs9C40YHRgtGA0LjRgNGD0LXQvCDQstGB0LUg0LzQuNCz0YDQsNGG0LjQuFxuICBtYW5hZ2VyLnJlZ2lzdGVyKGFuYWx5dGljc1YxVG9WMik7XG4gIG1hbmFnZXIucmVnaXN0ZXIobWVzc2FnZXNWMVRvVjIpO1xuICBtYW5hZ2VyLnJlZ2lzdGVyKHVzZXJWMVRvVjIpO1xuXG4gIHJldHVybiBtYW5hZ2VyO1xufVxuXG4vKipcbiAqINCT0LvQvtCx0LDQu9GM0L3Ri9C5INC80LXQvdC10LTQttC10YAg0LzQuNCz0YDQsNGG0LjQuSAoc2luZ2xldG9uKVxuICovXG5sZXQgZ2xvYmFsTWlncmF0aW9uTWFuYWdlcjogTWlncmF0aW9uTWFuYWdlciB8IG51bGwgPSBudWxsO1xuXG4vKipcbiAqINCf0L7Qu9GD0YfQuNGC0Ywg0LPQu9C+0LHQsNC70YzQvdGL0Lkg0LzQtdC90LXQtNC20LXRgCDQvNC40LPRgNCw0YbQuNC5XG4gKi9cbmV4cG9ydCBmdW5jdGlvbiBnZXRNaWdyYXRpb25NYW5hZ2VyKCk6IE1pZ3JhdGlvbk1hbmFnZXIge1xuICBpZiAoIWdsb2JhbE1pZ3JhdGlvbk1hbmFnZXIpIHtcbiAgICBnbG9iYWxNaWdyYXRpb25NYW5hZ2VyID0gY3JlYXRlTWlncmF0aW9uTWFuYWdlcigpO1xuICB9XG4gIHJldHVybiBnbG9iYWxNaWdyYXRpb25NYW5hZ2VyO1xufVxuXG4vLyDQrdC60YHQv9C+0YDRgtC40YDRg9C10Lwg0YLQuNC/0YtcbmV4cG9ydCAqIGZyb20gJy4vdHlwZXMnO1xuZXhwb3J0IHsgTWlncmF0aW9uTWFuYWdlciB9IGZyb20gJy4vbWlncmF0aW9uTWFuYWdlcic7XG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBTUEsU0FBU0EsZ0JBQWdCLFFBQVEsb0JBQW9CO0FBQ3JELFNBQVNDLGVBQWUsUUFBUSxzQkFBc0I7QUFDdEQsU0FBU0MsY0FBYyxRQUFRLHFCQUFxQjtBQUNwRCxTQUFTQyxVQUFVLFFBQVEsaUJBQWlCO0FBSzVDLE9BQU8sU0FBU0Msc0JBQXNCQSxDQUFBLEVBQXFCO0VBQUFDLGFBQUEsR0FBQUMsQ0FBQTtFQUN6RCxJQUFNQyxPQUFPLElBQUFGLGFBQUEsR0FBQUcsQ0FBQSxPQUFHLElBQUlSLGdCQUFnQixDQUFDLENBQUM7RUFBQ0ssYUFBQSxHQUFBRyxDQUFBO0VBR3ZDRCxPQUFPLENBQUNFLFFBQVEsQ0FBQ1IsZUFBZSxDQUFDO0VBQUNJLGFBQUEsR0FBQUcsQ0FBQTtFQUNsQ0QsT0FBTyxDQUFDRSxRQUFRLENBQUNQLGNBQWMsQ0FBQztFQUFDRyxhQUFBLEdBQUFHLENBQUE7RUFDakNELE9BQU8sQ0FBQ0UsUUFBUSxDQUFDTixVQUFVLENBQUM7RUFBQ0UsYUFBQSxHQUFBRyxDQUFBO0VBRTdCLE9BQU9ELE9BQU87QUFDaEI7QUFLQSxJQUFJRyxzQkFBK0MsSUFBQUwsYUFBQSxHQUFBRyxDQUFBLE9BQUcsSUFBSTtBQUsxRCxPQUFPLFNBQVNHLG1CQUFtQkEsQ0FBQSxFQUFxQjtFQUFBTixhQUFBLEdBQUFDLENBQUE7RUFBQUQsYUFBQSxHQUFBRyxDQUFBO0VBQ3RELElBQUksQ0FBQ0Usc0JBQXNCLEVBQUU7SUFBQUwsYUFBQSxHQUFBTyxDQUFBO0lBQUFQLGFBQUEsR0FBQUcsQ0FBQTtJQUMzQkUsc0JBQXNCLEdBQUdOLHNCQUFzQixDQUFDLENBQUM7RUFDbkQsQ0FBQztJQUFBQyxhQUFBLEdBQUFPLENBQUE7RUFBQTtFQUFBUCxhQUFBLEdBQUFHLENBQUE7RUFDRCxPQUFPRSxzQkFBc0I7QUFDL0I7QUFHQSxjQUFjLFNBQVM7QUFDdkIsU0FBU1YsZ0JBQWdCLFFBQVEsb0JBQW9CIiwiaWdub3JlTGlzdCI6W119

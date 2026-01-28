@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "bun run index.ts",
     "start": "bun run index.ts",
-    "build": "echo 'No build step needed for Hono'"
+    "build": "echo 'No build step needed for Hono'",
+    "check:api": "bun run test-db-check.ts"
   },
   "dependencies": {
     "@hono/trpc-server": "^0.4.0",

@@ -1,21 +1,22 @@
 // Jest setup file for React Native / Expo
 // Этот файл выполняется перед каждым тестом
 
-const React = require('react');
-
-// Моки для React Native модулей
+// Моки для React Native модулей (require внутри factory — Jest sandbox)
 jest.mock('react-native', () => {
+  const mockReact = require('react');
   return {
     Platform: {
       OS: 'ios',
-      select: (dict: any) => dict.ios || dict.default,
+      select: (dict) => dict.ios || dict.default,
     },
-    View: ({ children, testID, ...props }: any) => React.createElement('View', { testID, ...props }, children),
-    Text: ({ children, testID, ...props }: any) => React.createElement('Text', { testID, ...props }, children),
-    TouchableOpacity: ({ children, onPress, testID, ...props }: any) =>
-      React.createElement('TouchableOpacity', { onPress, testID, ...props }, children),
+    View: ({ children, testID, ...props }) =>
+      mockReact.createElement('View', { testID, ...props }, children),
+    Text: ({ children, testID, ...props }) =>
+      mockReact.createElement('Text', { testID, ...props }, children),
+    TouchableOpacity: ({ children, onPress, testID, ...props }) =>
+      mockReact.createElement('TouchableOpacity', { onPress, testID, ...props }, children),
     StyleSheet: {
-      create: (styles: any) => styles,
+      create: (styles) => styles,
     },
   };
 });
@@ -34,16 +35,19 @@ jest.mock('expo-secure-store', () => ({
   deleteItemAsync: jest.fn(() => Promise.resolve()),
 }));
 
-jest.mock('@react-native-async-storage/async-storage', () => ({
-  getItem: jest.fn(() => Promise.resolve(null)),
-  setItem: jest.fn(() => Promise.resolve()),
-  removeItem: jest.fn(() => Promise.resolve()),
-  clear: jest.fn(() => Promise.resolve()),
-  getAllKeys: jest.fn(() => Promise.resolve([])),
-  multiGet: jest.fn(() => Promise.resolve([])),
-  multiSet: jest.fn(() => Promise.resolve()),
-  multiRemove: jest.fn(() => Promise.resolve()),
-}));
+jest.mock('@react-native-async-storage/async-storage', () => {
+  const mock = {
+    getItem: jest.fn(() => Promise.resolve(null)),
+    setItem: jest.fn(() => Promise.resolve()),
+    removeItem: jest.fn(() => Promise.resolve()),
+    clear: jest.fn(() => Promise.resolve()),
+    getAllKeys: jest.fn(() => Promise.resolve([])),
+    multiGet: jest.fn(() => Promise.resolve([])),
+    multiSet: jest.fn(() => Promise.resolve()),
+    multiRemove: jest.fn(() => Promise.resolve()),
+  };
+  return { ...mock, default: mock };
+});
 
 jest.mock('expo-notifications', () => ({
   getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
@@ -100,7 +104,7 @@ jest.mock('expo-router', () => ({
   useSegments: () => [],
   useGlobalSearchParams: () => ({}),
   useLocalSearchParams: () => ({}),
-  Link: ({ children, ...props }) => children,
+  Link: ({ children }) => children,
   Stack: {
     Screen: () => null,
   },

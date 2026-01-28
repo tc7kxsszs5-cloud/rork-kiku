@@ -1,0 +1,133 @@
+b798fd91def206ec6d82f95eea7b6790
+import _asyncToGenerator from "@babel/runtime/helpers/asyncToGenerator";
+function cov_urv13x6f() {
+  var path = "/Users/mac/Desktop/rork-kiku/utils/aiService.ts";
+  var hash = "241eff90927d41cc23c819dac173af3acc02c3a0";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/mac/Desktop/rork-kiku/utils/aiService.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 19,
+          column: 2
+        },
+        end: {
+          line: 23,
+          column: 4
+        }
+      },
+      "1": {
+        start: {
+          line: 41,
+          column: 2
+        },
+        end: {
+          line: 46,
+          column: 4
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "getAIConfig",
+        decl: {
+          start: {
+            line: 17,
+            column: 16
+          },
+          end: {
+            line: 17,
+            column: 27
+          }
+        },
+        loc: {
+          start: {
+            line: 17,
+            column: 40
+          },
+          end: {
+            line: 24,
+            column: 1
+          }
+        },
+        line: 17
+      },
+      "1": {
+        name: "analyzeMessageWithRealAI",
+        decl: {
+          start: {
+            line: 30,
+            column: 22
+          },
+          end: {
+            line: 30,
+            column: 46
+          }
+        },
+        loc: {
+          start: {
+            line: 33,
+            column: 25
+          },
+          end: {
+            line: 47,
+            column: 1
+          }
+        },
+        line: 33
+      }
+    },
+    branchMap: {},
+    s: {
+      "0": 0,
+      "1": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0
+    },
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "241eff90927d41cc23c819dac173af3acc02c3a0"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_urv13x6f = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_urv13x6f();
+export function getAIConfig() {
+  cov_urv13x6f().f[0]++;
+  cov_urv13x6f().s[0]++;
+  return {
+    provider: 'local',
+    apiKey: undefined,
+    endpoint: undefined
+  };
+}
+export function analyzeMessageWithRealAI(_x, _x2) {
+  return _analyzeMessageWithRealAI.apply(this, arguments);
+}
+function _analyzeMessageWithRealAI() {
+  _analyzeMessageWithRealAI = _asyncToGenerator(function* (text, config) {
+    cov_urv13x6f().f[1]++;
+    cov_urv13x6f().s[1]++;
+    return {
+      riskLevel: 'safe',
+      confidence: 0.5,
+      reasons: [],
+      categories: []
+    };
+  });
+  return _analyzeMessageWithRealAI.apply(this, arguments);
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJnZXRBSUNvbmZpZyIsImNvdl91cnYxM3g2ZiIsImYiLCJzIiwicHJvdmlkZXIiLCJhcGlLZXkiLCJ1bmRlZmluZWQiLCJlbmRwb2ludCIsImFuYWx5emVNZXNzYWdlV2l0aFJlYWxBSSIsIl94IiwiX3gyIiwiX2FuYWx5emVNZXNzYWdlV2l0aFJlYWxBSSIsImFwcGx5IiwiYXJndW1lbnRzIiwiX2FzeW5jVG9HZW5lcmF0b3IiLCJ0ZXh0IiwiY29uZmlnIiwicmlza0xldmVsIiwiY29uZmlkZW5jZSIsInJlYXNvbnMiLCJjYXRlZ29yaWVzIl0sInNvdXJjZXMiOlsiYWlTZXJ2aWNlLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxuICogQUkgU2VydmljZVxuICogUHJvdmlkZXMgQUkgYW5hbHlzaXMgY2FwYWJpbGl0aWVzIGZvciBtZXNzYWdlcyBhbmQgaW1hZ2VzXG4gKi9cblxuaW1wb3J0IHsgUmlza0FuYWx5c2lzLCBSaXNrTGV2ZWwgfSBmcm9tICdAL2NvbnN0YW50cy90eXBlcyc7XG5cbmV4cG9ydCBpbnRlcmZhY2UgQUlDb25maWcge1xuICBwcm92aWRlcjogJ2xvY2FsJyB8ICdvcGVuYWknIHwgJ2FudGhyb3BpYycgfCAnY3VzdG9tJztcbiAgYXBpS2V5Pzogc3RyaW5nO1xuICBlbmRwb2ludD86IHN0cmluZztcbn1cblxuLyoqXG4gKiBHZXQgQUkgY29uZmlndXJhdGlvbiBmcm9tIGVudmlyb25tZW50IG9yIGRlZmF1bHRzXG4gKi9cbmV4cG9ydCBmdW5jdGlvbiBnZXRBSUNvbmZpZygpOiBBSUNvbmZpZyB7XG4gIC8vIEluIHByb2R1Y3Rpb24sIHRoaXMgd291bGQgcmVhZCBmcm9tIGVudmlyb25tZW50IHZhcmlhYmxlcyBvciBzZWN1cmUgc3RvcmFnZVxuICByZXR1cm4ge1xuICAgIHByb3ZpZGVyOiAnbG9jYWwnLCAvLyBEZWZhdWx0IHRvIGxvY2FsIGFuYWx5c2lzXG4gICAgYXBpS2V5OiB1bmRlZmluZWQsXG4gICAgZW5kcG9pbnQ6IHVuZGVmaW5lZCxcbiAgfTtcbn1cblxuLyoqXG4gKiBBbmFseXplIG1lc3NhZ2Ugd2l0aCByZWFsIEFJIEFQSVxuICogVGhpcyBpcyBhIHBsYWNlaG9sZGVyIC0gaW4gcHJvZHVjdGlvbiwgdGhpcyB3b3VsZCBjYWxsIGFjdHVhbCBBSSBBUElzXG4gKi9cbmV4cG9ydCBhc3luYyBmdW5jdGlvbiBhbmFseXplTWVzc2FnZVdpdGhSZWFsQUkoXG4gIHRleHQ6IHN0cmluZyxcbiAgY29uZmlnOiBBSUNvbmZpZ1xuKTogUHJvbWlzZTxSaXNrQW5hbHlzaXM+IHtcbiAgLy8gUGxhY2Vob2xkZXIgaW1wbGVtZW50YXRpb25cbiAgLy8gSW4gcHJvZHVjdGlvbiwgdGhpcyB3b3VsZDpcbiAgLy8gMS4gQ2FsbCBPcGVuQUkvQW50aHJvcGljIEFQSSBpZiBjb25maWd1cmVkXG4gIC8vIDIuIFVzZSBsb2NhbCBtb2RlbCBpZiBwcm92aWRlciBpcyAnbG9jYWwnXG4gIC8vIDMuIEZhbGwgYmFjayB0byBiYXNpYyBhbmFseXNpcyBpZiBBUEkgZmFpbHNcblxuICAvLyBGb3Igbm93LCByZXR1cm4gYSBzYWZlIGFuYWx5c2lzXG4gIHJldHVybiB7XG4gICAgcmlza0xldmVsOiAnc2FmZScgYXMgUmlza0xldmVsLFxuICAgIGNvbmZpZGVuY2U6IDAuNSxcbiAgICByZWFzb25zOiBbXSxcbiAgICBjYXRlZ29yaWVzOiBbXSxcbiAgfTtcbn1cbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQWdCQSxPQUFPLFNBQVNBLFdBQVdBLENBQUEsRUFBYTtFQUFBQyxZQUFBLEdBQUFDLENBQUE7RUFBQUQsWUFBQSxHQUFBRSxDQUFBO0VBRXRDLE9BQU87SUFDTEMsUUFBUSxFQUFFLE9BQU87SUFDakJDLE1BQU0sRUFBRUMsU0FBUztJQUNqQkMsUUFBUSxFQUFFRDtFQUNaLENBQUM7QUFDSDtBQU1BLGdCQUFzQkUsd0JBQXdCQSxDQUFBQyxFQUFBLEVBQUFDLEdBQUE7RUFBQSxPQUFBQyx5QkFBQSxDQUFBQyxLQUFBLE9BQUFDLFNBQUE7QUFBQTtBQWlCN0MsU0FBQUYsMEJBQUE7RUFBQUEseUJBQUEsR0FBQUcsaUJBQUEsQ0FqQk0sV0FDTEMsSUFBWSxFQUNaQyxNQUFnQixFQUNPO0lBQUFmLFlBQUEsR0FBQUMsQ0FBQTtJQUFBRCxZQUFBLEdBQUFFLENBQUE7SUFRdkIsT0FBTztNQUNMYyxTQUFTLEVBQUUsTUFBbUI7TUFDOUJDLFVBQVUsRUFBRSxHQUFHO01BQ2ZDLE9BQU8sRUFBRSxFQUFFO01BQ1hDLFVBQVUsRUFBRTtJQUNkLENBQUM7RUFDSCxDQUFDO0VBQUEsT0FBQVQseUJBQUEsQ0FBQUMsS0FBQSxPQUFBQyxTQUFBO0FBQUEiLCJpZ25vcmVMaXN0IjpbXX0=

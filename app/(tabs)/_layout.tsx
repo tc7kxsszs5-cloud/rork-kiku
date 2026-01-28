@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { MessageCircle, Info, User, Settings, BarChart3, Smile, Trophy, BookOpen } from "lucide-react-native";
+import { MessageCircle, Info, User, Settings, Trophy, BookOpen, Users, Phone } from "lucide-react-native";
 import React from "react";
 import { StyleSheet } from "react-native";
 import { useThemeMode } from "@/constants/ThemeContext";
@@ -42,10 +42,23 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="contacts"
+        options={{
+          title: "Контакты",
+          tabBarIcon: ({ color }: { color: string }) => <Users color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
+        name="calls"
+        options={{
+          title: "Звонки",
+          tabBarIcon: ({ color }: { color: string }) => <Phone color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
         name="analytics"
         options={{
-          title: "Analytics",
-          tabBarIcon: ({ color }: { color: string }) => <BarChart3 color={color} size={24} />,
+          href: null, // Скрываем из навигации, доступно только через профиль
         }}
       />
       <Tabs.Screen
@@ -65,8 +78,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="custom-emojis"
         options={{
-          title: "Эмодзи",
-          tabBarIcon: ({ color }: { color: string }) => <Smile color={color} size={24} />,
+          href: null, // Скрываем из навигации, доступно только через профиль
         }}
       />
       <Tabs.Screen

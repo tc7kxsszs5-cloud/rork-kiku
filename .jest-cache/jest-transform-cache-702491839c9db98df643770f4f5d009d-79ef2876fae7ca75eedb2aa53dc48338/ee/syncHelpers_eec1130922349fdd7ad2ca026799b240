@@ -1,0 +1,309 @@
+740db109e2866503a9907d1bd935e5ae
+function cov_1cxah5kg5k() {
+  var path = "/Users/mac/Desktop/rork-kiku/backend/utils/syncHelpers.ts";
+  var hash = "436df566c020e397c7de6f1bf2b0064e51e54c27";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/mac/Desktop/rork-kiku/backend/utils/syncHelpers.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 7,
+          column: 2
+        },
+        end: {
+          line: 10,
+          column: 5
+        }
+      },
+      "1": {
+        start: {
+          line: 8,
+          column: 26
+        },
+        end: {
+          line: 8,
+          column: 63
+        }
+      },
+      "2": {
+        start: {
+          line: 9,
+          column: 4
+        },
+        end: {
+          line: 9,
+          column: 45
+        }
+      },
+      "3": {
+        start: {
+          line: 17,
+          column: 2
+        },
+        end: {
+          line: 20,
+          column: 5
+        }
+      },
+      "4": {
+        start: {
+          line: 18,
+          column: 26
+        },
+        end: {
+          line: 18,
+          column: 63
+        }
+      },
+      "5": {
+        start: {
+          line: 19,
+          column: 4
+        },
+        end: {
+          line: 19,
+          column: 45
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "getDeltaChats",
+        decl: {
+          start: {
+            line: 3,
+            column: 16
+          },
+          end: {
+            line: 3,
+            column: 29
+          }
+        },
+        loc: {
+          start: {
+            line: 6,
+            column: 7
+          },
+          end: {
+            line: 11,
+            column: 1
+          }
+        },
+        line: 6
+      },
+      "1": {
+        name: "(anonymous_1)",
+        decl: {
+          start: {
+            line: 7,
+            column: 22
+          },
+          end: {
+            line: 7,
+            column: 23
+          }
+        },
+        loc: {
+          start: {
+            line: 7,
+            column: 32
+          },
+          end: {
+            line: 10,
+            column: 3
+          }
+        },
+        line: 7
+      },
+      "2": {
+        name: "getDeltaAlerts",
+        decl: {
+          start: {
+            line: 13,
+            column: 16
+          },
+          end: {
+            line: 13,
+            column: 30
+          }
+        },
+        loc: {
+          start: {
+            line: 16,
+            column: 7
+          },
+          end: {
+            line: 21,
+            column: 1
+          }
+        },
+        line: 16
+      },
+      "3": {
+        name: "(anonymous_3)",
+        decl: {
+          start: {
+            line: 17,
+            column: 22
+          },
+          end: {
+            line: 17,
+            column: 23
+          }
+        },
+        loc: {
+          start: {
+            line: 17,
+            column: 32
+          },
+          end: {
+            line: 20,
+            column: 3
+          }
+        },
+        line: 17
+      }
+    },
+    branchMap: {
+      "0": {
+        loc: {
+          start: {
+            line: 8,
+            column: 26
+          },
+          end: {
+            line: 8,
+            column: 63
+          }
+        },
+        type: "binary-expr",
+        locations: [{
+          start: {
+            line: 8,
+            column: 26
+          },
+          end: {
+            line: 8,
+            column: 40
+          }
+        }, {
+          start: {
+            line: 8,
+            column: 44
+          },
+          end: {
+            line: 8,
+            column: 58
+          }
+        }, {
+          start: {
+            line: 8,
+            column: 62
+          },
+          end: {
+            line: 8,
+            column: 63
+          }
+        }],
+        line: 8
+      },
+      "1": {
+        loc: {
+          start: {
+            line: 18,
+            column: 26
+          },
+          end: {
+            line: 18,
+            column: 63
+          }
+        },
+        type: "binary-expr",
+        locations: [{
+          start: {
+            line: 18,
+            column: 26
+          },
+          end: {
+            line: 18,
+            column: 40
+          }
+        }, {
+          start: {
+            line: 18,
+            column: 44
+          },
+          end: {
+            line: 18,
+            column: 58
+          }
+        }, {
+          start: {
+            line: 18,
+            column: 62
+          },
+          end: {
+            line: 18,
+            column: 63
+          }
+        }],
+        line: 18
+      }
+    },
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    b: {
+      "0": [0, 0, 0],
+      "1": [0, 0, 0]
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "436df566c020e397c7de6f1bf2b0064e51e54c27"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_1cxah5kg5k = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_1cxah5kg5k();
+export function getDeltaChats(items, lastSyncTimestamp) {
+  cov_1cxah5kg5k().f[0]++;
+  cov_1cxah5kg5k().s[0]++;
+  return items.filter(function (item) {
+    cov_1cxah5kg5k().f[1]++;
+    var itemTimestamp = (cov_1cxah5kg5k().s[1]++, (cov_1cxah5kg5k().b[0][0]++, item.updatedAt) || (cov_1cxah5kg5k().b[0][1]++, item.timestamp) || (cov_1cxah5kg5k().b[0][2]++, 0));
+    cov_1cxah5kg5k().s[2]++;
+    return itemTimestamp > lastSyncTimestamp;
+  });
+}
+export function getDeltaAlerts(items, lastSyncTimestamp) {
+  cov_1cxah5kg5k().f[2]++;
+  cov_1cxah5kg5k().s[3]++;
+  return items.filter(function (item) {
+    cov_1cxah5kg5k().f[3]++;
+    var itemTimestamp = (cov_1cxah5kg5k().s[4]++, (cov_1cxah5kg5k().b[1][0]++, item.createdAt) || (cov_1cxah5kg5k().b[1][1]++, item.timestamp) || (cov_1cxah5kg5k().b[1][2]++, 0));
+    cov_1cxah5kg5k().s[5]++;
+    return itemTimestamp > lastSyncTimestamp;
+  });
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJnZXREZWx0YUNoYXRzIiwiaXRlbXMiLCJsYXN0U3luY1RpbWVzdGFtcCIsImNvdl8xY3hhaDVrZzVrIiwiZiIsInMiLCJmaWx0ZXIiLCJpdGVtIiwiaXRlbVRpbWVzdGFtcCIsImIiLCJ1cGRhdGVkQXQiLCJ0aW1lc3RhbXAiLCJnZXREZWx0YUFsZXJ0cyIsImNyZWF0ZWRBdCJdLCJzb3VyY2VzIjpbInN5bmNIZWxwZXJzLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8vIEhlbHBlciBmdW5jdGlvbnMgZm9yIHN5bmMgb3BlcmF0aW9uc1xuXG5leHBvcnQgZnVuY3Rpb24gZ2V0RGVsdGFDaGF0czxUIGV4dGVuZHMgeyB1cGRhdGVkQXQ/OiBudW1iZXI7IHRpbWVzdGFtcD86IG51bWJlciB9PihcbiAgaXRlbXM6IFRbXSxcbiAgbGFzdFN5bmNUaW1lc3RhbXA6IG51bWJlclxuKTogVFtdIHtcbiAgcmV0dXJuIGl0ZW1zLmZpbHRlcigoaXRlbSkgPT4ge1xuICAgIGNvbnN0IGl0ZW1UaW1lc3RhbXAgPSBpdGVtLnVwZGF0ZWRBdCB8fCBpdGVtLnRpbWVzdGFtcCB8fCAwO1xuICAgIHJldHVybiBpdGVtVGltZXN0YW1wID4gbGFzdFN5bmNUaW1lc3RhbXA7XG4gIH0pO1xufVxuXG5leHBvcnQgZnVuY3Rpb24gZ2V0RGVsdGFBbGVydHM8VCBleHRlbmRzIHsgY3JlYXRlZEF0PzogbnVtYmVyOyB0aW1lc3RhbXA/OiBudW1iZXIgfT4oXG4gIGl0ZW1zOiBUW10sXG4gIGxhc3RTeW5jVGltZXN0YW1wOiBudW1iZXJcbik6IFRbXSB7XG4gIHJldHVybiBpdGVtcy5maWx0ZXIoKGl0ZW0pID0+IHtcbiAgICBjb25zdCBpdGVtVGltZXN0YW1wID0gaXRlbS5jcmVhdGVkQXQgfHwgaXRlbS50aW1lc3RhbXAgfHwgMDtcbiAgICByZXR1cm4gaXRlbVRpbWVzdGFtcCA+IGxhc3RTeW5jVGltZXN0YW1wO1xuICB9KTtcbn1cbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFFQSxPQUFPLFNBQVNBLGFBQWFBLENBQzNCQyxLQUFVLEVBQ1ZDLGlCQUF5QixFQUNwQjtFQUFBQyxjQUFBLEdBQUFDLENBQUE7RUFBQUQsY0FBQSxHQUFBRSxDQUFBO0VBQ0wsT0FBT0osS0FBSyxDQUFDSyxNQUFNLENBQUMsVUFBQ0MsSUFBSSxFQUFLO0lBQUFKLGNBQUEsR0FBQUMsQ0FBQTtJQUM1QixJQUFNSSxhQUFhLElBQUFMLGNBQUEsR0FBQUUsQ0FBQSxPQUFHLENBQUFGLGNBQUEsR0FBQU0sQ0FBQSxVQUFBRixJQUFJLENBQUNHLFNBQVMsTUFBQVAsY0FBQSxHQUFBTSxDQUFBLFVBQUlGLElBQUksQ0FBQ0ksU0FBUyxNQUFBUixjQUFBLEdBQUFNLENBQUEsVUFBSSxDQUFDO0lBQUNOLGNBQUEsR0FBQUUsQ0FBQTtJQUM1RCxPQUFPRyxhQUFhLEdBQUdOLGlCQUFpQjtFQUMxQyxDQUFDLENBQUM7QUFDSjtBQUVBLE9BQU8sU0FBU1UsY0FBY0EsQ0FDNUJYLEtBQVUsRUFDVkMsaUJBQXlCLEVBQ3BCO0VBQUFDLGNBQUEsR0FBQUMsQ0FBQTtFQUFBRCxjQUFBLEdBQUFFLENBQUE7RUFDTCxPQUFPSixLQUFLLENBQUNLLE1BQU0sQ0FBQyxVQUFDQyxJQUFJLEVBQUs7SUFBQUosY0FBQSxHQUFBQyxDQUFBO0lBQzVCLElBQU1JLGFBQWEsSUFBQUwsY0FBQSxHQUFBRSxDQUFBLE9BQUcsQ0FBQUYsY0FBQSxHQUFBTSxDQUFBLFVBQUFGLElBQUksQ0FBQ00sU0FBUyxNQUFBVixjQUFBLEdBQUFNLENBQUEsVUFBSUYsSUFBSSxDQUFDSSxTQUFTLE1BQUFSLGNBQUEsR0FBQU0sQ0FBQSxVQUFJLENBQUM7SUFBQ04sY0FBQSxHQUFBRSxDQUFBO0lBQzVELE9BQU9HLGFBQWEsR0FBR04saUJBQWlCO0VBQzFDLENBQUMsQ0FBQztBQUNKIiwiaWdub3JlTGlzdCI6W119
