@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, lazy, Suspense } from 'react';
 import {
   View,
   Text,
@@ -13,11 +13,17 @@ import {
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useLocalSearchParams, Stack } from 'expo-router';
-import { Send, AlertTriangle, Mic, X, AlertOctagon, Smile } from 'lucide-react-native';
-import { EmojiPicker } from '@/components/EmojiPicker';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { Send, AlertTriangle, Mic, X, AlertOctagon, Smile, Phone, Video } from 'lucide-react-native';
 import { EmojiRenderer } from '@/components/EmojiRenderer';
-import { ChatBackgroundPicker } from '@/components/ChatBackgroundPicker';
+
+// Lazy loading для тяжелых компонентов (загружаются только при открытии)
+const EmojiPicker = lazy(() => 
+  import('@/components/EmojiPicker').then(module => ({ default: module.EmojiPicker }))
+);
+const ChatBackgroundPicker = lazy(() => 
+  import('@/components/ChatBackgroundPicker').then(module => ({ default: module.ChatBackgroundPicker }))
+);
 import { replaceTextSmileys } from '@/utils/emojiUtils';
 import { useMonitoring } from '@/constants/MonitoringContext';
 import { useParentalControls } from '@/constants/ParentalControlsContext';
@@ -29,6 +35,7 @@ import { HapticFeedback } from '@/constants/haptics';
 import { Audio } from 'expo-av';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { logger } from '@/utils/logger';
+import { OnlineStatus } from '@/components/OnlineStatus';
 
 const RISK_COLORS: Record<RiskLevel, string> = {
   safe: '#10b981',
@@ -50,6 +57,7 @@ const RISK_LABELS: Record<RiskLevel, string> = {
 const messageAnimations = new Map<string, Animated.Value>();
 
 export default function ChatScreen() {
+  const router = useRouter();
   const { chatId } = useLocalSearchParams<{ chatId: string }>();
   const { chats, addMessage, isAnalyzing } = useMonitoring();
   const { triggerSOS } = useParentalControls();
@@ -425,6 +433,43 @@ export default function ChatScreen() {
           title: chat.isGroup ? chat.groupName : chat.participantNames.join(' и '),
           headerRight: () => (
             <View style={styles.headerRightContainer}>
+              {!chat.isGroup && chat.participants && chat.participants.length > 0 && (
+                <>
+                  <OnlineStatus userId={chat.participants[0]} size="small" style={styles.onlineStatus} />
+                  <TouchableOpacity
+                    style={styles.callButton}
+                    onPress={() => {
+                      HapticFeedback.medium();
+                      router.push({
+                        pathname: '/call',
+                        params: {
+                          contactName: chat.participantNames[0] || 'Контакт',
+                          phoneNumber: chat.participants[0] || '',
+                          type: 'audio',
+                        },
+                      } as any);
+                    }}
+                  >
+                    <Phone size={20} color="#4A90E2" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.callButton}
+                    onPress={() => {
+                      HapticFeedback.medium();
+                      router.push({
+                        pathname: '/call',
+                        params: {
+                          contactName: chat.participantNames[0] || 'Контакт',
+                          phoneNumber: chat.participants[0] || '',
+                          type: 'video',
+                        },
+                      } as any);
+                    }}
+                  >
+                    <Video size={20} color="#4A90E2" />
+                  </TouchableOpacity>
+                </>
+              )}
               {canChangeChatBackgrounds() && (
                 <TouchableOpacity
                   style={styles.backgroundButton}
@@ -558,22 +603,30 @@ export default function ChatScreen() {
         </View>
       </KeyboardAvoidingView>
 
-      {/* Emoji Picker Modal */}
-      <EmojiPicker
-        visible={showEmojiPicker}
-        onClose={() => setShowEmojiPicker(false)}
-        onEmojiSelect={handleEmojiSelect}
-      />
+      {/* Emoji Picker Modal - Lazy loaded */}
+      {showEmojiPicker && (
+        <Suspense fallback={<View style={styles.loadingContainer}><ActivityIndicator size="small" color="#FF6B35" /></View>}>
+          <EmojiPicker
+            visible={showEmojiPicker}
+            onClose={() => setShowEmojiPicker(false)}
+            onEmojiSelect={handleEmojiSelect}
+          />
+        </Suspense>
+      )}
 
-      {/* Background Picker Modal */}
-      <ChatBackgroundPicker
-        visible={showBackgroundPicker}
-        onClose={() => setShowBackgroundPicker(false)}
-        chatId={chatId}
-        onSelect={() => {
-          setShowBackgroundPicker(false);
-        }}
-      />
+      {/* Background Picker Modal - Lazy loaded */}
+      {showBackgroundPicker && (
+        <Suspense fallback={<View style={styles.loadingContainer}><ActivityIndicator size="small" color="#FF6B35" /></View>}>
+          <ChatBackgroundPicker
+            visible={showBackgroundPicker}
+            onClose={() => setShowBackgroundPicker(false)}
+            chatId={chatId}
+            onSelect={() => {
+              setShowBackgroundPicker(false);
+            }}
+          />
+        </Suspense>
+      )}
     </>
   );
 }
@@ -783,6 +836,17 @@ const styles = StyleSheet.create({
     gap: 8,
     marginRight: 8,
   },
+  onlineStatus: {
+    marginRight: 4,
+  },
+  callButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   backgroundButton: {
     width: 36,
     height: 36,
@@ -962,5 +1026,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
+  },
+  loadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });
