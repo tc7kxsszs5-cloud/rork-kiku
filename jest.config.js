@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'jest-expo',
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|@nkzw/create-context-hook)',
   ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testMatch: [
@@ -41,16 +41,25 @@ module.exports = {
   // Кэширование результатов тестов для ускорения
   cache: true,
   cacheDirectory: '<rootDir>/.jest-cache',
-  
-  // Исправление проблемы с readonly property
-  // Отключаем изоляцию модулей для некоторых случаев
-  // Это может помочь с проблемой readonly property
+
   testEnvironment: 'node',
+
+  // Исключаем kids, избегаем Haste collision с другим package.json
+  modulePathIgnorePatterns: ['<rootDir>/kids/'],
+
+  // E2E тянет app/_layout, expo-splash-screen, NativeModules — не подходит для Jest node env
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/\\.expo/',
+    '<rootDir>/__tests__/e2e/',
+    // contexts.test теперь использует динамические импорты, можно запускать
+  ],
   
-  // Дополнительные настройки для обхода проблем с readonly
+  // Настройки для работы с ESM модулями
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   globals: {
     'ts-jest': {
-      isolatedModules: false,
+      useESM: true,
     },
   },
 };
