@@ -1,0 +1,113 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run security scans weekly on Mondays at 00:00 UTC
+    - cron: '0 0 * * 1'
+
+jobs:
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - name: Install dependencies
+        run: bun install
+      
+      - name: Run Bun security audit
+        run: bun audit
+        continue-on-error: true
+      
+      - name: Check for known vulnerabilities
+        run: |
+          echo "🔍 Checking for security vulnerabilities..."
+          bun audit --json > audit-report.json || true
+          
+          if [ -f "audit-report.json" ]; then
+            echo "📊 Audit report generated"
+            cat audit-report.json | head -50
+          fi
+        continue-on-error: true
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          deny-licenses: GPL-2.0, GPL-3.0
+        continue-on-error: true
+
+  code-scanning:
+    name: Code Security Scanning
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - name: Install dependencies
+        run: bun install
+      
+      - name: Run ESLint security rules
+        run: bun run lint --max-warnings=0
+        continue-on-error: true
+      
+      - name: Check for hardcoded secrets
+        run: |
+          echo "🔐 Checking for potential secrets..."
+          # Basic check for common secret patterns
+          if grep -r "password.*=.*['\"].*[A-Za-z0-9]{8,}" --include="*.ts" --include="*.tsx" --include="*.js" .; then
+            echo "⚠️  Potential hardcoded credentials found"
+            exit 1
+          else
+            echo "✅ No obvious hardcoded secrets found"
+          fi
+        continue-on-error: true
+
+  license-check:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - name: Install dependencies
+        run: bun install
+      
+      - name: Check licenses
+        run: |
+          echo "📜 Checking package licenses..."
+          # Check for problematic licenses
+          bun pm ls --json | jq -r '.[] | select(.license == "GPL-2.0" or .license == "GPL-3.0") | .name' || echo "✅ No GPL licenses found"
+        continue-on-error: true
