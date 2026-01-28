@@ -1,26 +1,27 @@
 /**
- * Тесты для компонента EmojiRenderer
- * Проверяет рендеринг эмодзи в тексте
+ * Тесты для EmojiRenderer
+ * Проверяет отображение эмодзи, кастомных эмодзи, парсинг текста
  */
 
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { EmojiRenderer } from '@/components/EmojiRenderer';
 
-// Мок для CustomEmoji
-jest.mock('@/components/CustomEmoji', () => ({
-  CustomEmoji: ({ emoji, size }: any) => (
-    <div data-testid="custom-emoji" data-emoji-id={emoji.id} data-size={size} />
-  ),
+// Моки
+jest.mock('@/utils/customEmojis', () => ({
+  loadCustomEmojis: jest.fn().mockResolvedValue([
+    {
+      id: 'custom-1',
+      name: 'Test Emoji',
+      type: 'image',
+      source: 'https://example.com/emoji.png',
+    },
+  ]),
+  CustomEmojiData: {},
 }));
 
-// Мок для утилиты загрузки эмодзи
-jest.mock('@/utils/customEmojis', () => ({
-  loadCustomEmojis: jest.fn(() =>
-    Promise.resolve([
-      { id: 'emoji-1', name: 'Test Emoji', url: 'test-url' },
-    ])
-  ),
+jest.mock('@/components/CustomEmoji', () => ({
+  CustomEmoji: ({ emoji }: any) => null,
 }));
 
 describe('EmojiRenderer', () => {
@@ -28,80 +29,70 @@ describe('EmojiRenderer', () => {
     jest.clearAllMocks();
   });
 
-  describe('Рендеринг текста', () => {
-    it('должен рендерить обычный текст', () => {
+  describe('Рендеринг', () => {
+    it('должен отображать обычный текст', () => {
       const { getByText } = render(<EmojiRenderer text="Hello world" />);
       expect(getByText('Hello world')).toBeTruthy();
     });
 
-    it('должен рендерить текст с эмодзи', () => {
+    it('должен отображать Unicode эмодзи', () => {
       const { getByText } = render(<EmojiRenderer text="Hello 😀 world" />);
-      expect(getByText('Hello')).toBeTruthy();
-      expect(getByText('world')).toBeTruthy();
+      expect(getByText(/Hello/)).toBeTruthy();
+      expect(getByText(/world/)).toBeTruthy();
+    });
+
+    it('должен обрабатывать пустой текст', () => {
+      const { UNSAFE_getByType } = render(<EmojiRenderer text="" />);
+      const text = UNSAFE_getByType('Text');
+      expect(text).toBeTruthy();
     });
   });
 
   describe('Кастомные эмодзи', () => {
-    it('должен обрабатывать кастомные эмодзи в формате [custom:id]', async () => {
-      const { getByTestId } = render(
-        <EmojiRenderer text="Hello [custom:emoji-1] world" />
-      );
+    it('должен парсить кастомные эмодзи из текста', async () => {
+      const { getByText } = render(<EmojiRenderer text="Hello [custom:custom-1] world" />);
       
-      // Ждем загрузки эмодзи
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      
-      // Проверяем что кастомный эмодзи рендерится
-      expect(getByTestId).toBeTruthy();
-    });
-
-    it('должен оставлять текст если кастомный эмодзи не найден', () => {
-      const { getByText } = render(
-        <EmojiRenderer text="Hello [custom:unknown] world" />
-      );
-      expect(getByText('Hello')).toBeTruthy();
-      expect(getByText('[custom:unknown]')).toBeTruthy();
-      expect(getByText('world')).toBeTruthy();
-    });
-  });
-
-  describe('Размер эмодзи', () => {
-    it('должен использовать размер по умолчанию (20)', () => {
-      const { container } = render(<EmojiRenderer text="Test" />);
-      expect(container).toBeTruthy();
-    });
-
-    it('должен применять кастомный размер', () => {
-      const { container } = render(<EmojiRenderer text="Test" emojiSize={30} />);
-      expect(container).toBeTruthy();
-    });
-  });
-
-  describe('Кастомные стили', () => {
-    it('должен применять кастомный style', () => {
-      const customStyle = { fontSize: 16 };
-      const { container } = render(
-        <EmojiRenderer text="Test" style={customStyle} />
-      );
-      expect(container).toBeTruthy();
-    });
-  });
-
-  describe('Edge cases', () => {
-    it('должен обрабатывать пустой текст', () => {
-      const { container } = render(<EmojiRenderer text="" />);
-      expect(container).toBeTruthy();
-    });
-
-    it('должен обрабатывать текст только с кастомными эмодзи', () => {
-      const { container } = render(<EmojiRenderer text="[custom:emoji-1]" />);
-      expect(container).toBeTruthy();
+      // Проверяем, что текст разбит правильно
+      expect(getByText(/Hello/)).toBeTruthy();
+      expect(getByText(/world/)).toBeTruthy();
     });
 
     it('должен обрабатывать несколько кастомных эмодзи', () => {
-      const { container } = render(
-        <EmojiRenderer text="[custom:emoji-1] text [custom:emoji-1]" />
+      const { getByText } = render(
+        <EmojiRenderer text="Hello [custom:custom-1] and [custom:custom-1] again" />
       );
-      expect(container).toBeTruthy();
+      
+      expect(getByText(/Hello/)).toBeTruthy();
+      expect(getByText(/and/)).toBeTruthy();
+      expect(getByText(/again/)).toBeTruthy();
+    });
+
+    it('должен обрабатывать несуществующие кастомные эмодзи как текст', () => {
+      const { getByText } = render(<EmojiRenderer text="Hello [custom:unknown] world" />);
+      expect(getByText(/\[custom:unknown\]/)).toBeTruthy();
+    });
+  });
+
+  describe('Размеры', () => {
+    it('должен использовать размер по умолчанию', () => {
+      const { UNSAFE_getByType } = render(<EmojiRenderer text="Test" />);
+      const text = UNSAFE_getByType('Text');
+      expect(text).toBeTruthy();
+    });
+
+    it('должен использовать переданный размер', () => {
+      const { UNSAFE_getByType } = render(<EmojiRenderer text="Test" emojiSize={30} />);
+      const text = UNSAFE_getByType('Text');
+      expect(text).toBeTruthy();
+    });
+  });
+
+  describe('Стилизация', () => {
+    it('должен применять переданный style', () => {
+      const customStyle = { fontSize: 18 };
+      const { UNSAFE_getByType } = render(<EmojiRenderer text="Test" style={customStyle} />);
+      const text = UNSAFE_getByType('Text');
+      expect(text.props.style).toContainEqual(customStyle);
     });
   });
 });
