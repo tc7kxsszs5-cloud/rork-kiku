@@ -1,7 +1,12 @@
 // Jest setup file for React Native / Expo
 // Этот файл выполняется перед каждым тестом
 
-// Мок для expo-modules-core (ESM проблема)
+// КРИТИЧЕСКИЙ МОК: Должен быть ДО всех других импортов
+// Мок для expo-modules-core/src/polyfill/dangerous-internal.ts (ESM проблема)
+jest.mock('expo-modules-core/src/polyfill/dangerous-internal', () => ({}), { virtual: true });
+jest.mock('expo-modules-core/src/polyfill/dangerous-internal.ts', () => ({}), { virtual: true });
+
+// Общий мок для expo-modules-core
 jest.mock('expo-modules-core', () => ({
   requireNativeViewManager: jest.fn(),
   NativeModulesProxy: {},
