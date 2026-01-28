@@ -1,0 +1,62 @@
+8532bcdff7d64d6d086dc22fe9dd4157
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault").default;
+var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var _exportNames = {
+  Audio: true,
+  Video: true
+};
+exports.Audio = void 0;
+Object.defineProperty(exports, "Video", {
+  enumerable: true,
+  get: function get() {
+    return _Video.default;
+  }
+});
+var Audio = _interopRequireWildcard(require("./Audio"));
+exports.Audio = Audio;
+var _Video = _interopRequireDefault(require("./Video"));
+var _AV = require("./AV.types");
+Object.keys(_AV).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _AV[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _AV[key];
+    }
+  });
+});
+var _Audio2 = require("./Audio.types");
+Object.keys(_Audio2).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _Audio2[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _Audio2[key];
+    }
+  });
+});
+var _Video2 = require("./Video.types");
+Object.keys(_Video2).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _Video2[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _Video2[key];
+    }
+  });
+});
+var loggedDeprecationWarning = false;
+if (!loggedDeprecationWarning) {
+  console.warn('[expo-av]: Expo AV has been deprecated and will be removed in SDK 54. Use the `expo-audio` and `expo-video` packages to replace the required functionality.');
+  loggedDeprecationWarning = true;
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJBdWRpbyIsIl9pbnRlcm9wUmVxdWlyZVdpbGRjYXJkIiwicmVxdWlyZSIsImV4cG9ydHMiLCJfVmlkZW8iLCJfaW50ZXJvcFJlcXVpcmVEZWZhdWx0IiwiX0FWIiwiT2JqZWN0Iiwia2V5cyIsImZvckVhY2giLCJrZXkiLCJwcm90b3R5cGUiLCJoYXNPd25Qcm9wZXJ0eSIsImNhbGwiLCJfZXhwb3J0TmFtZXMiLCJkZWZpbmVQcm9wZXJ0eSIsImVudW1lcmFibGUiLCJnZXQiLCJfQXVkaW8yIiwiX1ZpZGVvMiIsImxvZ2dlZERlcHJlY2F0aW9uV2FybmluZyIsImNvbnNvbGUiLCJ3YXJuIl0sInNvdXJjZXMiOlsiLi4vc3JjL2luZGV4LnRzIl0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCAqIGFzIEF1ZGlvIGZyb20gJy4vQXVkaW8nO1xuZXhwb3J0IHsgQXVkaW8gfTtcbmV4cG9ydCB7IGRlZmF1bHQgYXMgVmlkZW8gfSBmcm9tICcuL1ZpZGVvJztcblxubGV0IGxvZ2dlZERlcHJlY2F0aW9uV2FybmluZyA9IGZhbHNlO1xuXG5pZiAoIWxvZ2dlZERlcHJlY2F0aW9uV2FybmluZykge1xuICBjb25zb2xlLndhcm4oXG4gICAgJ1tleHBvLWF2XTogRXhwbyBBViBoYXMgYmVlbiBkZXByZWNhdGVkIGFuZCB3aWxsIGJlIHJlbW92ZWQgaW4gU0RLIDU0LiBVc2UgdGhlIGBleHBvLWF1ZGlvYCBhbmQgYGV4cG8tdmlkZW9gIHBhY2thZ2VzIHRvIHJlcGxhY2UgdGhlIHJlcXVpcmVkIGZ1bmN0aW9uYWxpdHkuJ1xuICApO1xuICBsb2dnZWREZXByZWNhdGlvbldhcm5pbmcgPSB0cnVlO1xufVxuXG5leHBvcnQgKiBmcm9tICcuL0FWLnR5cGVzJztcbmV4cG9ydCAqIGZyb20gJy4vQXVkaW8udHlwZXMnO1xuZXhwb3J0ICogZnJvbSAnLi9WaWRlby50eXBlcyc7XG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7QUFBQSxJQUFBQSxLQUFBLEdBQUFDLHVCQUFBLENBQUFDLE9BQUE7QUFBaUNDLE9BQUEsQ0FBQUgsS0FBQSxHQUFBQSxLQUFBO0FBRWpDLElBQUFJLE1BQUEsR0FBQUMsc0JBQUEsQ0FBQUgsT0FBQTtBQVdBLElBQUFJLEdBQUEsR0FBQUosT0FBQTtBQUFBSyxNQUFBLENBQUFDLElBQUEsQ0FBQUYsR0FBQSxFQUFBRyxPQUFBLFdBQUFDLEdBQUE7RUFBQSxJQUFBQSxHQUFBLGtCQUFBQSxHQUFBO0VBQUEsSUFBQUgsTUFBQSxDQUFBSSxTQUFBLENBQUFDLGNBQUEsQ0FBQUMsSUFBQSxDQUFBQyxZQUFBLEVBQUFKLEdBQUE7RUFBQSxJQUFBQSxHQUFBLElBQUFQLE9BQUEsSUFBQUEsT0FBQSxDQUFBTyxHQUFBLE1BQUFKLEdBQUEsQ0FBQUksR0FBQTtFQUFBSCxNQUFBLENBQUFRLGNBQUEsQ0FBQVosT0FBQSxFQUFBTyxHQUFBO0lBQUFNLFVBQUE7SUFBQUMsR0FBQSxXQUFBQSxJQUFBO01BQUEsT0FBQVgsR0FBQSxDQUFBSSxHQUFBO0lBQUE7RUFBQTtBQUFBO0FBQ0EsSUFBQVEsT0FBQSxHQUFBaEIsT0FBQTtBQUFBSyxNQUFBLENBQUFDLElBQUEsQ0FBQVUsT0FBQSxFQUFBVCxPQUFBLFdBQUFDLEdBQUE7RUFBQSxJQUFBQSxHQUFBLGtCQUFBQSxHQUFBO0VBQUEsSUFBQUgsTUFBQSxDQUFBSSxTQUFBLENBQUFDLGNBQUEsQ0FBQUMsSUFBQSxDQUFBQyxZQUFBLEVBQUFKLEdBQUE7RUFBQSxJQUFBQSxHQUFBLElBQUFQLE9BQUEsSUFBQUEsT0FBQSxDQUFBTyxHQUFBLE1BQUFRLE9BQUEsQ0FBQVIsR0FBQTtFQUFBSCxNQUFBLENBQUFRLGNBQUEsQ0FBQVosT0FBQSxFQUFBTyxHQUFBO0lBQUFNLFVBQUE7SUFBQUMsR0FBQSxXQUFBQSxJQUFBO01BQUEsT0FBQUMsT0FBQSxDQUFBUixHQUFBO0lBQUE7RUFBQTtBQUFBO0FBQ0EsSUFBQVMsT0FBQSxHQUFBakIsT0FBQTtBQUFBSyxNQUFBLENBQUFDLElBQUEsQ0FBQVcsT0FBQSxFQUFBVixPQUFBLFdBQUFDLEdBQUE7RUFBQSxJQUFBQSxHQUFBLGtCQUFBQSxHQUFBO0VBQUEsSUFBQUgsTUFBQSxDQUFBSSxTQUFBLENBQUFDLGNBQUEsQ0FBQUMsSUFBQSxDQUFBQyxZQUFBLEVBQUFKLEdBQUE7RUFBQSxJQUFBQSxHQUFBLElBQUFQLE9BQUEsSUFBQUEsT0FBQSxDQUFBTyxHQUFBLE1BQUFTLE9BQUEsQ0FBQVQsR0FBQTtFQUFBSCxNQUFBLENBQUFRLGNBQUEsQ0FBQVosT0FBQSxFQUFBTyxHQUFBO0lBQUFNLFVBQUE7SUFBQUMsR0FBQSxXQUFBQSxJQUFBO01BQUEsT0FBQUUsT0FBQSxDQUFBVCxHQUFBO0lBQUE7RUFBQTtBQUFBO0FBWEEsSUFBSVUsd0JBQXdCLEdBQUcsS0FBSztBQUVwQyxJQUFJLENBQUNBLHdCQUF3QixFQUFFO0VBQzdCQyxPQUFPLENBQUNDLElBQUksQ0FDViw2SkFBNkosQ0FDOUo7RUFDREYsd0JBQXdCLEdBQUcsSUFBSTtBQUNqQyIsImlnbm9yZUxpc3QiOltdfQ==
