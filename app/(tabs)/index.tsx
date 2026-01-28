@@ -17,6 +17,7 @@ import { HapticFeedback } from '@/constants/haptics';
 import { useThemeMode, ThemePalette } from '@/constants/ThemeContext';
 import { ThemeModeToggle } from '@/components/ThemeModeToggle';
 import { SyncStatusIndicator } from '@/components/SyncStatusIndicator';
+import { OnlineStatus } from '@/components/OnlineStatus';
 
 const RISK_COLORS: Record<RiskLevel, string> = {
   safe: '#10b981',
@@ -39,6 +40,7 @@ type DateFilter = 'all' | 'today' | 'week' | 'month';
 export default function MonitoringScreen() {
   const router = useRouter();
   const { chats, unresolvedAlerts } = useMonitoring();
+  const { theme } = useThemeMode();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRiskFilter, setSelectedRiskFilter] = useState<RiskLevel | 'all'>('all');
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
@@ -46,23 +48,30 @@ export default function MonitoringScreen() {
   const searchBarHeight = useRef(new Animated.Value(0)).current;
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const { theme } = useThemeMode();
+  
   const styles = useMemo(() => createStyles(theme), [theme]);
   
-  const totalChats = chats.length;
-  const totalMessages = chats.reduce((sum, chat) => sum + chat.messages.length, 0);
+  // Безопасная проверка данных
+  const totalChats = chats?.length || 0;
+  const totalMessages = chats?.reduce((sum, chat) => sum + (chat.messages?.length || 0), 0) || 0;
 
   // Получаем список всех участников для фильтра
   const allParticipants = useMemo(() => {
+    if (!chats || !Array.isArray(chats)) return [];
     const participantsSet = new Set<string>();
     chats.forEach((chat) => {
-      chat.participants.forEach((p) => participantsSet.add(p));
-      chat.participantNames.forEach((n) => participantsSet.add(n));
+      if (chat.participants) {
+        chat.participants.forEach((p) => participantsSet.add(p));
+      }
+      if (chat.participantNames) {
+        chat.participantNames.forEach((n) => participantsSet.add(n));
+      }
     });
     return Array.from(participantsSet).sort();
   }, [chats]);
 
   const filteredChats = useMemo(() => {
+    if (!chats || !Array.isArray(chats)) return [];
     let result = chats;
 
     // Расширенный поиск по содержимому сообщений и названиям чатов
@@ -138,17 +147,21 @@ export default function MonitoringScreen() {
   };
 
   const renderChat = useCallback(({ item }: { item: Chat }) => {
-    const messageCount = item.messages.length;
-    const lastActivityText = new Date(item.lastActivity).toLocaleString('ru-RU', {
+    if (!item) return null;
+    const messageCount = item.messages?.length || 0;
+    const lastActivity = item.lastActivity || Date.now();
+    const lastActivityText = new Date(lastActivity).toLocaleString('ru-RU', {
       day: '2-digit',
       month: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
     });
 
-    const chatTitle = item.isGroup ? item.groupName : item.participantNames.join(' и ');
+    const chatTitle = item.isGroup 
+      ? (item.groupName || 'Группа') 
+      : (item.participantNames?.join(' и ') || 'Чат');
     const chatSubtitle = item.isGroup 
-      ? `${item.participants.length} участников • ${messageCount} сообщ.`
+      ? `${item.participants?.length || 0} участников • ${messageCount} сообщ.`
       : `${messageCount} ${messageCount === 1 ? 'сообщение' : 'сообщений'}`;
 
     const GROUP_TYPE_EMOJI: Record<string, string> = {
@@ -172,37 +185,43 @@ export default function MonitoringScreen() {
             <Text style={styles.chatEmoji}>{groupEmoji}</Text>
           </View>
           <View style={styles.chatInfo}>
-            <Text style={styles.chatTitle}>{chatTitle}</Text>
+            <View style={styles.chatTitleRow}>
+              <Text style={styles.chatTitle}>{chatTitle}</Text>
+              {!item.isGroup && <OnlineStatus size="small" style={styles.chatStatus} />}
+            </View>
             <Text style={styles.chatSubtitle}>{chatSubtitle}</Text>
             <Text style={styles.lastActivity}>Последняя активность: {lastActivityText}</Text>
           </View>
         </View>
 
         <View style={styles.chatFooter}>
-          <View style={[styles.riskBadge, { backgroundColor: RISK_COLORS[item.overallRisk] }]}>
-            <Shield size={14} color="#fff" />
-            <Text style={styles.riskText}>{RISK_LABELS[item.overallRisk]}</Text>
-          </View>
+          {item.overallRisk && (
+            <View style={[styles.riskBadge, { backgroundColor: RISK_COLORS[item.overallRisk] || RISK_COLORS.safe }]}>
+              <Shield size={14} color="#fff" />
+              <Text style={styles.riskText}>{RISK_LABELS[item.overallRisk] || RISK_LABELS.safe}</Text>
+            </View>
+          )}
         </View>
       </TouchableOpacity>
     );
-  }, [router, styles]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- styles from theme, omit to avoid extra re-renders
+  }, [router]);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="monitoring-screen">
       <LinearGradient colors={theme.surfaceGradient} style={styles.gradientBackground}>
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <Text style={styles.headerTitle}>KIDS</Text>
-            <Text style={styles.headerSubtitle}>Защита переписок с AI</Text>
+        <View style={styles.header} testID="monitoring-header">
+          <View style={styles.headerTop} testID="monitoring-header-top">
+            <Text style={styles.headerTitle} testID="monitoring-title">KIDS</Text>
+            <Text style={styles.headerSubtitle} testID="monitoring-subtitle">Защита переписок с AI</Text>
           </View>
           <View style={styles.headerActions}>
             <SyncStatusIndicator variant="compact" />
             <TouchableOpacity style={styles.iconButton} onPress={toggleSearch}>
-              <Search size={20} color={theme.textPrimary} />
+              <Search size={20} color={theme?.textPrimary || '#000'} />
             </TouchableOpacity>
             <ThemeModeToggle variant="compact" style={styles.headerToggle} />
-            {unresolvedAlerts.length > 0 && (
+            {unresolvedAlerts && unresolvedAlerts.length > 0 && (
               <View style={styles.alertsBadge}>
                 <AlertTriangle size={16} color="#fff" />
                 <Text style={styles.alertsText}>{unresolvedAlerts.length}</Text>
@@ -223,7 +242,7 @@ export default function MonitoringScreen() {
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <X size={18} color={theme.textSecondary} />
+                <X size={18} color={theme?.textSecondary || '#666'} />
               </TouchableOpacity>
             )}
             <TouchableOpacity
@@ -233,7 +252,7 @@ export default function MonitoringScreen() {
                 HapticFeedback.light();
               }}
             >
-              <Filter size={16} color={showAdvancedFilters ? '#fff' : theme.textSecondary} />
+              <Filter size={16} color={showAdvancedFilters ? '#fff' : (theme?.textSecondary || '#666')} />
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -266,7 +285,7 @@ export default function MonitoringScreen() {
             {allParticipants.length > 0 && (
               <View style={styles.advancedFiltersSection}>
                 <View style={styles.filterSectionHeader}>
-                  <Users size={16} color={theme.textSecondary} />
+                  <Users size={16} color={theme?.textSecondary || '#666'} />
                   <Text style={styles.filterSectionTitle}>Участник</Text>
                 </View>
                 <View style={styles.filterChipsRow}>
@@ -363,7 +382,7 @@ export default function MonitoringScreen() {
         })}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <MessageCircle size={48} color={theme.borderSoft} />
+            <MessageCircle size={48} color={theme?.borderSoft || '#ddd'} />
             <Text style={styles.emptyText}>Ничего не найдено</Text>
           </View>
         }
@@ -396,8 +415,11 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: '800' as const,
-    color: theme.textPrimary,
+    color: '#FFD700', // Всегда ярко-желтый цвет (золотой) - не зависит от темы
     letterSpacing: 1,
+    textShadowColor: '#FFA500', // Оранжевая тень для яркости
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   headerSubtitle: {
     fontSize: 14,
@@ -615,11 +637,19 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
   chatInfo: {
     flex: 1,
   },
+  chatTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
   chatTitle: {
     fontSize: 16,
     fontWeight: '600' as const,
     color: theme.textPrimary,
-    marginBottom: 4,
+  },
+  chatStatus: {
+    marginTop: 2,
   },
   chatSubtitle: {
     fontSize: 14,

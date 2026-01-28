@@ -56,7 +56,8 @@ export const rateLimitMiddleware = (options: RateLimitOptions) => {
 
     // Cleanup old entries periodically (every 1000 requests)
     if (rateLimitStore.size > 1000) {
-      for (const [k, v] of rateLimitStore.entries()) {
+      const entries = Array.from(rateLimitStore.entries());
+      for (const [k, v] of entries) {
         if (now > v.resetAt) {
           rateLimitStore.delete(k);
         }

@@ -7,7 +7,6 @@ import { BiometricAuthSettings } from '@/components/settings/BiometricAuthSettin
 
 export default function MessengerSettingsScreen() {
   const { theme } = useThemeMode();
-
   const styles = createStyles(theme);
 
   return (
@@ -18,7 +17,7 @@ export default function MessengerSettingsScreen() {
     >
       {/* Заголовок */}
       <View style={styles.header}>
-        <Settings size={24} color={theme.textPrimary} />
+        <Settings size={24} color={theme?.textPrimary || '#000'} />
         <Text style={styles.headerTitle}>Настройки мессенджера</Text>
         <Text style={styles.headerDescription}>
           Управление синхронизацией, безопасностью и персонализацией
@@ -28,7 +27,7 @@ export default function MessengerSettingsScreen() {
       {/* Секция: Синхронизация */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <RefreshCcw size={20} color={theme.accentPrimary} />
+          <RefreshCcw size={20} color={theme?.accentPrimary || '#4A90E2'} />
           <Text style={styles.sectionTitle}>Синхронизация</Text>
         </View>
         <View style={styles.sectionContent}>
@@ -39,7 +38,7 @@ export default function MessengerSettingsScreen() {
       {/* Секция: Безопасность */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Shield size={20} color={theme.accentPrimary} />
+          <Shield size={20} color={theme?.accentPrimary || '#4A90E2'} />
           <Text style={styles.sectionTitle}>Безопасность</Text>
         </View>
         <View style={styles.sectionContent}>

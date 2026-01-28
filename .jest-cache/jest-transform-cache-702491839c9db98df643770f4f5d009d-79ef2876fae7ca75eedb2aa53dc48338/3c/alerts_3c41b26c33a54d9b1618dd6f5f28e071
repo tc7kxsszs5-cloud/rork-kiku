@@ -1,0 +1,98 @@
+385dd9e7850690d5b2f32d254a6f7986
+function cov_2dkd9akevn() {
+  var path = "/Users/mac/Desktop/rork-kiku/app/(tabs)/alerts.tsx";
+  var hash = "b9d56d273fa268039d5e231c046029e5ea36bcc6";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/mac/Desktop/rork-kiku/app/(tabs)/alerts.tsx",
+    statementMap: {
+      "0": {
+        start: {
+          line: 6,
+          column: 2
+        },
+        end: {
+          line: 6,
+          column: 127
+        }
+      },
+      "1": {
+        start: {
+          line: 7,
+          column: 2
+        },
+        end: {
+          line: 7,
+          column: 48
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "AlertsRedirect",
+        decl: {
+          start: {
+            line: 5,
+            column: 24
+          },
+          end: {
+            line: 5,
+            column: 38
+          }
+        },
+        loc: {
+          start: {
+            line: 5,
+            column: 41
+          },
+          end: {
+            line: 8,
+            column: 1
+          }
+        },
+        line: 5
+      }
+    },
+    branchMap: {},
+    s: {
+      "0": 0,
+      "1": 0
+    },
+    f: {
+      "0": 0
+    },
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "b9d56d273fa268039d5e231c046029e5ea36bcc6"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_2dkd9akevn = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_2dkd9akevn();
+import React from 'react';
+import { Redirect } from 'expo-router';
+import { logger } from '@/utils/logger';
+import { jsx as _jsx } from "react/jsx-runtime";
+export default function AlertsRedirect() {
+  cov_2dkd9akevn().f[0]++;
+  cov_2dkd9akevn().s[0]++;
+  logger.info('/alerts is deprecated. Redirecting to /security-settings', {
+    component: 'AlertsRedirect',
+    action: 'redirect'
+  });
+  cov_2dkd9akevn().s[1]++;
+  return _jsx(Redirect, {
+    href: "/security-settings"
+  });
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJSZWFjdCIsIlJlZGlyZWN0IiwibG9nZ2VyIiwianN4IiwiX2pzeCIsIkFsZXJ0c1JlZGlyZWN0IiwiY292XzJka2Q5YWtldm4iLCJmIiwicyIsImluZm8iLCJjb21wb25lbnQiLCJhY3Rpb24iLCJocmVmIl0sInNvdXJjZXMiOlsiYWxlcnRzLnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgUmVhY3QgZnJvbSAncmVhY3QnO1xuaW1wb3J0IHsgUmVkaXJlY3QgfSBmcm9tICdleHBvLXJvdXRlcic7XG5pbXBvcnQgeyBsb2dnZXIgfSBmcm9tICdAL3V0aWxzL2xvZ2dlcic7XG5cbmV4cG9ydCBkZWZhdWx0IGZ1bmN0aW9uIEFsZXJ0c1JlZGlyZWN0KCkge1xuICBsb2dnZXIuaW5mbygnL2FsZXJ0cyBpcyBkZXByZWNhdGVkLiBSZWRpcmVjdGluZyB0byAvc2VjdXJpdHktc2V0dGluZ3MnLCB7IGNvbXBvbmVudDogJ0FsZXJ0c1JlZGlyZWN0JywgYWN0aW9uOiAncmVkaXJlY3QnIH0pO1xuICByZXR1cm4gPFJlZGlyZWN0IGhyZWY9XCIvc2VjdXJpdHktc2V0dGluZ3NcIiAvPjtcbn1cbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFBQSxPQUFPQSxLQUFLLE1BQU0sT0FBTztBQUN6QixTQUFTQyxRQUFRLFFBQVEsYUFBYTtBQUN0QyxTQUFTQyxNQUFNLFFBQVEsZ0JBQWdCO0FBQUMsU0FBQUMsR0FBQSxJQUFBQyxJQUFBO0FBRXhDLGVBQWUsU0FBU0MsY0FBY0EsQ0FBQSxFQUFHO0VBQUFDLGNBQUEsR0FBQUMsQ0FBQTtFQUFBRCxjQUFBLEdBQUFFLENBQUE7RUFDdkNOLE1BQU0sQ0FBQ08sSUFBSSxDQUFDLDBEQUEwRCxFQUFFO0lBQUVDLFNBQVMsRUFBRSxnQkFBZ0I7SUFBRUMsTUFBTSxFQUFFO0VBQVcsQ0FBQyxDQUFDO0VBQUNMLGNBQUEsR0FBQUUsQ0FBQTtFQUM3SCxPQUFPSixJQUFBLENBQUNILFFBQVE7SUFBQ1csSUFBSSxFQUFDO0VBQW9CLENBQUUsQ0FBQztBQUMvQyIsImlnbm9yZUxpc3QiOltdfQ==

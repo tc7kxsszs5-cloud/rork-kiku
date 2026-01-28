@@ -1,0 +1,113 @@
+e36b2062262d60c00e09a5185c9cc1ab
+function cov_29v6e6w8pj() {
+  var path = "/Users/mac/Desktop/rork-kiku/backend/trpc/routes/notifications/register-device.ts";
+  var hash = "19c4e27671b995f9c9ce1b40c23ed5abf731041b";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/mac/Desktop/rork-kiku/backend/trpc/routes/notifications/register-device.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 5,
+          column: 39
+        },
+        end: {
+          line: 22,
+          column: 4
+        }
+      },
+      "1": {
+        start: {
+          line: 17,
+          column: 19
+        },
+        end: {
+          line: 17,
+          column: 44
+        }
+      },
+      "2": {
+        start: {
+          line: 18,
+          column: 4
+        },
+        end: {
+          line: 21,
+          column: 6
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "(anonymous_0)",
+        decl: {
+          start: {
+            line: 16,
+            column: 12
+          },
+          end: {
+            line: 16,
+            column: 13
+          }
+        },
+        loc: {
+          start: {
+            line: 16,
+            column: 27
+          },
+          end: {
+            line: 22,
+            column: 3
+          }
+        },
+        line: 16
+      }
+    },
+    branchMap: {},
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0
+    },
+    f: {
+      "0": 0
+    },
+    b: {},
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "19c4e27671b995f9c9ce1b40c23ed5abf731041b"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    cov_29v6e6w8pj = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_29v6e6w8pj();
+import { z } from 'zod';
+import { publicProcedure } from '../../create-context.js';
+import { upsertDeviceRecord } from './store.js';
+export var registerDeviceProcedure = (cov_29v6e6w8pj().s[0]++, publicProcedure.input(z.object({
+  deviceId: z.string().min(3),
+  pushToken: z.string().min(10),
+  platform: z.enum(['ios', 'android', 'web']),
+  appVersion: z.string().optional(),
+  userId: z.string().optional(),
+  permissions: z.string().optional()
+})).mutation(function (_ref) {
+  var input = _ref.input;
+  cov_29v6e6w8pj().f[0]++;
+  var device = (cov_29v6e6w8pj().s[1]++, upsertDeviceRecord(input));
+  cov_29v6e6w8pj().s[2]++;
+  return {
+    device: device,
+    syncedAt: device.lastSyncedAt
+  };
+}));
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJ6IiwicHVibGljUHJvY2VkdXJlIiwidXBzZXJ0RGV2aWNlUmVjb3JkIiwicmVnaXN0ZXJEZXZpY2VQcm9jZWR1cmUiLCJjb3ZfMjl2NmU2dzhwaiIsInMiLCJpbnB1dCIsIm9iamVjdCIsImRldmljZUlkIiwic3RyaW5nIiwibWluIiwicHVzaFRva2VuIiwicGxhdGZvcm0iLCJlbnVtIiwiYXBwVmVyc2lvbiIsIm9wdGlvbmFsIiwidXNlcklkIiwicGVybWlzc2lvbnMiLCJtdXRhdGlvbiIsIl9yZWYiLCJmIiwiZGV2aWNlIiwic3luY2VkQXQiLCJsYXN0U3luY2VkQXQiXSwic291cmNlcyI6WyJyZWdpc3Rlci1kZXZpY2UudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgeiB9IGZyb20gJ3pvZCc7XG5pbXBvcnQgeyBwdWJsaWNQcm9jZWR1cmUgfSBmcm9tICcuLi8uLi9jcmVhdGUtY29udGV4dC5qcyc7XG5pbXBvcnQgeyB1cHNlcnREZXZpY2VSZWNvcmQgfSBmcm9tICcuL3N0b3JlLmpzJztcblxuZXhwb3J0IGNvbnN0IHJlZ2lzdGVyRGV2aWNlUHJvY2VkdXJlID0gcHVibGljUHJvY2VkdXJlXG4gIC5pbnB1dChcbiAgICB6Lm9iamVjdCh7XG4gICAgICBkZXZpY2VJZDogei5zdHJpbmcoKS5taW4oMyksXG4gICAgICBwdXNoVG9rZW46IHouc3RyaW5nKCkubWluKDEwKSxcbiAgICAgIHBsYXRmb3JtOiB6LmVudW0oWydpb3MnLCAnYW5kcm9pZCcsICd3ZWInXSksXG4gICAgICBhcHBWZXJzaW9uOiB6LnN0cmluZygpLm9wdGlvbmFsKCksXG4gICAgICB1c2VySWQ6IHouc3RyaW5nKCkub3B0aW9uYWwoKSxcbiAgICAgIHBlcm1pc3Npb25zOiB6LnN0cmluZygpLm9wdGlvbmFsKCksXG4gICAgfSksXG4gIClcbiAgLm11dGF0aW9uKCh7IGlucHV0IH0pID0+IHtcbiAgICBjb25zdCBkZXZpY2UgPSB1cHNlcnREZXZpY2VSZWNvcmQoaW5wdXQpO1xuICAgIHJldHVybiB7XG4gICAgICBkZXZpY2UsXG4gICAgICBzeW5jZWRBdDogZGV2aWNlLmxhc3RTeW5jZWRBdCxcbiAgICB9O1xuICB9KTtcbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUFBLFNBQVNBLENBQUMsUUFBUSxLQUFLO0FBQ3ZCLFNBQVNDLGVBQWUsUUFBUSx5QkFBeUI7QUFDekQsU0FBU0Msa0JBQWtCLFFBQVEsWUFBWTtBQUUvQyxPQUFPLElBQU1DLHVCQUF1QixJQUFBQyxjQUFBLEdBQUFDLENBQUEsT0FBR0osZUFBZSxDQUNuREssS0FBSyxDQUNKTixDQUFDLENBQUNPLE1BQU0sQ0FBQztFQUNQQyxRQUFRLEVBQUVSLENBQUMsQ0FBQ1MsTUFBTSxDQUFDLENBQUMsQ0FBQ0MsR0FBRyxDQUFDLENBQUMsQ0FBQztFQUMzQkMsU0FBUyxFQUFFWCxDQUFDLENBQUNTLE1BQU0sQ0FBQyxDQUFDLENBQUNDLEdBQUcsQ0FBQyxFQUFFLENBQUM7RUFDN0JFLFFBQVEsRUFBRVosQ0FBQyxDQUFDYSxJQUFJLENBQUMsQ0FBQyxLQUFLLEVBQUUsU0FBUyxFQUFFLEtBQUssQ0FBQyxDQUFDO0VBQzNDQyxVQUFVLEVBQUVkLENBQUMsQ0FBQ1MsTUFBTSxDQUFDLENBQUMsQ0FBQ00sUUFBUSxDQUFDLENBQUM7RUFDakNDLE1BQU0sRUFBRWhCLENBQUMsQ0FBQ1MsTUFBTSxDQUFDLENBQUMsQ0FBQ00sUUFBUSxDQUFDLENBQUM7RUFDN0JFLFdBQVcsRUFBRWpCLENBQUMsQ0FBQ1MsTUFBTSxDQUFDLENBQUMsQ0FBQ00sUUFBUSxDQUFDO0FBQ25DLENBQUMsQ0FDSCxDQUFDLENBQ0FHLFFBQVEsQ0FBQyxVQUFBQyxJQUFBLEVBQWU7RUFBQSxJQUFaYixLQUFLLEdBQUFhLElBQUEsQ0FBTGIsS0FBSztFQUFBRixjQUFBLEdBQUFnQixDQUFBO0VBQ2hCLElBQU1DLE1BQU0sSUFBQWpCLGNBQUEsR0FBQUMsQ0FBQSxPQUFHSCxrQkFBa0IsQ0FBQ0ksS0FBSyxDQUFDO0VBQUNGLGNBQUEsR0FBQUMsQ0FBQTtFQUN6QyxPQUFPO0lBQ0xnQixNQUFNLEVBQU5BLE1BQU07SUFDTkMsUUFBUSxFQUFFRCxNQUFNLENBQUNFO0VBQ25CLENBQUM7QUFDSCxDQUFDLENBQUMiLCJpZ25vcmVMaXN0IjpbXX0=

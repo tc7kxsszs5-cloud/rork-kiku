@@ -1,5 +1,7 @@
 /**
  * Тесты для системы версионирования
+ * AsyncStorage мокается в jest.setup.js (default + named exports).
+ * Мок настроен так, чтобы работать и для статического, и для динамического импорта.
  */
 
 import {
@@ -11,17 +13,12 @@ import {
 } from '@/utils/versioning';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Мокаем AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () => ({
-  default: {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-  },
-}));
-
 describe('versioning', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Сбрасываем моки перед каждым тестом
+    (AsyncStorage.getItem as jest.Mock).mockClear();
+    (AsyncStorage.setItem as jest.Mock).mockClear();
   });
 
   describe('getVersionInfo', () => {
@@ -94,6 +91,7 @@ describe('versioning', () => {
       const version = await getStoredVersion('@test_key');
 
       expect(version).toBe(1);
+      expect(AsyncStorage.getItem).toHaveBeenCalledWith('@test_key_version');
     });
 
     it('должен вернуть 1 при ошибке', async () => {
@@ -132,7 +130,7 @@ describe('versioning', () => {
         }
 
         expect(errorThrown).toBe(false);
-        expect(AsyncStorage.setItem).toHaveBeenCalled();
+        expect(AsyncStorage.setItem).toHaveBeenCalledWith('@test_key_version', '2');
         // Проверяем, что ошибка была залогирована
         expect(errorSpy).toHaveBeenCalled();
       } finally {

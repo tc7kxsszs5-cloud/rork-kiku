@@ -8,6 +8,9 @@ import { syncChatsRouter } from "./routes/sync/chats.js";
 import { syncAlertsRouter } from "./routes/sync/alerts.js";
 import { syncSettingsRouter } from "./routes/sync/settings.js";
 import { dbCheckProcedure } from "./routes/test/db-check.js";
+import { registerParentProcedure } from "./routes/auth/register-parent.js";
+import { registerChildProcedure } from "./routes/auth/register-child.js";
+import { validateParentCodeProcedure } from "./routes/auth/validate-code.js";
 
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
@@ -28,6 +31,11 @@ export const appRouter = createTRPCRouter({
   }),
   test: createTRPCRouter({
     dbCheck: dbCheckProcedure,
+  }),
+  auth: createTRPCRouter({
+    registerParent: registerParentProcedure,
+    registerChild: registerChildProcedure,
+    validateParentCode: validateParentCodeProcedure,
   }),
 });
 

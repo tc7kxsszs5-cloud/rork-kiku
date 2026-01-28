@@ -152,6 +152,15 @@ bun run test:coverage
 
 Отчет будет в `coverage/` директории.
 
+## Исключённые из `bun run test`
+
+Сейчас по умолчанию **не** запускаются:
+
+- **`__tests__/e2e/`** — E2E тянет `app/_layout`, `expo-splash-screen`, NativeModules; для Jest в node env не подходит.
+- **`__tests__/integration/contexts.test.tsx`** — `require()` контекстов подтягивает ESM `@nkzw/create-context-hook`, что ломает Jest.
+
+Их можно запускать отдельно (`bun run test:e2e`, `bunx jest __tests__/integration/contexts.test`) при наличии подходящего окружения (напр. нативное E2E).
+
 ## Troubleshooting
 
 ### Тесты падают с таймаутом

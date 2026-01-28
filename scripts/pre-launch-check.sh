@@ -61,6 +61,16 @@ if pgrep -f "rork start" > /dev/null; then
     warn "Найден запущенный процесс Rork. Остановите его перед запуском."
 fi
 
+if pgrep -f "expo run:ios" > /dev/null; then
+    warn "Найден запущенный процесс 'expo run:ios'. Остановите его перед запуском."
+    EXPO_PIDS=$(pgrep -f "expo run:ios" | tr '\n' ' ')
+    warn "PID процессов: $EXPO_PIDS"
+fi
+
+if pgrep -f "expo start" > /dev/null; then
+    info "Найден запущенный процесс 'expo start' (это нормально для dev сервера)"
+fi
+
 if [ $ERRORS -eq 0 ]; then
     echo ""
     info "✅ Проект готов к запуску!"

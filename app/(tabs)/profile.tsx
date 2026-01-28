@@ -45,6 +45,7 @@ import { HapticFeedback } from '@/constants/haptics';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { useThemeMode, ThemePalette } from '@/constants/ThemeContext';
 import { ThemeModeToggle } from '@/components/ThemeModeToggle';
+import { OnlineStatus } from '@/components/OnlineStatus';
 import { logger } from '@/utils/logger';
 import { useTranslation } from 'react-i18next';
 import i18n from '@/constants/i18n';
@@ -177,7 +178,7 @@ const DIAGNOSTIC_LABELS: Record<NotificationTestType, string> = {
 
 export default function ProfileScreen() {
   const { user, isLoading, identifyUser, updateUser, logoutUser, removeChild } = useUser();
-  const { createChildProfile, switchToChildMode } = useAuth();
+  const { createChildProfile, switchToChildMode, isAuthenticated, role: authRole, login } = useAuth();
   const { i18n: i18nInstance } = useTranslation();
   // Определяем роль на основе наличия детей: если есть дети - родитель, если нет - ребенок
   // const isParent = useMemo(() => user ? (user.children?.length > 0 || user.email) : false, [user]);
@@ -556,9 +557,12 @@ export default function ProfileScreen() {
         <View style={styles.heroIconWrapper}>
           <UserIcon color={theme.textPrimary} size={32} />
         </View>
-        <Text style={styles.heroName} testID="profile-name-display">
-          {name || 'Новый пользователь'}
-        </Text>
+        <View style={styles.heroNameRow}>
+          <Text style={styles.heroName} testID="profile-name-display">
+            {name || 'Новый пользователь'}
+          </Text>
+          <OnlineStatus userId={user?.id} size="small" style={styles.heroStatus} />
+        </View>
         <Text style={styles.heroRole} testID="profile-role-display">
           {role === 'parent' ? 'Родитель' : 'Ребенок'} • {language === 'ru' ? 'Русский' : 'English'}
         </Text>
@@ -574,6 +578,63 @@ export default function ProfileScreen() {
         </View>
         <ThemeModeToggle variant="expanded" style={styles.heroToggle} testID="profile-theme-toggle" />
       </LinearGradient>
+
+      {/* Переключатель ролей */}
+      {isAuthenticated && (
+        <View style={styles.roleSwitchSection}>
+          <View style={styles.roleSwitchContainer}>
+            <View style={styles.roleSwitchInfo}>
+              <Text style={styles.roleSwitchLabel}>Режим работы</Text>
+              <Text style={styles.roleSwitchDescription}>
+                {authRole === 'parent' ? 'Родительский режим - полный доступ' : 'Детский режим - ограниченный доступ'}
+              </Text>
+            </View>
+            <Switch
+              value={authRole === 'parent'}
+              onValueChange={async (value) => {
+                HapticFeedback.selection();
+                try {
+                  if (value) {
+                    // Переключение на родителя
+                    if (user?.id) {
+                      await login(user.id, 'parent');
+                      if (user) {
+                        await updateUser({ role: 'parent' });
+                      }
+                    } else {
+                      Alert.alert('Ошибка', 'Не удалось определить пользователя');
+                      return;
+                    }
+                  } else {
+                    // Переключение на ребенка
+                    if (user?.children && user.children.length > 0) {
+                      const firstChild = user.children[0];
+                      const success = await switchToChildMode(firstChild.id);
+                      if (!success) {
+                        Alert.alert('Ошибка', 'Не удалось переключиться на режим ребенка');
+                        return;
+                      }
+                    } else if (authRole === 'parent') {
+                      Alert.alert('Нет детей', 'Сначала добавьте ребенка в профиле');
+                      return;
+                    } else {
+                      // Уже в режиме ребенка - просто возвращаемся на главный
+                    }
+                  }
+                  
+                  // Возврат на главный экран приложения (вкладка "Чаты")
+                  router.replace('/(tabs)/index' as any);
+                } catch (error) {
+                  console.error('[ProfileScreen] Role switch error:', error);
+                  Alert.alert('Ошибка', 'Не удалось переключить режим. Попробуйте позже.');
+                }
+              }}
+              trackColor={{ false: theme.borderSoft, true: theme.interactive?.primary || '#4A90E2' }}
+              thumbColor={authRole === 'parent' ? '#fff' : '#f4f3f4'}
+            />
+          </View>
+        </View>
+      )}
 
       {error && (
         <View style={styles.errorBanner} testID="profile-error-banner">
@@ -1080,10 +1141,19 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 16,
   },
+  heroNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
   heroName: {
     fontSize: 26,
     fontWeight: '800' as const,
     color: theme.textPrimary,
+  },
+  heroStatus: {
+    marginTop: 2,
   },
   heroRole: {
     fontSize: 14,
@@ -1661,7 +1731,7 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
   addButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: theme.interactive.primary,
+    backgroundColor: theme.interactive?.primary || theme.accentPrimary,
     borderRadius: 8,
   },
   addButtonText: {
@@ -1688,12 +1758,12 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
   childCardName: {
     fontSize: 16,
     fontWeight: '700',
-    color: theme.text.primary,
+    color: theme.textPrimary,
     marginBottom: 4,
   },
   childCardAge: {
     fontSize: 13,
-    color: theme.text.secondary,
+    color: theme.textSecondary,
   },
   childCardActions: {
     flexDirection: 'row',
@@ -1718,7 +1788,7 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: theme.text.tertiary,
+    color: theme.textSecondary,
     textAlign: 'center',
     padding: 20,
   },
@@ -1866,5 +1936,96 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     justifyContent: 'center',
     gap: 32,
     paddingVertical: 16,
+  },
+  roleSwitchSection: {
+    marginHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  roleSwitchContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: theme.card,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+  },
+  roleSwitchInfo: {
+    flex: 1,
+    marginRight: 16,
+  },
+  roleSwitchLabel: {
+    fontSize: 16,
+    fontWeight: '700' as const,
+    color: theme.textPrimary,
+    marginBottom: 4,
+  },
+  roleSwitchDescription: {
+    fontSize: 13,
+    color: theme.textSecondary,
+  },
+  submenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: theme.card,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+    gap: 12,
+  },
+  submenuItemContent: {
+    flex: 1,
+  },
+  submenuItemTitle: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    color: theme.textPrimary,
+    marginBottom: 4,
+  },
+  submenuItemDescription: {
+    fontSize: 13,
+    color: theme.textSecondary,
+  },
+  statusSection: {
+    marginHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  statusButton: {
+    backgroundColor: theme.card,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: theme.borderSoft,
+  },
+  statusButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  statusIconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: (theme.interactive?.primary || theme.accentPrimary) + '20',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  statusButtonInfo: {
+    flex: 1,
+  },
+  statusButtonTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: theme.textPrimary,
+    marginBottom: 4,
+  },
+  statusButtonDescription: {
+    fontSize: 13,
+    color: theme.textSecondary,
   },
 });

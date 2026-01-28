@@ -1,0 +1,146 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e9]:
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: KIDS
+          - generic [ref=e19]: Защита переписок с AI
+        - generic [ref=e20]:
+          - img [ref=e22]
+          - img [ref=e26]
+          - generic [ref=e29] [cursor=pointer]:
+            - img [ref=e30]
+            - generic [ref=e36]: День
+      - generic [ref=e38]:
+        - img [ref=e39]
+        - textbox "Поиск по участникам и содержимому сообщений..." [ref=e42]
+        - img [ref=e44]
+      - generic [ref=e46]:
+        - generic [ref=e48]: Все
+        - generic [ref=e50]: Безопасно
+        - generic [ref=e52]: Средний
+        - generic [ref=e54]: Высокий
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - img [ref=e57]
+          - generic [ref=e59]: "6"
+          - generic [ref=e60]: Чатов
+        - generic [ref=e61]:
+          - img [ref=e62]
+          - generic [ref=e64]: "6"
+          - generic [ref=e65]: Сообщений
+        - generic [ref=e66]:
+          - img [ref=e67]
+          - generic [ref=e69]: "0"
+          - generic [ref=e70]: Тревог
+    - generic [ref=e72]:
+      - generic [ref=e74] [cursor=pointer]:
+        - generic [ref=e75]:
+          - generic [ref=e77]: 💬
+          - generic [ref=e78]:
+            - generic [ref=e80]: Алексей и Мария
+            - generic [ref=e83]: 1 сообщение
+            - generic [ref=e84]: "Последняя активность: 26.01, 12:22"
+        - generic [ref=e86]:
+          - img [ref=e87]
+          - generic [ref=e89]: Безопасно
+      - generic [ref=e91] [cursor=pointer]:
+        - generic [ref=e92]:
+          - generic [ref=e94]: 💬
+          - generic [ref=e95]:
+            - generic [ref=e97]: Дмитрий и Анна
+            - generic [ref=e100]: 1 сообщение
+            - generic [ref=e101]: "Последняя активность: 26.01, 11:22"
+        - generic [ref=e103]:
+          - img [ref=e104]
+          - generic [ref=e106]: Безопасно
+      - generic [ref=e108] [cursor=pointer]:
+        - generic [ref=e109]:
+          - generic [ref=e111]: 💬
+          - generic [ref=e112]:
+            - generic [ref=e114]: Иван и Ольга
+            - generic [ref=e117]: 0 сообщений
+            - generic [ref=e118]: "Последняя активность: 26.01, 10:22"
+        - generic [ref=e120]:
+          - img [ref=e121]
+          - generic [ref=e123]: Безопасно
+      - generic [ref=e125] [cursor=pointer]:
+        - generic [ref=e126]:
+          - generic [ref=e128]: 🏫
+          - generic [ref=e129]:
+            - generic [ref=e131]: 5А класс
+            - generic [ref=e132]: 8 участников • 2 сообщ.
+            - generic [ref=e133]: "Последняя активность: 26.01, 12:52"
+        - generic [ref=e135]:
+          - img [ref=e136]
+          - generic [ref=e138]: Безопасно
+      - generic [ref=e140] [cursor=pointer]:
+        - generic [ref=e141]:
+          - generic [ref=e143]: ⚽
+          - generic [ref=e144]:
+            - generic [ref=e146]: Футбольная секция
+            - generic [ref=e147]: 5 участников • 1 сообщ.
+            - generic [ref=e148]: "Последняя активность: 26.01, 11:52"
+        - generic [ref=e150]:
+          - img [ref=e151]
+          - generic [ref=e153]: Безопасно
+      - generic [ref=e155] [cursor=pointer]:
+        - generic [ref=e156]:
+          - generic [ref=e158]: 📚
+          - generic [ref=e159]:
+            - generic [ref=e161]: Математический кружок
+            - generic [ref=e162]: 6 участников • 1 сообщ.
+            - generic [ref=e163]: "Последняя активность: 26.01, 10:52"
+        - generic [ref=e165]:
+          - img [ref=e166]
+          - generic [ref=e168]: Безопасно
+  - tablist [ref=e170]:
+    - tab "Чаты" [selected] [ref=e172] [cursor=pointer]:
+      - generic [ref=e173]:
+        - img [ref=e175]
+        - img [ref=e178]
+      - generic [ref=e180]: Чаты
+    - tab "Контакты" [ref=e182] [cursor=pointer]:
+      - generic [ref=e183]:
+        - img [ref=e185]
+        - img [ref=e191]
+      - generic [ref=e196]: Контакты
+    - tab "Звонки" [ref=e198] [cursor=pointer]:
+      - generic [ref=e199]:
+        - img [ref=e201]
+        - img [ref=e204]
+      - generic [ref=e206]: Звонки
+    - tab "Достижения" [ref=e208] [cursor=pointer]:
+      - generic [ref=e209]:
+        - img [ref=e211]
+        - img [ref=e218]
+      - generic [ref=e224]: Достижения
+    - tab "Уроки" [ref=e226] [cursor=pointer]:
+      - generic [ref=e227]:
+        - img [ref=e229]
+        - img [ref=e232]
+      - generic [ref=e234]: Уроки
+    - tab "Настройки" [ref=e236] [cursor=pointer]:
+      - generic [ref=e237]:
+        - img [ref=e239]
+        - img [ref=e243]
+      - generic [ref=e246]: Настройки
+    - tab "О приложении" [ref=e248] [cursor=pointer]:
+      - generic [ref=e249]:
+        - img [ref=e251]
+        - img [ref=e254]
+      - generic [ref=e256]: О приложении
+    - tab "Профиль" [ref=e258] [cursor=pointer]:
+      - generic [ref=e259]:
+        - img [ref=e261]
+        - img [ref=e265]
+      - generic [ref=e268]: Профиль
+    - tab "⏷ ⏷ alerts" [ref=e270] [cursor=pointer]:
+      - generic [ref=e271]:
+        - generic [ref=e273]: ⏷
+        - generic [ref=e275]: ⏷
+      - generic [ref=e276]: alerts
+```

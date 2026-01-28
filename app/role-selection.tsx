@@ -10,7 +10,7 @@ import { HapticFeedback } from '@/constants/haptics';
 
 export default function RoleSelectionScreen() {
   const router = useRouter();
-  const { identifyUser } = useUser();
+  useUser();
   const { requiresConsent, isTexasCompliant } = useAgeCompliance();
   const { theme } = useThemeMode();
   const [selectedRole, setSelectedRole] = useState<'parent' | 'child' | null>(null);
@@ -131,48 +131,19 @@ export default function RoleSelectionScreen() {
       return;
     }
 
-    // Для ребенка проверяем соответствие Texas SB 2420
-    if (selectedRole === 'child') {
-      if (requiresConsent && !isTexasCompliant) {
-        Alert.alert(
-          'Требуется родительское согласие',
-          'Для использования приложения ребенком необходимо получить согласие родителя или опекуна.',
-          [
-            {
-              text: 'Отмена',
-              style: 'cancel',
-            },
-            {
-              text: 'Получить согласие',
-              onPress: () => {
-                router.push('/security-settings' as any);
-              },
-            },
-          ]
-        );
-        return;
-      }
-    }
-
     setIsSubmitting(true);
     HapticFeedback.medium();
 
     try {
-      // Для родителя добавляем email (можно пустой), для ребенка - только имя
-      await identifyUser({
-        name: selectedRole === 'parent' ? 'Родитель' : 'Ребенок',
-        ...(selectedRole === 'parent' ? { email: '' } : {}),
-      });
-
-      // Переход в зависимости от роли
+      // Переход на экраны регистрации
       if (selectedRole === 'parent') {
-        router.replace('/(tabs)');
+        router.push('/register-parent');
       } else {
-        router.replace('/(tabs)');
+        router.push('/register-child');
       }
     } catch (error) {
-      console.error('Error identifying user:', error);
-      Alert.alert('Ошибка', 'Не удалось сохранить профиль. Попробуйте снова.');
+      console.error('Error navigating to registration:', error);
+      Alert.alert('Ошибка', 'Не удалось перейти к регистрации. Попробуйте снова.');
     } finally {
       setIsSubmitting(false);
     }
@@ -181,9 +152,9 @@ export default function RoleSelectionScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient colors={theme.surfaceGradient} style={styles.gradient}>
-        <ScrollView style={styles.scrollView} contentContainerStyle={{ paddingBottom: 40 }}>
-          <Text style={styles.title}>Выберите вашу роль</Text>
-          <Text style={styles.subtitle}>
+        <ScrollView style={styles.scrollView} contentContainerStyle={{ paddingBottom: 40 }} testID="role-selection-scroll">
+          <Text style={styles.title} testID="role-selection-title">Выберите вашу роль</Text>
+          <Text style={styles.subtitle} testID="role-selection-subtitle">
             Это поможет настроить приложение под ваши потребности
           </Text>
 
@@ -200,10 +171,11 @@ export default function RoleSelectionScreen() {
             style={[styles.roleCard, selectedRole === 'parent' && styles.roleCardSelected]}
             onPress={() => handleRoleSelect('parent')}
             activeOpacity={0.7}
+            testID="role-selection-parent-card"
           >
             <View style={styles.roleHeader}>
               <Shield size={32} color={theme.accentPrimary} style={styles.roleIcon} />
-              <Text style={styles.roleTitle}>Родитель</Text>
+              <Text style={styles.roleTitle} testID="role-selection-parent-title">Родитель</Text>
             </View>
             <Text style={styles.roleDescription}>
               Полный контроль и мониторинг безопасности вашего ребенка
@@ -233,10 +205,11 @@ export default function RoleSelectionScreen() {
             style={[styles.roleCard, selectedRole === 'child' && styles.roleCardSelected]}
             onPress={() => handleRoleSelect('child')}
             activeOpacity={0.7}
+            testID="role-selection-child-card"
           >
             <View style={styles.roleHeader}>
               <User size={32} color={theme.accentPrimary} style={styles.roleIcon} />
-              <Text style={styles.roleTitle}>Ребенок</Text>
+              <Text style={styles.roleTitle} testID="role-selection-child-title">Ребенок</Text>
             </View>
             <Text style={styles.roleDescription}>
               Безопасное общение с защитой и поддержкой

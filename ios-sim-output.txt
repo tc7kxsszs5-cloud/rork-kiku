@@ -1,0 +1,37 @@
+=== Команда: EXPO_USE_DEV_CLIENT=false bunx expo start --ios ===
+=== Старт: понедельник, 26 января 2026 г. 11:36:14 (MSK) ===
+
+Could not find a shared URI scheme for the dev client between the local /ios and /android directories. App launches (QR code, interstitial, terminal keys) may not work as expected. You can configure a custom scheme using the --scheme option, or by running npx expo prebuild to regenerate the native directories with URI schemes.
+Starting project at /Users/mac/Desktop/rork-kiku
+Starting Metro Bundler
+Error: xcrun simctl boot BF381797-FA54-4AD4-90E0-EA4773A3D4D8 exited with non-zero code: 60
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=60):
+Unable to boot the Simulator.
+launchd failed to respond.
+Underlying error (domain=com.apple.SimLaunchHostService.RequestError, code=4):
+	Failed to start launchd_sim: could not bind to session, launchd_sim may have crashed or quit responding
+Error: xcrun simctl boot BF381797-FA54-4AD4-90E0-EA4773A3D4D8 exited with non-zero code: 60
+    at completionListener (/Users/mac/Desktop/rork-kiku/node_modules/@expo/spawn-async/build/spawnAsync.js:42:27)
+    at emit (node:events:98:22)
+    at #maybeClose (node:child_process:768:16)
+    at #handleOnExit (node:child_process:520:72)
+    at processTicksAndRejections (native:7:39)
+    ...
+    at spawnAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/spawn-async/build/spawnAsync.js:7:27)
+    at xcrunAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/start/platforms/ios/xcrun.js:46:40)
+    at xcrunAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/start/platforms/ios/xcrun.js:43:27)
+    at simctlAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/start/platforms/ios/simctl.js:369:33)
+    at simctlAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/start/platforms/ios/simctl.js:367:28)
+    at bootDeviceAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/start/platforms/ios/simctl.js:301:15)
+    at bootDeviceAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/start/platforms/ios/simctl.js:298:32)
+    at bootAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/start/platforms/ios/simctl.js:283:11)
+    at bootAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/start/platforms/ios/simctl.js:282:26)
+    at waitForActionAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/utils/delay.js:31:26)
+    at waitForActionAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/utils/delay.js:26:37)
+    at ensureSimulatorOpenAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/start/platforms/ios/AppleDeviceManager.js:132:43)
+    at async resolveAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/start/platforms/ios/AppleDeviceManager.js:161:30)
+    at async openProjectInCustomRuntimeAsync (/Users/mac/Desktop/rork-kiku/node_modules/@expo/cli/build/src/start/platforms/PlatformManager.js:105:48)
+    at processTicksAndRejections (native:7:39)
+
+=== Код выхода: 1 ===
+=== Конец: понедельник, 26 января 2026 г. 11:50:26 (MSK) ===
