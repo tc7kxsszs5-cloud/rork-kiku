@@ -2,6 +2,8 @@
  * Утилиты для измерения и оптимизации производительности
  */
 
+import React, { useEffect } from 'react';
+
 /**
  * Измеряет время выполнения функции
  */
@@ -125,8 +127,6 @@ export function withPerformanceMeasurement<P extends object>(
       }
     });
     
-    return <Component {...props} />;
+    return React.createElement(Component, props);
   };
 }
-
-import React, { useEffect } from 'react';
