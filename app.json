@@ -19,8 +19,6 @@
       "infoPlist": {
         "UIBackgroundModes": [
           "audio",
-          "location",
-          "audio",
           "location"
         ],
         "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone",
@@ -94,12 +92,21 @@
           "enableBackgroundRemoteNotifications": false
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera for video calls."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
+      "openaiApiKey": process.env.OPENAI_API_KEY || "",
+      "aiProvider": process.env.AI_PROVIDER || "local",
+      "openaiApiBaseUrl": process.env.OPENAI_API_BASE_URL || "https://api.openai.com/v1",
       "router": {
         "origin": "https://rork.com/"
       },
