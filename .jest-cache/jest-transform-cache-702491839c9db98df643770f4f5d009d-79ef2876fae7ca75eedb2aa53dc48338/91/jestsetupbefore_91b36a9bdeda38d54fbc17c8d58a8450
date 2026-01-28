@@ -1,0 +1,21 @@
+1ce7c635e77a95ac94417b52a1a1203c
+_getJestObj().mock('expo-modules-core/src/polyfill/dangerous-internal', function () {
+  return {};
+}, {
+  virtual: true
+});
+_getJestObj().mock('expo-modules-core/src/polyfill/dangerous-internal.ts', function () {
+  return {};
+}, {
+  virtual: true
+});
+function _getJestObj() {
+  var _require = require("@jest/globals"),
+    jest = _require.jest;
+  _getJestObj = function _getJestObj() {
+    return jest;
+  };
+  return jest;
+}
+console.log('[Jest] Pre-setup: Mocked expo-modules-core/src/polyfill/dangerous-internal');
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJfZ2V0SmVzdE9iaiIsIm1vY2siLCJ2aXJ0dWFsIiwiX3JlcXVpcmUiLCJyZXF1aXJlIiwiamVzdCIsImNvbnNvbGUiLCJsb2ciXSwic291cmNlcyI6WyJqZXN0LnNldHVwLmJlZm9yZS5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBKZXN0IHNldHVwIGZpbGUgdGhhdCBydW5zIEJFRk9SRSBqZXN0LWV4cG8gcHJlc2V0XG4vLyBUaGlzIGlzIGNyaXRpY2FsIGZvciBtb2NraW5nIEVTTSBtb2R1bGVzXG5cbi8vINCa0KDQmNCi0JjQp9CV0KHQmtCY0Jkg0JzQntCaOiDQlNC+0LvQttC10L0g0LHRi9GC0Ywg0JTQniDQt9Cw0LPRgNGD0LfQutC4IGplc3QtZXhwbyBwcmVzZXRcbmplc3QubW9jaygnZXhwby1tb2R1bGVzLWNvcmUvc3JjL3BvbHlmaWxsL2Rhbmdlcm91cy1pbnRlcm5hbCcsICgpID0+ICh7fSksIHsgdmlydHVhbDogdHJ1ZSB9KTtcbmplc3QubW9jaygnZXhwby1tb2R1bGVzLWNvcmUvc3JjL3BvbHlmaWxsL2Rhbmdlcm91cy1pbnRlcm5hbC50cycsICgpID0+ICh7fSksIHsgdmlydHVhbDogdHJ1ZSB9KTtcblxuY29uc29sZS5sb2coJ1tKZXN0XSBQcmUtc2V0dXA6IE1vY2tlZCBleHBvLW1vZHVsZXMtY29yZS9zcmMvcG9seWZpbGwvZGFuZ2Vyb3VzLWludGVybmFsJyk7XG4iXSwibWFwcGluZ3MiOiJBQUlBQSxXQUFBLEdBQUtDLElBQUksQ0FBQyxtREFBbUQsRUFBRTtFQUFBLE9BQU8sQ0FBQyxDQUFDO0FBQUEsQ0FBQyxFQUFFO0VBQUVDLE9BQU8sRUFBRTtBQUFLLENBQUMsQ0FBQztBQUM3RkYsV0FBQSxHQUFLQyxJQUFJLENBQUMsc0RBQXNELEVBQUU7RUFBQSxPQUFPLENBQUMsQ0FBQztBQUFBLENBQUMsRUFBRTtFQUFFQyxPQUFPLEVBQUU7QUFBSyxDQUFDLENBQUM7QUFBQyxTQUFBRixZQUFBO0VBQUEsSUFBQUcsUUFBQSxHQUFBQyxPQUFBO0lBQUFDLElBQUEsR0FBQUYsUUFBQSxDQUFBRSxJQUFBO0VBQUFMLFdBQUEsWUFBQUEsWUFBQTtJQUFBLE9BQUFLLElBQUE7RUFBQTtFQUFBLE9BQUFBLElBQUE7QUFBQTtBQUVqR0MsT0FBTyxDQUFDQyxHQUFHLENBQUMsNEVBQTRFLENBQUMiLCJpZ25vcmVMaXN0IjpbXX0=
