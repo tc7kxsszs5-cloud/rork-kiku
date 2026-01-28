@@ -1,6 +1,16 @@
 // Jest setup file for React Native / Expo
 // Этот файл выполняется перед каждым тестом
 
+// Мок для expo-modules-core (ESM проблема)
+jest.mock('expo-modules-core', () => ({
+  requireNativeViewManager: jest.fn(),
+  NativeModulesProxy: {},
+  EventEmitter: jest.fn(),
+  Platform: {
+    OS: 'ios',
+  },
+}));
+
 // Моки для React Native модулей (require внутри factory — Jest sandbox)
 jest.mock('react-native', () => {
   const mockReact = require('react');
