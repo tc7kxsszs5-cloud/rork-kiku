@@ -15,9 +15,11 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   removeItem: jest.fn(),
 }));
 
+const mockChangeLanguage = jest.fn();
 jest.mock('@/constants/i18n', () => ({
+  __esModule: true,
   default: {
-    changeLanguage: jest.fn(),
+    changeLanguage: mockChangeLanguage,
     language: 'en',
   },
   detectDeviceLanguage: jest.fn(() => Promise.resolve('en')),
@@ -325,11 +327,7 @@ describe('UserContext', () => {
         language: 'ru',
       };
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(userWithLanguage));
-
-      // Получаем мок i18n
-      const i18nModule = require('@/constants/i18n');
-      const changeLanguageMock = i18nModule.default.changeLanguage as jest.Mock;
-      changeLanguageMock.mockClear();
+      mockChangeLanguage.mockClear();
 
       const { result } = renderHook(() => useUser(), {
         wrapper: createWrapper(),
@@ -341,7 +339,7 @@ describe('UserContext', () => {
       });
 
       // Проверяем что changeLanguage был вызван с правильным языком
-      expect(changeLanguageMock).toHaveBeenCalledWith('ru');
+      expect(mockChangeLanguage).toHaveBeenCalledWith('ru');
     });
   });
 });
