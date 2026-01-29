@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack, useRouter } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
+import { Stack, useRouter, useSegments } from "expo-router";
+import { preventAutoHideAsync, hideAsync } from "expo-splash-screen";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { StyleSheet, Platform, View, Text, TouchableOpacity } from "react-native";
 import { ChevronLeft } from "lucide-react-native";
@@ -12,7 +12,7 @@ import { ThemeProvider } from "@/constants/ThemeContext";
 import { NotificationsProvider } from "@/constants/NotificationsContext";
 import { AgeComplianceProvider } from "@/constants/AgeComplianceContext";
 import { ABTestingProvider } from "@/constants/ABTestingContext";
-import * as AnalyticsContext from "@/constants/AnalyticsContext";
+import { AnalyticsProvider } from "@/constants/AnalyticsContext";
 import { PersonalizedAIProvider } from "@/constants/PersonalizedAIContext";
 import { GamificationProvider } from "@/constants/GamificationContext";
 import { PredictiveAnalyticsProvider } from "@/constants/PredictiveAnalyticsContext";
@@ -22,7 +22,7 @@ import { SyncSettingsProvider } from "@/constants/SyncSettingsContext";
 import { SecuritySettingsProvider } from "@/constants/SecuritySettingsContext";
 import { PremiumProvider } from "@/constants/PremiumContext";
 import { ChatBackgroundsProvider } from "@/constants/ChatBackgroundsContext";
-import { AuthProvider } from "@/constants/AuthContext";
+import { AuthProvider, useAuth } from "@/constants/AuthContext";
 import { ActivationTracker } from "@/components/ActivationTracker";
 import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
@@ -30,12 +30,16 @@ import { applyGlobalCursorStyles } from "@/utils/cursorStyles";
 import { initializeTestCustomEmojis } from "@/utils/initCustomEmojis";
 
 // Применяем пользовательские курсоры для web
-if (Platform.OS === 'web' && typeof document !== 'undefined') {
-  applyGlobalCursorStyles();
+try {
+  if (Platform.OS === 'web' && typeof document !== 'undefined') {
+    applyGlobalCursorStyles();
+  }
+} catch (error) {
+  console.warn('[RootLayout] Failed to apply cursor styles:', error);
 }
 
 if (Platform.OS !== 'web') {
-  SplashScreen.preventAutoHideAsync();
+  preventAutoHideAsync();
 }
 
 const queryClient = new QueryClient({
@@ -45,6 +49,11 @@ const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
       refetchOnMount: false,
+      // Оптимизация для веб: кэширование и ленивая загрузка
+      ...(Platform.OS === 'web' && {
+        gcTime: 10 * 60 * 1000, // 10 минут кэш
+        refetchOnReconnect: false,
+      }),
     },
     mutations: {
       retry: false,
@@ -130,6 +139,58 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
 }
 
 function RootLayoutNav() {
+  const [isReady, setIsReady] = useState(false);
+  
+  // Хуки должны вызываться на верхнем уровне компонента
+  const authData = useAuth();
+  const isAuthenticated = authData?.isAuthenticated || false;
+  const router = useRouter();
+  const segments = useSegments();
+
+  useEffect(() => {
+    // Ждем, пока роутер будет готов
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!isReady) return;
+    
+    // Проверяем, зарегистрирован ли пользователь
+    if (!isAuthenticated) {
+      // Если не зарегистрирован и не на экране регистрации - показываем выбор роли
+      const currentRoute = String(segments?.[0] || '');
+      const authRoutes = ['role-selection', 'register-parent', 'register-child'];
+      const inAuthGroup = authRoutes.includes(currentRoute);
+      
+      // В режиме разработки разрешаем доступ к tabs для тестирования
+      const isDevMode = __DEV__;
+      const isOnTabs = currentRoute === '(tabs)';
+      
+      // Не редиректим, если уже на нужном экране или на главном экране
+      // В dev режиме разрешаем доступ к tabs для тестирования без авторизации
+      if (!inAuthGroup && !isOnTabs && router) {
+        // Небольшая задержка для предотвращения конфликтов
+        const timer = setTimeout(() => {
+          try {
+            router.replace('/role-selection' as any);
+          } catch (error) {
+            console.error('[RootLayoutNav] Navigation error:', error);
+          }
+        }, 300);
+        return () => clearTimeout(timer);
+      }
+      
+      // В dev режиме разрешаем остаться на tabs для тестирования
+      if (isDevMode && isOnTabs) {
+        return; // Разрешаем доступ к tabs без авторизации в dev режиме
+      }
+    }
+  }, [isAuthenticated, segments, router, isReady]);
+
   const securityHeaderLeft = useMemo(() => {
     const HeaderLeftComponent = () => <HeaderBackButton fallbackHref="/(tabs)" forceFallback />;
     HeaderLeftComponent.displayName = 'SecuritySettingsHeaderLeft';
@@ -161,6 +222,41 @@ function RootLayoutNav() {
           presentation: 'card',
         }}
       />
+      <Stack.Screen
+        name="role-selection"
+        options={{
+          headerShown: false,
+          presentation: 'fullScreenModal',
+        }}
+      />
+      <Stack.Screen
+        name="register-parent"
+        options={{
+          title: "Регистрация родителя",
+          presentation: 'card',
+        }}
+      />
+      <Stack.Screen
+        name="register-child"
+        options={{
+          title: "Регистрация ребенка",
+          presentation: 'card',
+        }}
+      />
+      <Stack.Screen
+        name="status"
+        options={{
+          title: "Статусы",
+          presentation: 'card',
+        }}
+      />
+      <Stack.Screen
+        name="call"
+        options={{
+          headerShown: false,
+          presentation: 'fullScreenModal',
+        }}
+      />
     </Stack>
   );
 }
@@ -174,7 +270,7 @@ function AppProviders({ children }: { children: ReactNode }) {
             <AgeComplianceProvider>
               <UserProvider>
                 <AuthProvider>
-                  <AnalyticsContext.AnalyticsProvider>
+                  <AnalyticsProvider>
                     <PremiumProvider>
                       <ABTestingProvider>
                         <PersonalizedAIProvider>
@@ -203,7 +299,7 @@ function AppProviders({ children }: { children: ReactNode }) {
                         </PersonalizedAIProvider>
                       </ABTestingProvider>
                     </PremiumProvider>
-                  </AnalyticsContext.AnalyticsProvider>
+                  </AnalyticsProvider>
                 </AuthProvider>
               </UserProvider>
             </AgeComplianceProvider>
@@ -223,20 +319,28 @@ export default function RootLayout() {
     const initializeApp = async () => {
       try {
         // Инициализация тестовых кастомных эмодзи
-        await initializeTestCustomEmojis();
+        // Не блокируем запуск, если инициализация не удалась
+        await initializeTestCustomEmojis().catch((err) => {
+          console.warn('[RootLayout] Custom emojis init failed (non-critical):', err);
+        });
       } catch (error) {
-        console.error('[RootLayout] Failed to initialize custom emojis:', error);
+        console.error('[RootLayout] Failed to initialize app:', error);
+        // Не блокируем запуск приложения из-за ошибок инициализации
       }
     };
 
-    initializeApp();
-
+    // Для веб сразу помечаем как готово, инициализация идет в фоне
     if (Platform.OS === 'web') {
       setIsReady(true);
+      // Запускаем инициализацию асинхронно, не блокируя запуск
+      initializeApp();
       return;
     }
+    
+    // Для нативных платформ запускаем инициализацию
+    initializeApp();
 
-    SplashScreen.hideAsync()
+    hideAsync()
       .catch((error) => {
         import('@/utils/logger').then(({ logger }) => {
           logger.error('Failed to hide splash screen', error instanceof Error ? error : new Error(String(error)), { component: 'RootLayout', action: 'hideSplashScreen' });
