@@ -1,0 +1,8 @@
+# Patches directory
+# Используется patch-package для патчей npm пакетов
+# 
+# Чтобы создать патч:
+# 1. Внесите изменения в node_modules/<package-name>
+# 2. Запустите: bunx patch-package <package-name>
+# 3. Патч будет создан в этой директории
+# 4. При следующем bun install патч применится автоматически
