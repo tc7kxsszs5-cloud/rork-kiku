@@ -36,16 +36,6 @@ jest.mock('@/utils/logger', () => ({
   },
 }));
 
-jest.mock('react-native', () => {
-  const RN = jest.requireActual('react-native');
-  return {
-    ...RN,
-    Platform: {
-      OS: 'ios',
-    },
-  };
-});
-
 const createWrapper = () => {
   return ({ children }: { children: React.ReactNode }) => (
     <UserProvider>{children}</UserProvider>
@@ -124,12 +114,16 @@ describe('UserContext', () => {
       });
 
       await act(async () => {
-        await result.current.setUser(mockUser);
+        await result.current.identifyUser({
+          name: mockUser.name,
+          email: mockUser.email,
+          role: mockUser.role,
+        });
       });
 
       await waitFor(() => {
         expect(result.current.user).not.toBeNull();
-        expect(result.current.user?.id).toBe('user-1');
+        expect(result.current.user?.name).toBe('Test Parent');
         expect(AsyncStorage.setItem).toHaveBeenCalled();
       });
     });
@@ -145,10 +139,8 @@ describe('UserContext', () => {
         expect(result.current.user).not.toBeNull();
       });
 
-      const updatedUser = { ...mockUser, name: 'Updated Name' };
-
       await act(async () => {
-        await result.current.setUser(updatedUser);
+        await result.current.updateUser({ name: 'Updated Name' });
       });
 
       await waitFor(() => {
@@ -168,12 +160,12 @@ describe('UserContext', () => {
       });
 
       await act(async () => {
-        await result.current.clearUser();
+        await result.current.logoutUser();
       });
 
       await waitFor(() => {
         expect(result.current.user).toBeNull();
-        expect(AsyncStorage.removeItem).toHaveBeenCalled();
+        expect(AsyncStorage.removeItem).toHaveBeenCalledWith('@user_data');
       });
     });
   });
@@ -249,9 +241,10 @@ describe('UserContext', () => {
       });
 
       const updatedChild = { ...mockChild, name: 'Updated Child Name' };
+      const updatedChildren = [updatedChild];
 
       await act(async () => {
-        await result.current.updateChild('child-1', updatedChild);
+        await result.current.updateUser({ children: updatedChildren });
       });
 
       await waitFor(() => {
@@ -333,15 +326,22 @@ describe('UserContext', () => {
       };
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(userWithLanguage));
 
-      const { i18n } = require('@/constants/i18n');
+      // Получаем мок i18n
+      const i18nModule = require('@/constants/i18n');
+      const changeLanguageMock = i18nModule.default.changeLanguage as jest.Mock;
+      changeLanguageMock.mockClear();
 
-      renderHook(() => useUser(), {
+      const { result } = renderHook(() => useUser(), {
         wrapper: createWrapper(),
       });
 
       await waitFor(() => {
-        expect(i18n.default.changeLanguage).toHaveBeenCalledWith('ru');
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.user).not.toBeNull();
       });
+
+      // Проверяем что changeLanguage был вызван с правильным языком
+      expect(changeLanguageMock).toHaveBeenCalledWith('ru');
     });
   });
 });
