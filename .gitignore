@@ -3,3 +3,4 @@
 # Agent coordination files (keep structure, ignore lock files)
 .agents/*.lock
 # Note: .agents/coordination.json should be committed
+.jest-cache/
