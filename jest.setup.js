@@ -16,6 +16,22 @@ jest.mock('expo-modules-core', () => ({
   },
 }));
 
+// Мок для lucide-react-native (ESM проблема)
+jest.mock('lucide-react-native', () => {
+  const React = require('react');
+  const mockIcon = React.forwardRef((props, ref) => 
+    React.createElement('View', { ...props, ref, testID: props.testID || 'mock-icon' })
+  );
+  
+  return new Proxy({}, {
+    get: (target, prop) => {
+      if (prop === '__esModule') return true;
+      if (prop === 'default') return mockIcon;
+      return mockIcon;
+    }
+  });
+});
+
 // Моки для React Native модулей (require внутри factory — Jest sandbox)
 jest.mock('react-native', () => {
   const mockReact = require('react');

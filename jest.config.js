@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'jest-expo',
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|expo-modules-core|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|@nkzw/create-context-hook)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|expo-modules-core|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|@nkzw/create-context-hook|lucide-react-native)',
   ],
   setupFiles: ['<rootDir>/jest.setup.before.js'], // Runs BEFORE preset
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
@@ -21,6 +21,7 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    '^lucide-react-native$': '<rootDir>/__mocks__/lucide-react-native.js',
   },
   // Fork Tests Configuration
   // Используем 50% доступных CPU ядер для параллельного выполнения

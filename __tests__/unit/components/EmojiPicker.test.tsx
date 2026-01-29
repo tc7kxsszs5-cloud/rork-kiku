@@ -21,11 +21,15 @@ jest.mock('@/constants/ThemeContext', () => ({
   })),
 }));
 
-jest.mock('lucide-react-native', () => ({
-  X: () => null,
-  Search: () => null,
-  Smile: () => null,
-}));
+// Mock lucide-react-native as React components
+jest.mock('lucide-react-native', () => {
+  const React = require('react');
+  return {
+    X: React.forwardRef((props, ref) => React.createElement('X', { ...props, ref })),
+    Search: React.forwardRef((props, ref) => React.createElement('Search', { ...props, ref })),
+    Smile: React.forwardRef((props, ref) => React.createElement('Smile', { ...props, ref })),
+  };
+});
 
 describe('EmojiPicker', () => {
   beforeEach(() => {
