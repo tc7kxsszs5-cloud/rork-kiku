@@ -1,0 +1,87 @@
+bun test v1.3.4 (5eb2145b)
+
+__tests__/integration/contexts.test.tsx:
+
+# Unhandled error between tests
+-------------------------------
+27 | import typeof * as ReactNativePublicAPI from './index.js.flow';
+            ^
+error: Unexpected typeof
+    at /Users/mac/Desktop/rork-kiku/node_modules/react-native/index.js:27:8
+-------------------------------
+
+
+__tests__/playwright/example.spec.ts:
+
+# Unhandled error between tests
+-------------------------------
+70 |     this.test = test;
+71 |   }
+72 |   _currentSuite(location, title) {
+73 |     const suite = (0, import_globals.currentlyLoadingFileSuite)();
+74 |     if (!suite) {
+75 |       throw new Error([
+                     ^
+error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+      at _currentSuite (/Users/mac/Desktop/rork-kiku/node_modules/playwright/lib/common/testType.js:75:17)
+      at _describe (/Users/mac/Desktop/rork-kiku/node_modules/playwright/lib/common/testType.js:115:24)
+      at /Users/mac/Desktop/rork-kiku/__tests__/playwright/example.spec.ts:8:6
+      at loadAndEvaluateModule (2:1)
+-------------------------------
+
+
+__tests__/e2e/app-flow.test.tsx:
+
+# Unhandled error between tests
+-------------------------------
+-------------------------------
+
+
+__tests__/unit/contexts/AuthContext.test.tsx:
+
+# Unhandled error between tests
+-------------------------------
+-------------------------------
+
+
+__tests__/unit/contexts/NotificationsContext.test.tsx:
+
+# Unhandled error between tests
+-------------------------------
+-------------------------------
+
+
+__tests__/unit/contexts/UserContext.test.tsx:
+
+# Unhandled error between tests
+-------------------------------
+-------------------------------
+
+
+__tests__/unit/contexts/ParentalControlsContext.test.tsx:
+
+# Unhandled error between tests
+-------------------------------
+-------------------------------
+
+
+__tests__/unit/contexts/MonitoringContext.test.tsx:
+
+# Unhandled error between tests
+-------------------------------
+-------------------------------
+
+
+__tests__/unit/contexts/ThemeContext.test.tsx:
+
+# Unhandled error between tests
+-------------------------------
+-------------------------------
+
+
+__tests__/unit/utils/syncService.test.ts:
