@@ -16,6 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.rork.greeting-project-58uufiz",
+      "buildNumber": "1",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio",
@@ -34,6 +35,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "app.rork.greeting_project_58uufiz",
+      "versionCode": 1,
       "permissions": [
         "android.permission.VIBRATE",
         "RECORD_AUDIO",
