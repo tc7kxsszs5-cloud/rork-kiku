@@ -345,7 +345,21 @@
 <a name='L280'></a><a href='#L280'>280</a>
 <a name='L281'></a><a href='#L281'>281</a>
 <a name='L282'></a><a href='#L282'>282</a>
-<a name='L283'></a><a href='#L283'>283</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L283'></a><a href='#L283'>283</a>
+<a name='L284'></a><a href='#L284'>284</a>
+<a name='L285'></a><a href='#L285'>285</a>
+<a name='L286'></a><a href='#L286'>286</a>
+<a name='L287'></a><a href='#L287'>287</a>
+<a name='L288'></a><a href='#L288'>288</a>
+<a name='L289'></a><a href='#L289'>289</a>
+<a name='L290'></a><a href='#L290'>290</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -641,7 +655,14 @@ import {
 } from 'react-native';
 import { Camera, Image as ImageIcon, Video, X } from 'lucide-react-native';
 import { useThemeMode } from '@/constants/ThemeContext';
-import * as ImagePicker from 'expo-image-picker';
+// Оптимизированный импорт: используем только нужные функции
+import {
+  requestCameraPermissionsAsync,
+  requestMediaLibraryPermissionsAsync,
+  launchImageLibraryAsync,
+  launchCameraAsync,
+  MediaTypeOptions,
+} from 'expo-image-picker';
 import { Video as ExpoVideo, ResizeMode } from 'expo-av';
 &nbsp;
 interface StatusCreatorProps {
@@ -659,8 +680,8 @@ export function <span class="fstat-no" title="function not covered" >StatusCreat
 &nbsp;
   const requestPermissions = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (Platform.OS !== 'web') {</span>
-      const { status: cameraStatus } = <span class="cstat-no" title="statement not covered" >await ImagePicker.requestCameraPermissionsAsync();</span>
-      const { status: mediaStatus } = <span class="cstat-no" title="statement not covered" >await ImagePicker.requestMediaLibraryPermissionsAsync();</span>
+      const { status: cameraStatus } = <span class="cstat-no" title="statement not covered" >await requestCameraPermissionsAsync();</span>
+      const { status: mediaStatus } = <span class="cstat-no" title="statement not covered" >await requestMediaLibraryPermissionsAsync();</span>
       
 <span class="cstat-no" title="statement not covered" >      if (cameraStatus !== 'granted' || mediaStatus !== 'granted') {</span>
 <span class="cstat-no" title="statement not covered" >        Alert.alert('Разрешения', 'Необходимы разрешения для доступа к камере и галерее');</span>
@@ -675,8 +696,8 @@ export function <span class="fstat-no" title="function not covered" >StatusCreat
 <span class="cstat-no" title="statement not covered" >    if (!hasPermission) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
-      const result = <span class="cstat-no" title="statement not covered" >await ImagePicker.launchImageLibraryAsync({</span>
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      const result = <span class="cstat-no" title="statement not covered" >await launchImageLibraryAsync({</span>
+        mediaTypes: MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [9, 16],
         quality: 0.8,
@@ -696,7 +717,7 @@ export function <span class="fstat-no" title="function not covered" >StatusCreat
 <span class="cstat-no" title="statement not covered" >    if (!hasPermission) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
-      const result = <span class="cstat-no" title="statement not covered" >await ImagePicker.launchCameraAsync({</span>
+      const result = <span class="cstat-no" title="statement not covered" >await launchCameraAsync({</span>
         allowsEditing: true,
         aspect: [9, 16],
         quality: 0.8,
@@ -716,8 +737,8 @@ export function <span class="fstat-no" title="function not covered" >StatusCreat
 <span class="cstat-no" title="statement not covered" >    if (!hasPermission) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
-      const result = <span class="cstat-no" title="statement not covered" >await ImagePicker.launchImageLibraryAsync({</span>
-        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      const result = <span class="cstat-no" title="statement not covered" >await launchImageLibraryAsync({</span>
+        mediaTypes: MediaTypeOptions.Videos,
         allowsEditing: true,
         aspect: [9, 16],
         quality: 0.8,
@@ -916,7 +937,7 @@ const createStyles = <span class="cstat-no" title="statement not covered" ><span
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-26T08:50:41.640Z
+                at 2026-02-02T09:49:44.765Z
             </div>
         <script src="../prettify.js"></script>
         <script>

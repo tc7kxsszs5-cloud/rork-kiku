@@ -1,0 +1,26 @@
+          |                               ^
+      147 |       );
+      148 |
+      149 |       if (uploadButton) {
+
+      at flatten (node_modules/@testing-library/react-native/src/helpers/accessibility.ts:88:32)
+      at isSubtreeInaccessible (node_modules/@testing-library/react-native/src/helpers/accessibility.ts:47:38)
+      at node_modules/@testing-library/react-native/src/helpers/find-all.ts:32:64
+          at Array.filter (<anonymous>)
+      at filter (node_modules/@testing-library/react-native/src/helpers/find-all.ts:32:18)
+      at queryAllByTextFn (node_modules/@testing-library/react-native/src/queries/text.ts:21:19)
+      at getFn (node_modules/@testing-library/react-native/src/queries/make-queries.ts:156:48)
+      at getByText (__tests__/unit/components/CustomEmojiCreator.test.tsx:146:31)
+          at Array.find (<anonymous>)
+      at Object.find (__tests__/unit/components/CustomEmojiCreator.test.tsx:145:39)
+      at asyncGeneratorStep (node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:17)
+      at _next (node_modules/@babel/runtime/helpers/asyncToGenerator.js:17:9)
+      at node_modules/@babel/runtime/helpers/asyncToGenerator.js:22:7
+      at Object.<anonymous> (node_modules/@babel/runtime/helpers/asyncToGenerator.js:14:12)
+
+  ● CustomEmojiCreator › Выбор изображения › должен показывать ошибку если разрешение не выдано
+
+    TypeError: _reactNative.StyleSheet.flatten is not a function
+
+      167 |       const touchables = UNSAFE_getAllByType('TouchableOpacity');
+      168 |       const uploadButton = touchables.find((btn: any) =>

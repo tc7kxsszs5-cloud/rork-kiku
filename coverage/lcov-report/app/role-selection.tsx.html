@@ -571,21 +571,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useRouter, Href } from 'expo-router';
 import { User, Shield, Lock, Eye, Settings, MessageCircle } from 'lucide-react-native';
 import { useUser } from '@/constants/UserContext';
 import { useAgeCompliance } from '@/constants/AgeComplianceContext';
 import { useThemeMode } from '@/constants/ThemeContext';
-import { useAuth } from '@/constants/AuthContext';
 import { HapticFeedback } from '@/constants/haptics';
 &nbsp;
 export default function <span class="fstat-no" title="function not covered" >RoleSelectionScreen(</span>) {
+  const { t } = <span class="cstat-no" title="statement not covered" >useTranslation();</span>
   const router = <span class="cstat-no" title="statement not covered" >useRouter();</span>
 <span class="cstat-no" title="statement not covered" >  useUser();</span>
   const { requiresConsent, isTexasCompliant } = <span class="cstat-no" title="statement not covered" >useAgeCompliance();</span>
   const { theme } = <span class="cstat-no" title="statement not covered" >useThemeMode();</span>
-  const { login } = <span class="cstat-no" title="statement not covered" >useAuth();</span>
   const [selectedRole, setSelectedRole] = <span class="cstat-no" title="statement not covered" >useState&lt;'parent' | 'child' | null&gt;(null);</span>
   const [isSubmitting, setIsSubmitting] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
 &nbsp;
@@ -700,7 +700,7 @@ export default function <span class="fstat-no" title="function not covered" >Rol
 &nbsp;
   const handleContinue = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (!selectedRole) {</span>
-<span class="cstat-no" title="statement not covered" >      Alert.alert('Выберите роль', 'Пожалуйста, выберите вашу роль перед продолжением');</span>
+<span class="cstat-no" title="statement not covered" >      Alert.alert(t('roleSelection.title'), t('roleSelection.selectRoleAlert'));</span>
 <span class="cstat-no" title="statement not covered" >      return;</span>
     }
 &nbsp;
@@ -710,13 +710,13 @@ export default function <span class="fstat-no" title="function not covered" >Rol
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Переход на экраны регистрации
 <span class="cstat-no" title="statement not covered" >      if (selectedRole === 'parent') {</span>
-<span class="cstat-no" title="statement not covered" >        router.push('/register-parent');</span>
+<span class="cstat-no" title="statement not covered" >        router.push('/register-parent' as Href);</span>
       } else {
-<span class="cstat-no" title="statement not covered" >        router.push('/register-child');</span>
+<span class="cstat-no" title="statement not covered" >        router.push('/register-child' as Href);</span>
       }
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error navigating to registration:', error);</span>
-<span class="cstat-no" title="statement not covered" >      Alert.alert('Ошибка', 'Не удалось перейти к регистрации. Попробуйте снова.');</span>
+<span class="cstat-no" title="statement not covered" >      Alert.alert(t('common.error'), t('roleSelection.navigateError'));</span>
     } finally {
 <span class="cstat-no" title="statement not covered" >      setIsSubmitting(false);</span>
     }
@@ -726,15 +726,15 @@ export default function <span class="fstat-no" title="function not covered" >Rol
     &lt;View style={styles.container}&gt;
       &lt;LinearGradient colors={theme.surfaceGradient} style={styles.gradient}&gt;
         &lt;ScrollView style={styles.scrollView} contentContainerStyle={{ paddingBottom: 40 }} testID="role-selection-scroll"&gt;
-          &lt;Text style={styles.title} testID="role-selection-title"&gt;Выберите вашу роль&lt;/Text&gt;
+          &lt;Text style={styles.title} testID="role-selection-title"&gt;{t('roleSelection.title')}&lt;/Text&gt;
           &lt;Text style={styles.subtitle} testID="role-selection-subtitle"&gt;
-            Это поможет настроить приложение под ваши потребности
+            {t('roleSelection.subtitle')}
           &lt;/Text&gt;
 &nbsp;
           {selectedRole === 'child' &amp;&amp; requiresConsent &amp;&amp; !isTexasCompliant &amp;&amp; (
             &lt;View style={styles.warningBox}&gt;
               &lt;Text style={styles.warningText}&gt;
-                ⚠️ Для использования приложения ребенком требуется родительское согласие согласно закону Техаса (SB 2420).
+                {t('roleSelection.texasConsentWarning')}
               &lt;/Text&gt;
             &lt;/View&gt;
           )}
@@ -748,27 +748,27 @@ export default function <span class="fstat-no" title="function not covered" >Rol
           &gt;
             &lt;View style={styles.roleHeader}&gt;
               &lt;Shield size={32} color={theme.accentPrimary} style={styles.roleIcon} /&gt;
-              &lt;Text style={styles.roleTitle} testID="role-selection-parent-title"&gt;Родитель&lt;/Text&gt;
+              &lt;Text style={styles.roleTitle} testID="role-selection-parent-title"&gt;{t('roleSelection.parent')}&lt;/Text&gt;
             &lt;/View&gt;
             &lt;Text style={styles.roleDescription}&gt;
-              Полный контроль и мониторинг безопасности вашего ребенка
+              {t('roleSelection.parentDescription')}
             &lt;/Text&gt;
             &lt;View style={styles.featuresList}&gt;
               &lt;View style={styles.featureItem}&gt;
                 &lt;Eye size={16} color={theme.textSecondary} style={styles.featureIcon} /&gt;
-                &lt;Text style={styles.featureText}&gt;Мониторинг всех чатов и сообщений&lt;/Text&gt;
+                &lt;Text style={styles.featureText}&gt;{t('roleSelection.parentFeature1')}&lt;/Text&gt;
               &lt;/View&gt;
               &lt;View style={styles.featureItem}&gt;
                 &lt;Settings size={16} color={theme.textSecondary} style={styles.featureIcon} /&gt;
-                &lt;Text style={styles.featureText}&gt;Настройки родительского контроля&lt;/Text&gt;
+                &lt;Text style={styles.featureText}&gt;{t('roleSelection.parentFeature2')}&lt;/Text&gt;
               &lt;/View&gt;
               &lt;View style={styles.featureItem}&gt;
                 &lt;MessageCircle size={16} color={theme.textSecondary} style={styles.featureIcon} /&gt;
-                &lt;Text style={styles.featureText}&gt;Уведомления о рисках и тревогах&lt;/Text&gt;
+                &lt;Text style={styles.featureText}&gt;{t('roleSelection.parentFeature3')}&lt;/Text&gt;
               &lt;/View&gt;
               &lt;View style={styles.featureItem}&gt;
                 &lt;Shield size={16} color={theme.textSecondary} style={styles.featureIcon} /&gt;
-                &lt;Text style={styles.featureText}&gt;Статистика и аналитика безопасности&lt;/Text&gt;
+                &lt;Text style={styles.featureText}&gt;{t('roleSelection.parentFeature4')}&lt;/Text&gt;
               &lt;/View&gt;
             &lt;/View&gt;
           &lt;/TouchableOpacity&gt;
@@ -782,27 +782,27 @@ export default function <span class="fstat-no" title="function not covered" >Rol
           &gt;
             &lt;View style={styles.roleHeader}&gt;
               &lt;User size={32} color={theme.accentPrimary} style={styles.roleIcon} /&gt;
-              &lt;Text style={styles.roleTitle} testID="role-selection-child-title"&gt;Ребенок&lt;/Text&gt;
+              &lt;Text style={styles.roleTitle} testID="role-selection-child-title"&gt;{t('roleSelection.child')}&lt;/Text&gt;
             &lt;/View&gt;
             &lt;Text style={styles.roleDescription}&gt;
-              Безопасное общение с защитой и поддержкой
+              {t('roleSelection.childDescription')}
             &lt;/Text&gt;
             &lt;View style={styles.featuresList}&gt;
               &lt;View style={styles.featureItem}&gt;
                 &lt;MessageCircle size={16} color={theme.textSecondary} style={styles.featureIcon} /&gt;
-                &lt;Text style={styles.featureText}&gt;Безопасные чаты с AI-защитой&lt;/Text&gt;
+                &lt;Text style={styles.featureText}&gt;{t('roleSelection.childFeature1')}&lt;/Text&gt;
               &lt;/View&gt;
               &lt;View style={styles.featureItem}&gt;
                 &lt;Shield size={16} color={theme.textSecondary} style={styles.featureIcon} /&gt;
-                &lt;Text style={styles.featureText}&gt;Кнопка SOS для экстренной помощи&lt;/Text&gt;
+                &lt;Text style={styles.featureText}&gt;{t('roleSelection.childFeature2')}&lt;/Text&gt;
               &lt;/View&gt;
               &lt;View style={styles.featureItem}&gt;
                 &lt;Lock size={16} color={theme.textSecondary} style={styles.featureIcon} /&gt;
-                &lt;Text style={styles.featureText}&gt;Защита приватности&lt;/Text&gt;
+                &lt;Text style={styles.featureText}&gt;{t('roleSelection.childFeature3')}&lt;/Text&gt;
               &lt;/View&gt;
               &lt;View style={styles.featureItem}&gt;
                 &lt;User size={16} color={theme.textSecondary} style={styles.featureIcon} /&gt;
-                &lt;Text style={styles.featureText}&gt;Ограниченный доступ к настройкам&lt;/Text&gt;
+                &lt;Text style={styles.featureText}&gt;{t('roleSelection.childFeature4')}&lt;/Text&gt;
               &lt;/View&gt;
             &lt;/View&gt;
           &lt;/TouchableOpacity&gt;
@@ -813,7 +813,7 @@ export default function <span class="fstat-no" title="function not covered" >Rol
             disabled={!selectedRole || isSubmitting}
           &gt;
             &lt;Text style={styles.buttonText}&gt;
-              {isSubmitting ? 'Сохранение...' : 'Продолжить'}
+              {isSubmitting ? t('roleSelection.saving') : t('roleSelection.continue')}
             &lt;/Text&gt;
           &lt;/TouchableOpacity&gt;
         &lt;/ScrollView&gt;
@@ -829,7 +829,7 @@ export default function <span class="fstat-no" title="function not covered" >Rol
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-26T08:50:41.640Z
+                at 2026-02-02T09:49:44.765Z
             </div>
         <script src="../prettify.js"></script>
         <script>

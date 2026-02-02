@@ -1,0 +1,11 @@
+          |                               ^
+      229 |       );
+      230 |
+      231 |       if (testButton) {
+
+      at flatten (node_modules/@testing-library/react-native/src/helpers/format-default.ts:42:29)
+      at Object.mapProps [as serialize] (node_modules/@testing-library/react-native/src/helpers/format.ts:29:35)
+      at printPlugin (node_modules/pretty-format/build/index.js:271:16)
+      at format (node_modules/pretty-format/build/index.js:453:16)
+      at format (node_modules/@testing-library/react-native/src/helpers/format.ts:17:15)
+      at formatErrorMessage (node_modules/@testing-library/react-native/src/queries/make-queries.ts:99:33)

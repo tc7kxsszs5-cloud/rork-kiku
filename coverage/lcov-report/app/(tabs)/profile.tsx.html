@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">3.77% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/212</span>
+                <span class='fraction'>8/212</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">3.98% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/201</span>
+                <span class='fraction'>8/201</span>
             </div>
         
             
@@ -2146,7 +2146,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2161,7 +2161,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2175,7 +2175,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2194,7 +2194,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2236,7 +2236,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2257,7 +2257,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2265,7 +2265,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -3208,7 +3208,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -4177,7 +4177,7 @@ import { logger } from '@/utils/logger';
 import { useTranslation } from 'react-i18next';
 import i18n from '@/constants/i18n';
 &nbsp;
-const ROLE_OPTIONS = <span class="cstat-no" title="statement not covered" >[</span>
+const ROLE_OPTIONS = [
   {
     value: 'parent' as const,
     title: 'Родитель',
@@ -4192,7 +4192,7 @@ const ROLE_OPTIONS = <span class="cstat-no" title="statement not covered" >[</sp
   },
 ];
 &nbsp;
-const LANGUAGE_OPTIONS = <span class="cstat-no" title="statement not covered" >[</span>
+const LANGUAGE_OPTIONS = [
   { value: 'ru', label: 'Русский' },
   { value: 'en', label: 'English' },
 ];
@@ -4206,13 +4206,13 @@ type SettingsShortcut = {
   Icon: typeof ShieldCheck;
 };
 &nbsp;
-const SETTINGS_SHORTCUTS: SettingsShortcut[] = <span class="cstat-no" title="statement not covered" >[</span>
+const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
   {
     key: 'security',
     title: 'Настройки безопасности',
     description: 'Статусы тревог, аналитика рисков и покрытие мониторинга',
     accent: '#fb923c',
-    target: '/security-settings',
+    target: '/security-settings' as Href,
     Icon: ShieldCheck,
   },
   {
@@ -4220,12 +4220,12 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = <span class="cstat-no" title="sta
     title: 'AI рекомендации',
     description: 'Персональные советы и обучение всей семьи',
     accent: '#fde047',
-    target: '/ai-recommendations',
+    target: '/ai-recommendations' as Href,
     Icon: Lightbulb,
   },
 ];
 &nbsp;
-const PERMISSION_STATUS_META: Record&lt;PushPermissionState, { label: string; description: string; color: string; textColor: string }&gt; = <span class="cstat-no" title="statement not covered" >{</span>
+const PERMISSION_STATUS_META: Record&lt;PushPermissionState, { label: string; description: string; color: string; textColor: string }&gt; = {
   granted: {
     label: 'Разрешено',
     description: 'Уведомления включены',
@@ -4267,7 +4267,7 @@ interface ReadinessItem {
   Icon: IconComponent;
 }
 &nbsp;
-const READINESS_STATUS_META: Record&lt;ReadinessStatus, { label: string; chipBackground: string; chipColor: string; iconBackground: string }&gt; = <span class="cstat-no" title="statement not covered" >{</span>
+const READINESS_STATUS_META: Record&lt;ReadinessStatus, { label: string; chipBackground: string; chipColor: string; iconBackground: string }&gt; = {
   ready: {
     label: 'Готово',
     chipBackground: 'rgba(34,197,94,0.15)',
@@ -4288,7 +4288,7 @@ const READINESS_STATUS_META: Record&lt;ReadinessStatus, { label: string; chipBac
   },
 };
 &nbsp;
-const readinessIconMap: Record&lt;ReadinessKey, IconComponent&gt; = <span class="cstat-no" title="statement not covered" >{</span>
+const readinessIconMap: Record&lt;ReadinessKey, IconComponent&gt; = {
   permissions: Bell,
   token: KeyRound,
   sync: CloudUpload,
@@ -4296,7 +4296,7 @@ const readinessIconMap: Record&lt;ReadinessKey, IconComponent&gt; = <span class=
   hardware: Smartphone,
 };
 &nbsp;
-const DIAGNOSTIC_LABELS: Record&lt;NotificationTestType, string&gt; = <span class="cstat-no" title="statement not covered" >{</span>
+const DIAGNOSTIC_LABELS: Record&lt;NotificationTestType, string&gt; = {
   permissions: 'Разрешения',
   token: 'Push токен',
   delivery: 'Доставка',
@@ -5239,7 +5239,7 @@ export default function <span class="fstat-no" title="function not covered" >Pro
   );
 }
 &nbsp;
-const createStyles = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(t</span>heme: ThemePalette) =&gt; <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span></span>
+const createStyles = <span class="fstat-no" title="function not covered" >(t</span>heme: ThemePalette) =&gt; <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
   container: {
     flex: 1,
     backgroundColor: theme.backgroundPrimary,
@@ -6163,7 +6163,7 @@ const createStyles = <span class="cstat-no" title="statement not covered" ><span
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-26T08:50:41.640Z
+                at 2026-02-02T09:49:44.765Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
