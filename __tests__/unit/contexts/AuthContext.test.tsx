@@ -30,16 +30,6 @@ jest.mock('@/utils/logger', () => ({
   },
 }));
 
-jest.mock('react-native', () => {
-  const RN = jest.requireActual('react-native');
-  return {
-    ...RN,
-    Platform: {
-      OS: 'ios',
-    },
-  };
-});
-
 const createWrapper = () => {
   return ({ children }: { children: React.ReactNode }) => (
     <AuthProvider>{children}</AuthProvider>

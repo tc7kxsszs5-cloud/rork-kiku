@@ -4,7 +4,8 @@
  */
 
 import React from 'react';
-import { render, fireEvent, waitFor, Alert } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { Alert } from 'react-native';
 import { CustomEmojiCreator } from '@/components/CustomEmojiCreator';
 import * as ImagePicker from 'expo-image-picker';
 

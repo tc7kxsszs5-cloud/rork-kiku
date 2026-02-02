@@ -36,16 +36,6 @@ jest.mock('@/utils/logger', () => ({
   },
 }));
 
-jest.mock('react-native', () => {
-  const RN = jest.requireActual('react-native');
-  return {
-    ...RN,
-    Platform: {
-      OS: 'ios',
-    },
-  };
-});
-
 const createWrapper = () => {
   return ({ children }: { children: React.ReactNode }) => (
     <UserProvider>{children}</UserProvider>
@@ -333,15 +323,20 @@ describe('UserContext', () => {
       };
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(userWithLanguage));
 
-      const { i18n } = require('@/constants/i18n');
+      const i18nModule = require('@/constants/i18n');
+      const i18n = i18nModule.default;
 
       renderHook(() => useUser(), {
         wrapper: createWrapper(),
       });
 
-      await waitFor(() => {
-        expect(i18n.default.changeLanguage).toHaveBeenCalledWith('ru');
-      });
+      // Ждём загрузки пользователя и вызова changeLanguage (loadUser асинхронный)
+      await waitFor(
+        () => {
+          expect(i18n.changeLanguage).toHaveBeenCalledWith('ru');
+        },
+        { timeout: 3000 }
+      );
     });
   });
 });

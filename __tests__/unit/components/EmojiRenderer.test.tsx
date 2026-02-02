@@ -92,7 +92,9 @@ describe('EmojiRenderer', () => {
       const customStyle = { fontSize: 18 };
       const { UNSAFE_getByType } = render(<EmojiRenderer text="Test" style={customStyle} />);
       const text = UNSAFE_getByType('Text');
-      expect(text.props.style).toContainEqual(customStyle);
+      const style = text.props.style;
+      const styles = Array.isArray(style) ? style : [style];
+      expect(styles.some((s: object) => s && typeof s === 'object' && (s as any).fontSize === customStyle.fontSize)).toBe(true);
     });
   });
 });

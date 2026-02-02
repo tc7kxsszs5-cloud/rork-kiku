@@ -88,9 +88,14 @@ const getDevServerFromExtras = () => {
 };
 
 const getBaseUrl = () => {
-  if (process.env.EXPO_PUBLIC_RORK_API_BASE_URL) {
-    console.log('[tRPC] Using base URL from env:', process.env.EXPO_PUBLIC_RORK_API_BASE_URL);
-    return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+  const rorkUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+  const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
+  const envUrl = rorkUrl || backendUrl;
+  if (envUrl) {
+    if (__DEV__) {
+      console.log('[tRPC] Using base URL from env:', envUrl);
+    }
+    return envUrl;
   }
 
   const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : false;
@@ -169,6 +174,10 @@ export const trpcClient = createTRPCClient<AppRouter>({
           return response;
         } catch (error) {
           clearTimeout(timeoutId);
+          const msg = error instanceof Error ? error.message : String(error);
+          if (msg === 'Load failed' || msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+            console.warn('[tRPC] Backend unreachable:', url, '— проверьте EXPO_PUBLIC_RORK_API_BASE_URL / EXPO_PUBLIC_BACKEND_URL и CORS.');
+          }
           console.error('[tRPC] Fetch error:', error);
           throw error;
         }
@@ -216,6 +225,10 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
           return response;
         } catch (error) {
           clearTimeout(timeoutId);
+          const msg = error instanceof Error ? error.message : String(error);
+          if (msg === 'Load failed' || msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+            console.warn('[tRPC Vanilla] Backend unreachable:', url, '— проверьте EXPO_PUBLIC_RORK_API_BASE_URL / EXPO_PUBLIC_BACKEND_URL и CORS.');
+          }
           console.error('[tRPC Vanilla] Fetch error:', error);
           throw error;
         }

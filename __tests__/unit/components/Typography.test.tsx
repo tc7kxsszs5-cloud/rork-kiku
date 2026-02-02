@@ -15,7 +15,7 @@ import {
   HeadlineRegular,
   TitleBold,
   TitleRegular,
-  BodyBold,
+  BodyLarge,
   BodyRegular,
   BodySmall,
   Caption,
@@ -124,8 +124,8 @@ describe('Typography', () => {
   });
 
   describe('Body компоненты', () => {
-    it('BodyBold должен отображать текст', () => {
-      const { getByText } = render(<BodyBold>Body</BodyBold>);
+    it('BodyLarge должен отображать текст', () => {
+      const { getByText } = render(<BodyLarge>Body</BodyLarge>);
       expect(getByText('Body')).toBeTruthy();
     });
 

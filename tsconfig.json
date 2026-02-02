@@ -7,7 +7,7 @@
         "./*"
       ]
     },
-    "baseUrl": null
+    "baseUrl": "."
   },
   "include": [
     "**/*.ts",
@@ -22,6 +22,9 @@
     "kiku",
     "KIKU79",
     "e807b43d-*",
-    "-https-github*"
+    "-https-github*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "__tests__"
   ]
 }

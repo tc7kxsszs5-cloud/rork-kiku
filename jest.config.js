@@ -21,6 +21,8 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    // Мок react-native, чтобы не загружать node_modules/react-native (Flow "import typeof" ломает парсер)
+    '^react-native$': '<rootDir>/__mocks__/react-native.js',
   },
   // Fork Tests Configuration
   // Используем 50% доступных CPU ядер для параллельного выполнения
@@ -53,8 +55,19 @@ module.exports = {
     '/node_modules/',
     '/\\.expo/',
     '<rootDir>/__tests__/e2e/',
-    // contexts.test теперь использует динамические импорты, можно запускать
+    '<rootDir>/__tests__/playwright/',
+    '<rootDir>/__tests__/testUtils\\.ts',
   ],
+
+  // Покрытие: пороги не блокируют сборку, но показывают в отчёте
+  coverageThreshold: {
+    global: {
+      branches: 0,
+      functions: 0,
+      lines: 0,
+      statements: 0,
+    },
+  },
   
   // Настройки для работы с ESM модулями
   extensionsToTreatAsEsm: ['.ts', '.tsx'],

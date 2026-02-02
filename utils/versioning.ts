@@ -70,7 +70,7 @@ export function needsMigration(currentVersion: number, targetVersion: number = A
  */
 export async function getStoredVersion(storageKey: string): Promise<number> {
   try {
-    const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
     const version = await AsyncStorage.getItem(`${storageKey}_version`);
     return version ? parseInt(version, 10) : 1; // По умолчанию версия 1
   } catch {
@@ -83,7 +83,7 @@ export async function getStoredVersion(storageKey: string): Promise<number> {
  */
 export async function saveStoredVersion(storageKey: string, version: number): Promise<void> {
   try {
-    const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
     await AsyncStorage.setItem(`${storageKey}_version`, String(version));
   } catch (error) {
     console.error(`[versioning] Failed to save version for ${storageKey}:`, error);

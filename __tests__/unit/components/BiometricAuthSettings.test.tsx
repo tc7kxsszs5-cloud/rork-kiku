@@ -4,7 +4,8 @@
  */
 
 import React from 'react';
-import { render, fireEvent, waitFor, Alert } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { Alert, ActivityIndicator } from 'react-native';
 import { BiometricAuthSettings } from '@/components/settings/BiometricAuthSettings';
 
 // Моки
@@ -89,7 +90,7 @@ describe('BiometricAuthSettings', () => {
       });
 
       const { UNSAFE_getByType } = render(<BiometricAuthSettings />);
-      const indicator = UNSAFE_getByType('ActivityIndicator');
+      const indicator = UNSAFE_getByType(ActivityIndicator);
       expect(indicator).toBeTruthy();
     });
 

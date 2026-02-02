@@ -30,9 +30,11 @@ jest.mock('expo-constants', () => ({
     expoConfig: {
       extra: {
         eas: {
-          projectId: 'test-project-id',
+          projectId: '00000000-0000-0000-0000-000000000000',
         },
+        projectId: '00000000-0000-0000-0000-000000000000',
       },
+      version: '1.0.0',
     },
   },
 }));
@@ -96,7 +98,12 @@ const createWrapper = () => {
 describe('NotificationsContext', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
+    process.env.EXPO_PUBLIC_PROJECT_ID = '00000000-0000-0000-0000-000000000000';
+    (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) => {
+      if (key === '@kids_device_id') return Promise.resolve('device-123');
+      if (key === '@kids_push_token') return Promise.resolve(null);
+      return Promise.resolve(null);
+    });
     (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
   });
 
@@ -194,6 +201,10 @@ describe('NotificationsContext', () => {
         wrapper: createWrapper(),
       });
 
+      await waitFor(() => {
+        expect(result.current.deviceId).toBeTruthy();
+      }, { timeout: 3000 });
+
       let diagnostics: any[] = [];
       await act(async () => {
         diagnostics = await result.current.runDiagnostics();
@@ -206,6 +217,10 @@ describe('NotificationsContext', () => {
       const { result } = renderHook(() => useNotifications(), {
         wrapper: createWrapper(),
       });
+
+      await waitFor(() => {
+        expect(result.current.deviceId).toBeTruthy();
+      }, { timeout: 3000 });
 
       await act(async () => {
         await result.current.runDiagnostics();

@@ -50,7 +50,7 @@ describe('ThemeContext', () => {
     });
 
     it('должен загружать сохраненную тему из AsyncStorage', async () => {
-      (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify('midnight'));
+      (AsyncStorage.getItem as jest.Mock).mockResolvedValue('midnight');
 
       const { result } = renderHook(() => useThemeMode(), {
         wrapper: createWrapper(),
@@ -93,7 +93,7 @@ describe('ThemeContext', () => {
         expect(result.current.themeMode).toBe('midnight');
         expect(AsyncStorage.setItem).toHaveBeenCalledWith(
           '@theme_mode_preference',
-          JSON.stringify('midnight')
+          'midnight'
         );
       });
     });
@@ -228,7 +228,7 @@ describe('ThemeContext', () => {
       await waitFor(() => {
         expect(AsyncStorage.setItem).toHaveBeenCalledWith(
           '@theme_mode_preference',
-          JSON.stringify('midnight')
+          'midnight'
         );
       });
     });

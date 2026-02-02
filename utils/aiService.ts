@@ -177,7 +177,9 @@ function cacheAnalysis(text: string, result: RiskAnalysis): void {
   // Limit cache size (keep last 1000 entries)
   if (analysisCache.size > 1000) {
     const firstKey = analysisCache.keys().next().value;
-    analysisCache.delete(firstKey);
+    if (firstKey !== undefined) {
+      analysisCache.delete(firstKey);
+    }
   }
 }
 

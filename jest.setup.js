@@ -16,31 +16,25 @@ jest.mock('expo-modules-core', () => ({
   },
 }));
 
-// Моки для React Native модулей (require внутри factory — Jest sandbox)
-jest.mock('react-native', () => {
-  const mockReact = require('react');
-  return {
-    Platform: {
-      OS: 'ios',
-      select: (dict) => dict.ios || dict.default,
-    },
-    View: ({ children, testID, ...props }) =>
-      mockReact.createElement('View', { testID, ...props }, children),
-    Text: ({ children, testID, ...props }) =>
-      mockReact.createElement('Text', { testID, ...props }, children),
-    TouchableOpacity: ({ children, onPress, testID, ...props }) =>
-      mockReact.createElement('TouchableOpacity', { onPress, testID, ...props }, children),
-    StyleSheet: {
-      create: (styles) => styles,
-    },
-  };
-});
+// React Native: используем полный мок из __mocks__/react-native.js (moduleNameMapper в jest.config.js).
+// Не переопределяем здесь — иначе получается неполный мок (нет ScrollView, Image и т.д.) и падает "Element type is invalid".
 
 // Мок для Expo модулей
 jest.mock('expo-constants', () => ({
   expoConfig: {
-    extra: {},
-  },
+  __esModule: true,
+  default: {
+    expoConfig: {
+      extra: {
+        aiProvider: 'local',
+        openaiApiKey: undefined,
+        openaiApiBaseUrl: 'https://api.openai.com/v1',
+        eas: { projectId: '00000000-0000-0000-0000-000000000000' },
+        projectId: '00000000-0000-0000-0000-000000000000',
+      },
+      version: '1.0.0',
+    },
+    executionEnvironment: 'storeClient',
   executionEnvironment: 'storeClient',
 }));
 
@@ -68,6 +62,7 @@ jest.mock('expo-notifications', () => ({
   getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
   requestPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
   scheduleNotificationAsync: jest.fn(() => Promise.resolve('notification-id')),
+  getExpoPushTokenAsync: jest.fn(() => Promise.resolve({ data: 'ExponentPushToken[test]' })),
   cancelScheduledNotificationAsync: jest.fn(() => Promise.resolve()),
   getAllScheduledNotificationsAsync: jest.fn(() => Promise.resolve([])),
   setNotificationHandler: jest.fn(),

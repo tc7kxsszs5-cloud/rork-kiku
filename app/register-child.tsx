@@ -11,7 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Href } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { trpcVanillaClient } from '@/lib/trpc';
 import { useThemeMode } from '@/constants/ThemeContext';
@@ -99,15 +99,13 @@ export default function RegisterChildScreen() {
         // Логиним ребенка
         await login(result.childId, 'child');
 
+        // Сразу переходим в чаты (layout тоже перенаправит при isAuthenticated)
+        router.replace('/(tabs)' as Href);
+
         Alert.alert(
           'Успешно!',
           `Добро пожаловать, ${name}! Устройства связаны с ${result.parentName}.`,
-          [
-            {
-              text: 'Продолжить',
-              onPress: () => router.replace('/(tabs)'),
-            },
-          ]
+          [{ text: 'ОК' }]
         );
       } else {
         Alert.alert('Ошибка', result.error || 'Не удалось зарегистрироваться');
@@ -218,10 +216,7 @@ export default function RegisterChildScreen() {
 
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => {
-              // При возврате переходим в основное приложение для тестирования
-              router.replace('/(tabs)');
-            }}
+            onPress={() => router.replace('/role-selection' as Href)}
           >
             <Text style={styles.backButtonText}>Назад</Text>
           </TouchableOpacity>

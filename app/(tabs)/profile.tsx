@@ -85,7 +85,7 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
     title: 'Настройки безопасности',
     description: 'Статусы тревог, аналитика рисков и покрытие мониторинга',
     accent: '#fb923c',
-    target: '/security-settings',
+    target: '/security-settings' as Href,
     Icon: ShieldCheck,
   },
   {
@@ -93,7 +93,7 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
     title: 'AI рекомендации',
     description: 'Персональные советы и обучение всей семьи',
     accent: '#fde047',
-    target: '/ai-recommendations',
+    target: '/ai-recommendations' as Href,
     Icon: Lightbulb,
   },
 ];

@@ -46,17 +46,44 @@ const resources = {
 
 const i18n = createInstance();
 
+const DEFAULT_LANG = 'ru';
+
+const getInitialLanguage = (): string => {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return DEFAULT_LANG;
+    const stored = window.localStorage.getItem('i18nextLng');
+    if (!stored) return DEFAULT_LANG;
+    const lang = stored.split('-')[0];
+    if (lang && (resources as Record<string, unknown>)[lang]) return lang;
+    if ((resources as Record<string, unknown>)[stored]) return stored;
+  } catch {
+    // localStorage может быть недоступен (приватный режим и т.д.)
+  }
+  return DEFAULT_LANG;
+};
+
+const initialLng = getInitialLanguage();
+
 i18n.use(initReactI18next).init({
   resources,
-  lng: 'ru',
+  lng: initialLng,
   fallbackLng: 'en',
+  react: { useSuspense: false },
   interpolation: {
     escapeValue: false,
   },
-  // Поддержка множественного числа
   pluralSeparator: '_',
   contextSeparator: '_',
 });
+
+// После очистки localStorage при следующей загрузке язык снова сохраняется — не остаётся «пустого» состояния
+try {
+  if (typeof window !== 'undefined' && window.localStorage && !window.localStorage.getItem('i18nextLng')) {
+    window.localStorage.setItem('i18nextLng', initialLng);
+  }
+} catch {
+  // игнорируем
+}
 
 export default i18n;
 

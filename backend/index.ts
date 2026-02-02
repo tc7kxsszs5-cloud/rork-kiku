@@ -14,16 +14,13 @@ app.use("*", cors({
     const allowedOrigins = [
       'https://d8v7u672uumlfpscvnbps.rork.live',
       'http://localhost:8081',
+      'http://localhost:8082',
+      'http://localhost:8083',
       'http://localhost:19006',
       'exp://localhost:8081',
     ];
 
-    // In production, only allow specific origins
-    if (process.env.NODE_ENV === 'production') {
-      return allowedOrigins.includes(origin || '') ? origin : null;
-    }
-
-    // In development, allow localhost
+    // Всегда разрешаем любой localhost (для разработки против прод-API)
     if (origin && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
       return origin;
     }

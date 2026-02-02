@@ -18,15 +18,17 @@ jest.mock('@/utils/logger', () => ({
   },
 }));
 
-// Мок для expo-constants
+// Объект extra для мока expo-constants (доступен в тестах)
+const mockExtra: Record<string, unknown> = {
+  openaiApiKey: undefined,
+  aiProvider: 'local',
+  openaiBaseUrl: 'https://api.openai.com/v1',
+};
+
 jest.mock('expo-constants', () => ({
   default: {
-    expoConfig: {
-      extra: {
-        openaiApiKey: undefined,
-        aiProvider: 'local',
-        openaiApiBaseUrl: 'https://api.openai.com/v1',
-      },
+    get expoConfig() {
+      return { extra: mockExtra };
     },
   },
 }));
@@ -35,6 +37,8 @@ describe('aiService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (global.fetch as jest.Mock).mockClear();
+    mockExtra.openaiApiKey = undefined;
+    mockExtra.aiProvider = 'local';
   });
 
   describe('getAIConfig', () => {
@@ -47,14 +51,19 @@ describe('aiService', () => {
     });
 
     it('должен читать конфигурацию из expo-constants', () => {
-      const Constants = require('expo-constants');
-      Constants.default.expoConfig.extra.openaiApiKey = 'test-key';
-      Constants.default.expoConfig.extra.aiProvider = 'openai';
+      // Используем process.env — в тестах expo-constants может быть из setup
+      const origKey = process.env.OPENAI_API_KEY;
+      const origProvider = process.env.AI_PROVIDER;
+      process.env.OPENAI_API_KEY = 'test-key';
+      process.env.AI_PROVIDER = 'openai';
 
       const config = getAIConfig();
       
       expect(config.provider).toBe('openai');
       expect(config.apiKey).toBe('test-key');
+
+      process.env.OPENAI_API_KEY = origKey;
+      process.env.AI_PROVIDER = origProvider ?? '';
     });
 
     it('должен использовать process.env если expo-constants не доступен', () => {
@@ -84,6 +93,7 @@ describe('aiService', () => {
     });
 
     it('должен вызывать OpenAI API при provider=openai и наличии ключа', async () => {
+      const uniqueMessage = 'openai-unique-test-message-' + Date.now();
       const mockResponse = {
         results: [{
           flagged: false,
@@ -103,7 +113,7 @@ describe('aiService', () => {
         endpoint: 'https://api.openai.com/v1',
       };
 
-      const result = await analyzeMessageWithRealAI('test message', config);
+      const result = await analyzeMessageWithRealAI(uniqueMessage, config);
 
       expect(global.fetch).toHaveBeenCalledWith(
         'https://api.openai.com/v1/moderations',
@@ -144,6 +154,7 @@ describe('aiService', () => {
     });
 
     it('должен обрабатывать flagged сообщения от OpenAI', async () => {
+      const uniqueMessage = 'hateful-unique-' + Date.now();
       const mockResponse = {
         results: [{
           flagged: true,
@@ -158,10 +169,11 @@ describe('aiService', () => {
         }],
       };
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
+      const fetchMock = global.fetch as jest.Mock;
+      fetchMock.mockImplementationOnce(async () => ({
         ok: true,
         json: async () => mockResponse,
-      });
+      }));
 
       const config = {
         provider: 'openai' as const,
@@ -169,7 +181,7 @@ describe('aiService', () => {
         endpoint: 'https://api.openai.com/v1',
       };
 
-      const result = await analyzeMessageWithRealAI('hateful message', config);
+      const result = await analyzeMessageWithRealAI(uniqueMessage, config);
 
       expect(result.riskLevel).toBe('high');
       expect(result.categories).toContain('hate');

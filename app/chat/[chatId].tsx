@@ -16,14 +16,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { Send, AlertTriangle, Mic, X, AlertOctagon, Smile, Phone, Video } from 'lucide-react-native';
 import { EmojiRenderer } from '@/components/EmojiRenderer';
-
-// Lazy loading для тяжелых компонентов (загружаются только при открытии)
-const EmojiPicker = lazy(() => 
-  import('@/components/EmojiPicker').then(module => ({ default: module.EmojiPicker }))
-);
-const ChatBackgroundPicker = lazy(() => 
-  import('@/components/ChatBackgroundPicker').then(module => ({ default: module.ChatBackgroundPicker }))
-);
 import { replaceTextSmileys } from '@/utils/emojiUtils';
 import { useMonitoring } from '@/constants/MonitoringContext';
 import { useParentalControls } from '@/constants/ParentalControlsContext';
@@ -36,6 +28,14 @@ import { Audio } from 'expo-av';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { logger } from '@/utils/logger';
 import { OnlineStatus } from '@/components/OnlineStatus';
+
+// Lazy loading для тяжелых компонентов (загружаются только при открытии)
+const EmojiPicker = lazy(() => 
+  import('@/components/EmojiPicker').then(module => ({ default: module.EmojiPicker }))
+);
+const ChatBackgroundPicker = lazy(() => 
+  import('@/components/ChatBackgroundPicker').then(module => ({ default: module.ChatBackgroundPicker }))
+);
 
 const RISK_COLORS: Record<RiskLevel, string> = {
   safe: '#10b981',

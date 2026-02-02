@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useRouter, Href } from 'expo-router';
 import { User, Shield, Lock, Eye, Settings, MessageCircle } from 'lucide-react-native';
 import { useUser } from '@/constants/UserContext';
 import { useAgeCompliance } from '@/constants/AgeComplianceContext';
@@ -9,6 +10,7 @@ import { useThemeMode } from '@/constants/ThemeContext';
 import { HapticFeedback } from '@/constants/haptics';
 
 export default function RoleSelectionScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   useUser();
   const { requiresConsent, isTexasCompliant } = useAgeCompliance();
@@ -127,7 +129,7 @@ export default function RoleSelectionScreen() {
 
   const handleContinue = async () => {
     if (!selectedRole) {
-      Alert.alert('Выберите роль', 'Пожалуйста, выберите вашу роль перед продолжением');
+      Alert.alert(t('roleSelection.title'), t('roleSelection.selectRoleAlert'));
       return;
     }
 
@@ -137,13 +139,13 @@ export default function RoleSelectionScreen() {
     try {
       // Переход на экраны регистрации
       if (selectedRole === 'parent') {
-        router.push('/register-parent');
+        router.push('/register-parent' as Href);
       } else {
-        router.push('/register-child');
+        router.push('/register-child' as Href);
       }
     } catch (error) {
       console.error('Error navigating to registration:', error);
-      Alert.alert('Ошибка', 'Не удалось перейти к регистрации. Попробуйте снова.');
+      Alert.alert(t('common.error'), t('roleSelection.navigateError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -153,15 +155,15 @@ export default function RoleSelectionScreen() {
     <View style={styles.container}>
       <LinearGradient colors={theme.surfaceGradient} style={styles.gradient}>
         <ScrollView style={styles.scrollView} contentContainerStyle={{ paddingBottom: 40 }} testID="role-selection-scroll">
-          <Text style={styles.title} testID="role-selection-title">Выберите вашу роль</Text>
+          <Text style={styles.title} testID="role-selection-title">{t('roleSelection.title')}</Text>
           <Text style={styles.subtitle} testID="role-selection-subtitle">
-            Это поможет настроить приложение под ваши потребности
+            {t('roleSelection.subtitle')}
           </Text>
 
           {selectedRole === 'child' && requiresConsent && !isTexasCompliant && (
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>
-                ⚠️ Для использования приложения ребенком требуется родительское согласие согласно закону Техаса (SB 2420).
+                {t('roleSelection.texasConsentWarning')}
               </Text>
             </View>
           )}
@@ -175,27 +177,27 @@ export default function RoleSelectionScreen() {
           >
             <View style={styles.roleHeader}>
               <Shield size={32} color={theme.accentPrimary} style={styles.roleIcon} />
-              <Text style={styles.roleTitle} testID="role-selection-parent-title">Родитель</Text>
+              <Text style={styles.roleTitle} testID="role-selection-parent-title">{t('roleSelection.parent')}</Text>
             </View>
             <Text style={styles.roleDescription}>
-              Полный контроль и мониторинг безопасности вашего ребенка
+              {t('roleSelection.parentDescription')}
             </Text>
             <View style={styles.featuresList}>
               <View style={styles.featureItem}>
                 <Eye size={16} color={theme.textSecondary} style={styles.featureIcon} />
-                <Text style={styles.featureText}>Мониторинг всех чатов и сообщений</Text>
+                <Text style={styles.featureText}>{t('roleSelection.parentFeature1')}</Text>
               </View>
               <View style={styles.featureItem}>
                 <Settings size={16} color={theme.textSecondary} style={styles.featureIcon} />
-                <Text style={styles.featureText}>Настройки родительского контроля</Text>
+                <Text style={styles.featureText}>{t('roleSelection.parentFeature2')}</Text>
               </View>
               <View style={styles.featureItem}>
                 <MessageCircle size={16} color={theme.textSecondary} style={styles.featureIcon} />
-                <Text style={styles.featureText}>Уведомления о рисках и тревогах</Text>
+                <Text style={styles.featureText}>{t('roleSelection.parentFeature3')}</Text>
               </View>
               <View style={styles.featureItem}>
                 <Shield size={16} color={theme.textSecondary} style={styles.featureIcon} />
-                <Text style={styles.featureText}>Статистика и аналитика безопасности</Text>
+                <Text style={styles.featureText}>{t('roleSelection.parentFeature4')}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -209,27 +211,27 @@ export default function RoleSelectionScreen() {
           >
             <View style={styles.roleHeader}>
               <User size={32} color={theme.accentPrimary} style={styles.roleIcon} />
-              <Text style={styles.roleTitle} testID="role-selection-child-title">Ребенок</Text>
+              <Text style={styles.roleTitle} testID="role-selection-child-title">{t('roleSelection.child')}</Text>
             </View>
             <Text style={styles.roleDescription}>
-              Безопасное общение с защитой и поддержкой
+              {t('roleSelection.childDescription')}
             </Text>
             <View style={styles.featuresList}>
               <View style={styles.featureItem}>
                 <MessageCircle size={16} color={theme.textSecondary} style={styles.featureIcon} />
-                <Text style={styles.featureText}>Безопасные чаты с AI-защитой</Text>
+                <Text style={styles.featureText}>{t('roleSelection.childFeature1')}</Text>
               </View>
               <View style={styles.featureItem}>
                 <Shield size={16} color={theme.textSecondary} style={styles.featureIcon} />
-                <Text style={styles.featureText}>Кнопка SOS для экстренной помощи</Text>
+                <Text style={styles.featureText}>{t('roleSelection.childFeature2')}</Text>
               </View>
               <View style={styles.featureItem}>
                 <Lock size={16} color={theme.textSecondary} style={styles.featureIcon} />
-                <Text style={styles.featureText}>Защита приватности</Text>
+                <Text style={styles.featureText}>{t('roleSelection.childFeature3')}</Text>
               </View>
               <View style={styles.featureItem}>
                 <User size={16} color={theme.textSecondary} style={styles.featureIcon} />
-                <Text style={styles.featureText}>Ограниченный доступ к настройкам</Text>
+                <Text style={styles.featureText}>{t('roleSelection.childFeature4')}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -240,7 +242,7 @@ export default function RoleSelectionScreen() {
             disabled={!selectedRole || isSubmitting}
           >
             <Text style={styles.buttonText}>
-              {isSubmitting ? 'Сохранение...' : 'Продолжить'}
+              {isSubmitting ? t('roleSelection.saving') : t('roleSelection.continue')}
             </Text>
           </TouchableOpacity>
         </ScrollView>

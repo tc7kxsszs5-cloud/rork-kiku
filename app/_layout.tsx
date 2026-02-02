@@ -123,10 +123,14 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
 
   render() {
     if (this.state.hasError) {
+      const msg = this.state.message ?? 'Попробуйте обновить приложение.';
+      if (__DEV__ && typeof console !== 'undefined') {
+        console.error('[AppErrorBoundary]', msg);
+      }
       return (
         <View style={styles.errorContainer} testID="app-error-boundary">
           <Text style={styles.errorTitle}>Что-то пошло не так</Text>
-          <Text style={styles.errorMessage}>{this.state.message ?? 'Попробуйте обновить приложение.'}</Text>
+          <Text style={styles.errorMessage} numberOfLines={5}>{msg}</Text>
           <TouchableOpacity style={styles.errorButton} onPress={this.handleReset} testID="app-error-boundary-reset">
             <Text style={styles.errorButtonText}>Попробовать снова</Text>
           </TouchableOpacity>
@@ -141,55 +145,52 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
 function RootLayoutNav() {
   const [isReady, setIsReady] = useState(false);
   
-  // Хуки должны вызываться на верхнем уровне компонента
   const authData = useAuth();
   const isAuthenticated = authData?.isAuthenticated || false;
+  const isAuthLoaded = authData?.isLoaded ?? false;
   const router = useRouter();
   const segments = useSegments();
 
   useEffect(() => {
-    // Ждем, пока роутер будет готов
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, 100);
-
+    const timer = setTimeout(() => setIsReady(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    if (!isReady) return;
+    if (!isReady || !isAuthLoaded || !router || !Array.isArray(segments)) return;
     
-    // Проверяем, зарегистрирован ли пользователь
+    const currentRoute = String(segments[0] ?? '');
+    const authRoutes = ['role-selection', 'register-parent', 'register-child'];
+    const inAuthGroup = authRoutes.includes(currentRoute);
+
+    // Не авторизован: всегда вести на выбор роли, кроме экранов регистрации
     if (!isAuthenticated) {
-      // Если не зарегистрирован и не на экране регистрации - показываем выбор роли
-      const currentRoute = String(segments?.[0] || '');
-      const authRoutes = ['role-selection', 'register-parent', 'register-child'];
-      const inAuthGroup = authRoutes.includes(currentRoute);
-      
-      // В режиме разработки разрешаем доступ к tabs для тестирования
-      const isDevMode = __DEV__;
-      const isOnTabs = currentRoute === '(tabs)';
-      
-      // Не редиректим, если уже на нужном экране или на главном экране
-      // В dev режиме разрешаем доступ к tabs для тестирования без авторизации
-      if (!inAuthGroup && !isOnTabs && router) {
-        // Небольшая задержка для предотвращения конфликтов
+      if (!inAuthGroup) {
         const timer = setTimeout(() => {
           try {
-            router.replace('/role-selection' as any);
+            router.replace('/role-selection' as never);
           } catch (error) {
             console.error('[RootLayoutNav] Navigation error:', error);
           }
-        }, 300);
+        }, 150);
         return () => clearTimeout(timer);
       }
-      
-      // В dev режиме разрешаем остаться на tabs для тестирования
-      if (isDevMode && isOnTabs) {
-        return; // Разрешаем доступ к tabs без авторизации в dev режиме
-      }
+      return;
     }
-  }, [isAuthenticated, segments, router, isReady]);
+
+    // Авторизован и на экране выбора роли или регистрации ребенка — вести в чаты
+    // register-parent не редиректим: родитель должен успеть скопировать код
+    if (isAuthenticated && (currentRoute === 'role-selection' || currentRoute === 'register-child')) {
+      const timer = setTimeout(() => {
+        try {
+          router.replace('/(tabs)' as never);
+        } catch (error) {
+          console.error('[RootLayoutNav] Navigation to tabs error:', error);
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, isAuthLoaded, segments, router, isReady]);
 
   const securityHeaderLeft = useMemo(() => {
     const HeaderLeftComponent = () => <HeaderBackButton fallbackHref="/(tabs)" forceFallback />;

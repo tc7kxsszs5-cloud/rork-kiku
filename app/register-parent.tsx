@@ -11,7 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Href } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
 import { trpcVanillaClient } from '@/lib/trpc';
@@ -132,7 +132,7 @@ export default function RegisterParentScreen() {
 
             <TouchableOpacity
               style={styles.continueButton}
-              onPress={() => router.replace('/(tabs)')}
+              onPress={() => router.replace('/(tabs)' as Href)}
             >
               <Text style={styles.continueButtonText}>Продолжить</Text>
             </TouchableOpacity>

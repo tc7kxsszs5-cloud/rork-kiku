@@ -22,6 +22,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
   });
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const loadAuthState = async () => {
@@ -33,6 +34,8 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
         }
       } catch (error) {
         logger.error('Failed to load auth state', error instanceof Error ? error : new Error(String(error)), { context: 'AuthContext', action: 'loadAuthState' });
+      } finally {
+        setIsLoaded(true);
       }
     };
 
@@ -103,6 +106,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
 
   return {
     ...authState,
+    isLoaded,
     login,
     logout,
     verifyPin,

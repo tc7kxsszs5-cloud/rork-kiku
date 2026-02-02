@@ -208,6 +208,25 @@ export const [UserProvider, useUser] = createContextHook(() => {
     }
   }, [user]);
 
+  const updateChild = useCallback(async (childId: string, updates: Partial<ChildProfile>) => {
+    if (!user) {
+      throw new Error('No user to update child in');
+    }
+
+    try {
+      const updatedChildren = user.children.map((child) =>
+        child.id === childId ? { ...child, ...updates } : child
+      );
+      const updatedUser = { ...user, children: updatedChildren };
+      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      logger.info('Child updated', { context: 'UserContext', childId, action: 'updateChild' });
+    } catch (error) {
+      logger.error('Error updating child', error instanceof Error ? error : new Error(String(error)), { context: 'UserContext', action: 'updateChild' });
+      throw error;
+    }
+  }, [user]);
+
   const setActiveChild = useCallback(async (childId: string | undefined) => {
     if (!user) {
       throw new Error('No user to update');
@@ -238,6 +257,25 @@ export const [UserProvider, useUser] = createContextHook(() => {
     }
   }, []);
 
+  /** Установить пользователя (для тестов и восстановления из хранилища). */
+  const setUserAndPersist = useCallback(async (userData: User | null) => {
+    if (userData === null) {
+      await AsyncStorage.removeItem(USER_STORAGE_KEY);
+      setUser(null);
+      return;
+    }
+    try {
+      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+      setUser(userData);
+      if (userData.language) {
+        i18n.changeLanguage(userData.language);
+      }
+    } catch (error) {
+      handleErrorSilently(error, 'UserContext', { action: 'setUser' });
+      throw error;
+    }
+  }, []);
+
   const activeChild = useMemo(() => {
     if (!user || !user.activeChildId) return null;
     return user.children.find(child => child.id === user.activeChildId) || null;
@@ -253,7 +291,10 @@ export const [UserProvider, useUser] = createContextHook(() => {
     updateUser,
     addChild,
     removeChild,
+    updateChild,
     setActiveChild,
     logoutUser,
-  }), [user, isLoading, activeChild, identifyUser, updateUser, addChild, removeChild, setActiveChild, logoutUser]);
+    setUser: setUserAndPersist,
+    clearUser: logoutUser,
+  }), [user, isLoading, activeChild, identifyUser, updateUser, addChild, removeChild, updateChild, setActiveChild, logoutUser, setUserAndPersist]);
 });

@@ -56,7 +56,7 @@ describe('Контексты', () => {
           }
         };
 
-        const { container } = render(
+        const { getByText } = render(
           <QueryClientProvider client={queryClient}>
             <Provider>
               <TestComponent />
@@ -65,7 +65,7 @@ describe('Контексты', () => {
         );
 
         await waitFor(() => {
-          expect(container).toBeTruthy();
+          expect(getByText(/Test -/)).toBeTruthy();
         }, { timeout: 5000 });
       } catch (error) {
         // Более детальная информация об ошибке

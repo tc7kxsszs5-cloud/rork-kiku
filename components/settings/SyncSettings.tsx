@@ -82,6 +82,7 @@ export function SyncSettings() {
           </Text>
         </View>
         <Switch
+          testID="auto-sync-switch"
           value={settings.autoSyncEnabled}
           onValueChange={handleToggleAutoSync}
           trackColor={{ false: theme.borderSoft, true: theme.accentPrimary }}
