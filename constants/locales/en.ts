@@ -250,6 +250,7 @@ export default {
     high: 'High',
     critical: 'Critical',
   },
+<<<<<<< HEAD
   roleSelection: {
     title: 'Choose your role',
     subtitle: 'This will help set up the app for your needs',
@@ -271,6 +272,8 @@ export default {
     texasConsentWarning: '⚠️ Use of the app by a child requires parental consent under Texas law (SB 2420).',
     navigateError: 'Could not go to registration. Try again.',
   },
+=======
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
   settings: {
     title: 'Settings',
     language: 'App Language',

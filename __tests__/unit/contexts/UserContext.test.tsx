@@ -36,6 +36,19 @@ jest.mock('@/utils/logger', () => ({
   },
 }));
 
+<<<<<<< HEAD
+=======
+jest.mock('react-native', () => {
+  const RN = jest.requireActual('react-native');
+  return {
+    ...RN,
+    Platform: {
+      OS: 'ios',
+    },
+  };
+});
+
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 const createWrapper = () => {
   return ({ children }: { children: React.ReactNode }) => (
     <UserProvider>{children}</UserProvider>
@@ -323,13 +336,18 @@ describe('UserContext', () => {
       };
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(userWithLanguage));
 
+<<<<<<< HEAD
       const i18nModule = require('@/constants/i18n');
       const i18n = i18nModule.default;
+=======
+      const { i18n } = require('@/constants/i18n');
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 
       renderHook(() => useUser(), {
         wrapper: createWrapper(),
       });
 
+<<<<<<< HEAD
       // Ждём загрузки пользователя и вызова changeLanguage (loadUser асинхронный)
       await waitFor(
         () => {
@@ -337,6 +355,11 @@ describe('UserContext', () => {
         },
         { timeout: 3000 }
       );
+=======
+      await waitFor(() => {
+        expect(i18n.default.changeLanguage).toHaveBeenCalledWith('ru');
+      });
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
   });
 });

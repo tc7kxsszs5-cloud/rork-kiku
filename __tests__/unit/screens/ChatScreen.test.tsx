@@ -126,6 +126,22 @@ jest.mock('@/utils/logger', () => ({
   },
 }));
 
+<<<<<<< HEAD
+=======
+jest.mock('react-native', () => {
+  const RN = jest.requireActual('react-native');
+  return {
+    ...RN,
+    Platform: {
+      OS: 'ios',
+    },
+    Alert: {
+      alert: jest.fn(),
+    },
+  };
+});
+
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 jest.mock('expo-linear-gradient', () => ({
   LinearGradient: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
@@ -164,9 +180,15 @@ describe('ChatScreen', () => {
 
   describe('Рендеринг', () => {
     it('должен отображать чат с сообщениями', () => {
+<<<<<<< HEAD
       const { getByPlaceholderText } = render(<ChatScreen />);
       // Чат отображается: есть поле ввода (сообщения в FlatList могут не рендериться в тесте)
       expect(getByPlaceholderText('Введите сообщение...')).toBeTruthy();
+=======
+      const { getByText } = render(<ChatScreen />);
+
+      expect(getByText('Hello')).toBeTruthy();
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
 
     it('должен отображать ошибку если чат не найден', () => {
@@ -181,7 +203,11 @@ describe('ChatScreen', () => {
     it('должен отображать поле ввода сообщения', () => {
       const { getByPlaceholderText } = render(<ChatScreen />);
 
+<<<<<<< HEAD
       expect(getByPlaceholderText('Введите сообщение...')).toBeTruthy();
+=======
+      expect(getByPlaceholderText('Написать сообщение...')).toBeTruthy();
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
   });
 
@@ -206,7 +232,11 @@ describe('ChatScreen', () => {
 
       const { getByPlaceholderText, UNSAFE_getAllByType } = render(<ChatScreen />);
 
+<<<<<<< HEAD
       const textInput = getByPlaceholderText('Введите сообщение...');
+=======
+      const textInput = getByPlaceholderText('Написать сообщение...');
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       fireEvent.changeText(textInput, 'Test message');
 
       const touchables = UNSAFE_getAllByType('TouchableOpacity');
@@ -244,7 +274,11 @@ describe('ChatScreen', () => {
 
       const { getByPlaceholderText } = render(<ChatScreen />);
 
+<<<<<<< HEAD
       const textInput = getByPlaceholderText('Введите сообщение...');
+=======
+      const textInput = getByPlaceholderText('Написать сообщение...');
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       fireEvent.changeText(textInput, '   '); // Только пробелы
 
       // Попытка отправить (через handleSend напрямую)
@@ -272,7 +306,11 @@ describe('ChatScreen', () => {
 
       const { getByPlaceholderText } = render(<ChatScreen />);
 
+<<<<<<< HEAD
       const textInput = getByPlaceholderText('Введите сообщение...');
+=======
+      const textInput = getByPlaceholderText('Написать сообщение...');
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       fireEvent.changeText(textInput, 'Test message');
 
       // Симулируем отправку через изменение состояния
@@ -473,9 +511,16 @@ describe('ChatScreen', () => {
         isAnalyzing: false,
       });
 
+<<<<<<< HEAD
       const { getByPlaceholderText } = render(<ChatScreen />);
       // Поле ввода отображается (сообщения в FlatList могут не рендериться в тесте)
       expect(getByPlaceholderText('Введите сообщение...')).toBeTruthy();
+=======
+      const { getByText } = render(<ChatScreen />);
+
+      // Проверяем, что сообщение отображается
+      expect(getByText('Test message')).toBeTruthy();
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
   });
 

@@ -123,6 +123,7 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
 
   render() {
     if (this.state.hasError) {
+<<<<<<< HEAD
       const msg = this.state.message ?? 'Попробуйте обновить приложение.';
       if (__DEV__ && typeof console !== 'undefined') {
         console.error('[AppErrorBoundary]', msg);
@@ -131,6 +132,12 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
         <View style={styles.errorContainer} testID="app-error-boundary">
           <Text style={styles.errorTitle}>Что-то пошло не так</Text>
           <Text style={styles.errorMessage} numberOfLines={5}>{msg}</Text>
+=======
+      return (
+        <View style={styles.errorContainer} testID="app-error-boundary">
+          <Text style={styles.errorTitle}>Что-то пошло не так</Text>
+          <Text style={styles.errorMessage}>{this.state.message ?? 'Попробуйте обновить приложение.'}</Text>
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
           <TouchableOpacity style={styles.errorButton} onPress={this.handleReset} testID="app-error-boundary-reset">
             <Text style={styles.errorButtonText}>Попробовать снова</Text>
           </TouchableOpacity>
@@ -145,18 +152,33 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
 function RootLayoutNav() {
   const [isReady, setIsReady] = useState(false);
   
+<<<<<<< HEAD
   const authData = useAuth();
   const isAuthenticated = authData?.isAuthenticated || false;
   const isAuthLoaded = authData?.isLoaded ?? false;
+=======
+  // Хуки должны вызываться на верхнем уровне компонента
+  const authData = useAuth();
+  const isAuthenticated = authData?.isAuthenticated || false;
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
   const router = useRouter();
   const segments = useSegments();
 
   useEffect(() => {
+<<<<<<< HEAD
     const timer = setTimeout(() => setIsReady(true), 100);
+=======
+    // Ждем, пока роутер будет готов
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 100);
+
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
+<<<<<<< HEAD
     if (!isReady || !isAuthLoaded || !router || !Array.isArray(segments)) return;
     
     const currentRoute = String(segments[0] ?? '');
@@ -191,6 +213,41 @@ function RootLayoutNav() {
       return () => clearTimeout(timer);
     }
   }, [isAuthenticated, isAuthLoaded, segments, router, isReady]);
+=======
+    if (!isReady) return;
+    
+    // Проверяем, зарегистрирован ли пользователь
+    if (!isAuthenticated) {
+      // Если не зарегистрирован и не на экране регистрации - показываем выбор роли
+      const currentRoute = String(segments?.[0] || '');
+      const authRoutes = ['role-selection', 'register-parent', 'register-child'];
+      const inAuthGroup = authRoutes.includes(currentRoute);
+      
+      // В режиме разработки разрешаем доступ к tabs для тестирования
+      const isDevMode = __DEV__;
+      const isOnTabs = currentRoute === '(tabs)';
+      
+      // Не редиректим, если уже на нужном экране или на главном экране
+      // В dev режиме разрешаем доступ к tabs для тестирования без авторизации
+      if (!inAuthGroup && !isOnTabs && router) {
+        // Небольшая задержка для предотвращения конфликтов
+        const timer = setTimeout(() => {
+          try {
+            router.replace('/role-selection' as any);
+          } catch (error) {
+            console.error('[RootLayoutNav] Navigation error:', error);
+          }
+        }, 300);
+        return () => clearTimeout(timer);
+      }
+      
+      // В dev режиме разрешаем остаться на tabs для тестирования
+      if (isDevMode && isOnTabs) {
+        return; // Разрешаем доступ к tabs без авторизации в dev режиме
+      }
+    }
+  }, [isAuthenticated, segments, router, isReady]);
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 
   const securityHeaderLeft = useMemo(() => {
     const HeaderLeftComponent = () => <HeaderBackButton fallbackHref="/(tabs)" forceFallback />;

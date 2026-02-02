@@ -16,7 +16,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.rork.greeting-project-58uufiz",
+<<<<<<< HEAD
       "buildNumber": "1",
+=======
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       "infoPlist": {
         "UIBackgroundModes": [
           "audio",
@@ -35,7 +38,10 @@
         "backgroundColor": "#ffffff"
       },
       "package": "app.rork.greeting_project_58uufiz",
+<<<<<<< HEAD
       "versionCode": 1,
+=======
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       "permissions": [
         "android.permission.VIBRATE",
         "RECORD_AUDIO",
@@ -106,6 +112,12 @@
       "typedRoutes": true
     },
     "extra": {
+<<<<<<< HEAD
+=======
+      "openaiApiKey": process.env.OPENAI_API_KEY || "",
+      "aiProvider": process.env.AI_PROVIDER || "local",
+      "openaiApiBaseUrl": process.env.OPENAI_API_BASE_URL || "https://api.openai.com/v1",
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       "router": {
         "origin": "https://rork.com/"
       },

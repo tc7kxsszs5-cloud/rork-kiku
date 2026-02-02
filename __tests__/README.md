@@ -45,6 +45,7 @@ bun run test:e2e
 
 ### Запуск с покрытием
 ```bash
+<<<<<<< HEAD
 # Все тесты + отчёт покрытия
 bun run test:coverage
 
@@ -52,6 +53,10 @@ bun run test:coverage
 bun run test:unit:coverage
 ```
 После запуска отчёт в `coverage/lcov-report/index.html` (открой в браузере).
+=======
+bun run test:coverage
+```
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 
 ### Watch mode (для разработки)
 ```bash

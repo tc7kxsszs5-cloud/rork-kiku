@@ -18,6 +18,7 @@ jest.mock('@/utils/logger', () => ({
   },
 }));
 
+<<<<<<< HEAD
 // Объект extra для мока expo-constants (доступен в тестах)
 const mockExtra: Record<string, unknown> = {
   openaiApiKey: undefined,
@@ -29,6 +30,17 @@ jest.mock('expo-constants', () => ({
   default: {
     get expoConfig() {
       return { extra: mockExtra };
+=======
+// Мок для expo-constants
+jest.mock('expo-constants', () => ({
+  default: {
+    expoConfig: {
+      extra: {
+        openaiApiKey: undefined,
+        aiProvider: 'local',
+        openaiApiBaseUrl: 'https://api.openai.com/v1',
+      },
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     },
   },
 }));
@@ -37,8 +49,11 @@ describe('aiService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (global.fetch as jest.Mock).mockClear();
+<<<<<<< HEAD
     mockExtra.openaiApiKey = undefined;
     mockExtra.aiProvider = 'local';
+=======
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
   });
 
   describe('getAIConfig', () => {
@@ -51,19 +66,28 @@ describe('aiService', () => {
     });
 
     it('должен читать конфигурацию из expo-constants', () => {
+<<<<<<< HEAD
       // Используем process.env — в тестах expo-constants может быть из setup
       const origKey = process.env.OPENAI_API_KEY;
       const origProvider = process.env.AI_PROVIDER;
       process.env.OPENAI_API_KEY = 'test-key';
       process.env.AI_PROVIDER = 'openai';
+=======
+      const Constants = require('expo-constants');
+      Constants.default.expoConfig.extra.openaiApiKey = 'test-key';
+      Constants.default.expoConfig.extra.aiProvider = 'openai';
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 
       const config = getAIConfig();
       
       expect(config.provider).toBe('openai');
       expect(config.apiKey).toBe('test-key');
+<<<<<<< HEAD
 
       process.env.OPENAI_API_KEY = origKey;
       process.env.AI_PROVIDER = origProvider ?? '';
+=======
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
 
     it('должен использовать process.env если expo-constants не доступен', () => {
@@ -93,7 +117,10 @@ describe('aiService', () => {
     });
 
     it('должен вызывать OpenAI API при provider=openai и наличии ключа', async () => {
+<<<<<<< HEAD
       const uniqueMessage = 'openai-unique-test-message-' + Date.now();
+=======
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       const mockResponse = {
         results: [{
           flagged: false,
@@ -113,7 +140,11 @@ describe('aiService', () => {
         endpoint: 'https://api.openai.com/v1',
       };
 
+<<<<<<< HEAD
       const result = await analyzeMessageWithRealAI(uniqueMessage, config);
+=======
+      const result = await analyzeMessageWithRealAI('test message', config);
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 
       expect(global.fetch).toHaveBeenCalledWith(
         'https://api.openai.com/v1/moderations',
@@ -154,7 +185,10 @@ describe('aiService', () => {
     });
 
     it('должен обрабатывать flagged сообщения от OpenAI', async () => {
+<<<<<<< HEAD
       const uniqueMessage = 'hateful-unique-' + Date.now();
+=======
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       const mockResponse = {
         results: [{
           flagged: true,
@@ -169,11 +203,18 @@ describe('aiService', () => {
         }],
       };
 
+<<<<<<< HEAD
       const fetchMock = global.fetch as jest.Mock;
       fetchMock.mockImplementationOnce(async () => ({
         ok: true,
         json: async () => mockResponse,
       }));
+=======
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse,
+      });
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 
       const config = {
         provider: 'openai' as const,
@@ -181,7 +222,11 @@ describe('aiService', () => {
         endpoint: 'https://api.openai.com/v1',
       };
 
+<<<<<<< HEAD
       const result = await analyzeMessageWithRealAI(uniqueMessage, config);
+=======
+      const result = await analyzeMessageWithRealAI('hateful message', config);
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 
       expect(result.riskLevel).toBe('high');
       expect(result.categories).toContain('hate');

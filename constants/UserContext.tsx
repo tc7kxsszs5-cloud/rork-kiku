@@ -208,6 +208,7 @@ export const [UserProvider, useUser] = createContextHook(() => {
     }
   }, [user]);
 
+<<<<<<< HEAD
   const updateChild = useCallback(async (childId: string, updates: Partial<ChildProfile>) => {
     if (!user) {
       throw new Error('No user to update child in');
@@ -227,6 +228,8 @@ export const [UserProvider, useUser] = createContextHook(() => {
     }
   }, [user]);
 
+=======
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
   const setActiveChild = useCallback(async (childId: string | undefined) => {
     if (!user) {
       throw new Error('No user to update');
@@ -257,6 +260,7 @@ export const [UserProvider, useUser] = createContextHook(() => {
     }
   }, []);
 
+<<<<<<< HEAD
   /** Установить пользователя (для тестов и восстановления из хранилища). */
   const setUserAndPersist = useCallback(async (userData: User | null) => {
     if (userData === null) {
@@ -276,6 +280,8 @@ export const [UserProvider, useUser] = createContextHook(() => {
     }
   }, []);
 
+=======
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
   const activeChild = useMemo(() => {
     if (!user || !user.activeChildId) return null;
     return user.children.find(child => child.id === user.activeChildId) || null;
@@ -291,10 +297,16 @@ export const [UserProvider, useUser] = createContextHook(() => {
     updateUser,
     addChild,
     removeChild,
+<<<<<<< HEAD
     updateChild,
     setActiveChild,
     logoutUser,
     setUser: setUserAndPersist,
     clearUser: logoutUser,
   }), [user, isLoading, activeChild, identifyUser, updateUser, addChild, removeChild, updateChild, setActiveChild, logoutUser, setUserAndPersist]);
+=======
+    setActiveChild,
+    logoutUser,
+  }), [user, isLoading, activeChild, identifyUser, updateUser, addChild, removeChild, setActiveChild, logoutUser]);
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 });

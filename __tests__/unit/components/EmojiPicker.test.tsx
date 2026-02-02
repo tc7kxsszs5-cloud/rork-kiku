@@ -108,9 +108,15 @@ describe('EmojiPicker', () => {
       const searchInput = getByPlaceholderText('Поиск эмодзи...');
       fireEvent.changeText(searchInput, '😀');
 
+<<<<<<< HEAD
       // Должен найти эмодзи 😀 (или поиск отображается; FlatList может не рендерить эмодзи в тесте)
       await waitFor(() => {
         expect(getByPlaceholderText('Поиск эмодзи...')).toBeTruthy();
+=======
+      // Должен найти эмодзи 😀
+      waitFor(() => {
+        expect(getByText('😀')).toBeTruthy();
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       });
     });
 

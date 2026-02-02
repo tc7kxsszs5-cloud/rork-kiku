@@ -6,10 +6,14 @@
 import React from 'react';
 import { renderHook, waitFor, act } from '@testing-library/react-native';
 import { ParentalControlsProvider, useParentalControls } from '@/constants/ParentalControlsContext';
+<<<<<<< HEAD
 import { ParentalSettings, TimeRestriction } from '@/constants/types';
 
 const TEST_USER_ID = 'user-1';
 const TEST_USER_NAME = 'Test User';
+=======
+import { ParentalSettings, Contact, TimeRestriction } from '@/constants/types';
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Моки
@@ -137,7 +141,11 @@ describe('ParentalControlsContext', () => {
       });
 
       await act(async () => {
+<<<<<<< HEAD
         await result.current.updateSettings({ dailyUsageLimit: 90 }, TEST_USER_ID);
+=======
+        await result.current.updateSettings({ dailyUsageLimit: 90 });
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       });
 
       await waitFor(() => {
@@ -155,7 +163,11 @@ describe('ParentalControlsContext', () => {
       });
 
       await act(async () => {
+<<<<<<< HEAD
         await result.current.updateSettings({ dailyUsageLimit: 90 }, TEST_USER_ID);
+=======
+        await result.current.updateSettings({ dailyUsageLimit: 90 });
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       });
 
       await waitFor(() => {
@@ -168,6 +180,16 @@ describe('ParentalControlsContext', () => {
   });
 
   describe('Управление контактами', () => {
+<<<<<<< HEAD
+=======
+    const mockContact: Contact = {
+      id: 'contact-1',
+      name: 'Test Contact',
+      approved: false,
+      addedAt: Date.now(),
+    };
+
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     it('должен добавлять контакт', async () => {
       const { result } = renderHook(() => useParentalControls(), {
         wrapper: createWrapper(),
@@ -178,7 +200,11 @@ describe('ParentalControlsContext', () => {
       });
 
       await act(async () => {
+<<<<<<< HEAD
         await result.current.addContact('Test Contact', TEST_USER_ID);
+=======
+        await result.current.addContact(mockContact);
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       });
 
       await waitFor(() => {
@@ -186,7 +212,11 @@ describe('ParentalControlsContext', () => {
       });
     });
 
+<<<<<<< HEAD
     it('должен одобрять контакт (toggle whitelist)', async () => {
+=======
+    it('должен одобрять контакт', async () => {
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       const { result } = renderHook(() => useParentalControls(), {
         wrapper: createWrapper(),
       });
@@ -196,6 +226,7 @@ describe('ParentalControlsContext', () => {
       });
 
       await act(async () => {
+<<<<<<< HEAD
         await result.current.addContact('Test Contact', TEST_USER_ID);
       });
 
@@ -213,6 +244,18 @@ describe('ParentalControlsContext', () => {
       await waitFor(() => {
         const contact = result.current.contacts.find(c => c.id === contactId);
         expect(contact?.isWhitelisted).toBe(true);
+=======
+        await result.current.addContact(mockContact);
+      });
+
+      await act(async () => {
+        result.current.approveContact('contact-1');
+      });
+
+      await waitFor(() => {
+        const contact = result.current.contacts.find(c => c.id === 'contact-1');
+        expect(contact?.approved).toBe(true);
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       });
     });
 
@@ -226,6 +269,7 @@ describe('ParentalControlsContext', () => {
       });
 
       await act(async () => {
+<<<<<<< HEAD
         await result.current.addContact('Test Contact', TEST_USER_ID);
       });
 
@@ -238,6 +282,15 @@ describe('ParentalControlsContext', () => {
 
       await act(async () => {
         await result.current.removeContact(contactId!, TEST_USER_ID);
+=======
+        await result.current.addContact(mockContact);
+      });
+
+      const initialCount = result.current.contacts.length;
+
+      await act(async () => {
+        result.current.removeContact('contact-1');
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       });
 
       await waitFor(() => {
@@ -247,6 +300,17 @@ describe('ParentalControlsContext', () => {
   });
 
   describe('Временные ограничения', () => {
+<<<<<<< HEAD
+=======
+    const mockRestriction: TimeRestriction = {
+      id: 'restriction-1',
+      dayOfWeek: 1,
+      startTime: '09:00',
+      endTime: '17:00',
+      enabled: true,
+    };
+
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     it('должен добавлять временное ограничение', async () => {
       const { result } = renderHook(() => useParentalControls(), {
         wrapper: createWrapper(),
@@ -257,7 +321,11 @@ describe('ParentalControlsContext', () => {
       });
 
       await act(async () => {
+<<<<<<< HEAD
         await result.current.addTimeRestriction(TEST_USER_ID, 1, 9, 0, 17, 0);
+=======
+        result.current.addTimeRestriction(mockRestriction);
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       });
 
       await waitFor(() => {
@@ -290,7 +358,11 @@ describe('ParentalControlsContext', () => {
       });
 
       await act(async () => {
+<<<<<<< HEAD
         await result.current.triggerSOS(TEST_USER_ID, TEST_USER_NAME);
+=======
+        await result.current.triggerSOS();
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       });
 
       await waitFor(() => {
@@ -308,7 +380,11 @@ describe('ParentalControlsContext', () => {
       });
 
       await act(async () => {
+<<<<<<< HEAD
         await result.current.triggerSOS(TEST_USER_ID, TEST_USER_NAME);
+=======
+        await result.current.triggerSOS();
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       });
 
       await waitFor(() => {
@@ -318,7 +394,11 @@ describe('ParentalControlsContext', () => {
       const alertId = result.current.sosAlerts[0]?.id;
       if (alertId) {
         await act(async () => {
+<<<<<<< HEAD
           await result.current.resolveSOS(alertId, 'parent-1');
+=======
+          result.current.resolveSOS(alertId);
+>>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
         });
 
         await waitFor(() => {
