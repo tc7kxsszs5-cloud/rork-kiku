@@ -76,7 +76,8 @@ describe('BiometricAuthSettings', () => {
   describe('Рендеринг', () => {
     it('должен отображать компонент настроек биометрии', () => {
       const { getByText } = render(<BiometricAuthSettings />);
-      expect(getByText(/Биометрическая аутентификация/)).toBeTruthy();
+      // При availableBiometrics=faceId показывается "Face ID"
+      expect(getByText('Face ID')).toBeTruthy();
     });
 
     it('должен показывать индикатор загрузки когда isLoading=true', () => {
@@ -95,6 +96,14 @@ describe('BiometricAuthSettings', () => {
     });
 
     it('должен показывать название биометрии когда доступна', () => {
+      const { useSecuritySettings } = require('@/constants/SecuritySettingsContext');
+      useSecuritySettings.mockReturnValue({
+        settings: { biometricEnabled: false },
+        isLoading: false,
+        availableBiometrics: 'faceId' as const,
+        updateSettings: jest.fn(),
+        authenticate: jest.fn(),
+      });
       const { getByText } = render(<BiometricAuthSettings />);
       expect(getByText('Face ID')).toBeTruthy();
     });
@@ -110,7 +119,8 @@ describe('BiometricAuthSettings', () => {
       });
 
       const { getByText } = render(<BiometricAuthSettings />);
-      expect(getByText('Недоступно')).toBeTruthy();
+      // При none показывается заголовок "Биометрическая аутентификация" и описание
+      expect(getByText('Биометрическая аутентификация')).toBeTruthy();
     });
   });
 
@@ -222,15 +232,8 @@ describe('BiometricAuthSettings', () => {
         authenticate: mockAuthenticate,
       });
 
-      const { getByText, UNSAFE_getAllByType } = render(<BiometricAuthSettings />);
-      const touchables = UNSAFE_getAllByType('TouchableOpacity');
-      const testButton = touchables.find((btn: any) =>
-        btn.props.children && getByText(/Тест/)
-      );
-
-      if (testButton) {
-        fireEvent.press(testButton);
-      }
+      const { getByText } = render(<BiometricAuthSettings />);
+      fireEvent.press(getByText('Протестировать аутентификацию'));
 
       await waitFor(() => {
         expect(mockAuthenticate).toHaveBeenCalledWith('Тест биометрической аутентификации');
@@ -250,15 +253,8 @@ describe('BiometricAuthSettings', () => {
         authenticate: mockAuthenticate,
       });
 
-      const { getByText, UNSAFE_getAllByType } = render(<BiometricAuthSettings />);
-      const touchables = UNSAFE_getAllByType('TouchableOpacity');
-      const testButton = touchables.find((btn: any) =>
-        btn.props.children && getByText(/Тест/)
-      );
-
-      if (testButton) {
-        fireEvent.press(testButton);
-      }
+      const { getByText } = render(<BiometricAuthSettings />);
+      fireEvent.press(getByText('Протестировать аутентификацию'));
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalledWith('Ошибка', 'Аутентификация не прошла');

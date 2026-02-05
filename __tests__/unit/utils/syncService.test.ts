@@ -47,12 +47,9 @@ jest.mock('@/utils/logger', () => ({
   },
 }));
 
-<<<<<<< HEAD
 // Mock timers для ускорения тестов с задержками
 jest.useFakeTimers();
 
-=======
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 describe('syncService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -60,13 +57,10 @@ describe('syncService', () => {
     (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
   });
 
-<<<<<<< HEAD
   afterEach(async () => {
     await jest.runOnlyPendingTimersAsync();
   });
 
-=======
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
   describe('ChatSyncService', () => {
     const mockChat: Chat = {
       id: 'chat-1',
@@ -93,7 +87,6 @@ describe('syncService', () => {
       });
 
       it('должен обрабатывать ошибки синхронизации', async () => {
-<<<<<<< HEAD
         (AsyncStorage.getItem as jest.Mock).mockResolvedValue('device-123');
         (trpcVanillaClient.sync.chats.sync.mutate as jest.Mock).mockRejectedValue(
           new Error('Network error')
@@ -123,30 +116,6 @@ describe('syncService', () => {
         expect(result.success).toBe(false);
         expect(result.error).toContain('таймаута');
       }, 15000);
-=======
-        (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce('device-123');
-        (trpcVanillaClient.sync.chats.sync.mutate as jest.Mock).mockRejectedValueOnce(
-          new Error('Network error')
-        );
-
-        const result = await chatSyncService.syncChats([mockChat]);
-
-        expect(result.success).toBe(false);
-        expect(result.error).toBeDefined();
-      });
-
-      it('должен обрабатывать таймауты', async () => {
-        (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce('device-123');
-        const timeoutError = new Error('timeout');
-        timeoutError.name = 'AbortError';
-        (trpcVanillaClient.sync.chats.sync.mutate as jest.Mock).mockRejectedValueOnce(timeoutError);
-
-        const result = await chatSyncService.syncChats([mockChat]);
-
-        expect(result.success).toBe(false);
-        expect(result.error).toContain('таймаута');
-      });
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
 
     describe('getChats', () => {
@@ -164,7 +133,6 @@ describe('syncService', () => {
       });
 
       it('должен обрабатывать ошибки получения', async () => {
-<<<<<<< HEAD
         (AsyncStorage.getItem as jest.Mock).mockResolvedValue('device-123');
         (trpcVanillaClient.sync.chats.get.query as jest.Mock).mockRejectedValue(
           new Error('Network error')
@@ -179,18 +147,6 @@ describe('syncService', () => {
         expect(result.success).toBe(false);
         expect(result.error).toBeDefined();
       }, 15000);
-=======
-        (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce('device-123');
-        (trpcVanillaClient.sync.chats.get.query as jest.Mock).mockRejectedValueOnce(
-          new Error('Network error')
-        );
-
-        const result = await chatSyncService.getChats();
-
-        expect(result.success).toBe(false);
-        expect(result.error).toBeDefined();
-      });
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
   });
 
@@ -220,7 +176,6 @@ describe('syncService', () => {
       });
 
       it('должен обрабатывать ошибки', async () => {
-<<<<<<< HEAD
         (AsyncStorage.getItem as jest.Mock).mockResolvedValue('device-123');
         (trpcVanillaClient.sync.alerts.sync.mutate as jest.Mock).mockRejectedValue(
           new Error('Network error')
@@ -235,18 +190,6 @@ describe('syncService', () => {
         expect(result.success).toBe(false);
         expect(result.error).toBeDefined();
       }, 15000);
-=======
-        (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce('device-123');
-        (trpcVanillaClient.sync.alerts.sync.mutate as jest.Mock).mockRejectedValueOnce(
-          new Error('Network error')
-        );
-
-        const result = await alertSyncService.syncAlerts([mockAlert]);
-
-        expect(result.success).toBe(false);
-        expect(result.error).toBeDefined();
-      });
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
 
     describe('getAlerts', () => {
@@ -292,7 +235,6 @@ describe('syncService', () => {
       });
 
       it('должен обрабатывать ошибки', async () => {
-<<<<<<< HEAD
         (AsyncStorage.getItem as jest.Mock).mockResolvedValue('device-123');
         (trpcVanillaClient.sync.settings.sync.mutate as jest.Mock).mockRejectedValue(
           new Error('Network error')
@@ -307,18 +249,6 @@ describe('syncService', () => {
         expect(result.success).toBe(false);
         expect(result.error).toBeDefined();
       }, 15000);
-=======
-        (AsyncStorage.getItem as jest.Mock).mockResolvedValueOnce('device-123');
-        (trpcVanillaClient.sync.settings.sync.mutate as jest.Mock).mockRejectedValueOnce(
-          new Error('Network error')
-        );
-
-        const result = await settingsSyncService.syncSettings(mockSettings);
-
-        expect(result.success).toBe(false);
-        expect(result.error).toBeDefined();
-      });
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
 
     describe('getSettings', () => {

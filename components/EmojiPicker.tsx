@@ -107,6 +107,8 @@ export function EmojiPicker({ visible, onClose, onEmojiSelect }: EmojiPickerProp
     </TouchableOpacity>
   );
 
+  if (!visible) return null;
+
   return (
     <Modal
       visible={visible}
@@ -170,6 +172,7 @@ export function EmojiPicker({ visible, onClose, onEmojiSelect }: EmojiPickerProp
             numColumns={8}
             contentContainerStyle={styles.emojiGrid}
             showsVerticalScrollIndicator={false}
+            initialNumToRender={50}
           />
         </View>
       </View>

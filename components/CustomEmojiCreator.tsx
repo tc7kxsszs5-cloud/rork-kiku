@@ -76,6 +76,8 @@ export function CustomEmojiCreator({
     }
   };
 
+  if (!visible) return null;
+
   const handleCreate = async () => {
     if (!name.trim()) {
       Alert.alert('Ошибка', 'Введите название эмодзи');

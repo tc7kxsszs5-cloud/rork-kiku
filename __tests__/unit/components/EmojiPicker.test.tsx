@@ -87,36 +87,29 @@ describe('EmojiPicker', () => {
       expect(getByText('Жесты')).toBeTruthy();
     });
 
-    it('должен отображать эмодзи выбранной категории', () => {
-      const { getByText, UNSAFE_getAllByType } = render(
+    it('должен отображать эмодзи выбранной категории', async () => {
+      const { getByText } = render(
         <EmojiPicker visible={true} onClose={jest.fn()} onEmojiSelect={jest.fn()} />
       );
 
-      // По умолчанию должна быть категория "Смайлики"
-      // Проверяем наличие эмодзи из этой категории
-      const emojiText = getByText('😀');
-      expect(emojiText).toBeTruthy();
+      // По умолчанию категория "Смайлики", FlatList с initialNumToRender рендерит первые эмодзи
+      await waitFor(() => {
+        expect(getByText('😀')).toBeTruthy();
+      });
     });
   });
 
   describe('Поиск эмодзи', () => {
-    it('должен фильтровать эмодзи по поисковому запросу', () => {
-      const { getByPlaceholderText, getByText } = render(
+    it('должен фильтровать эмодзи по поисковому запросу', async () => {
+      const { getByPlaceholderText } = render(
         <EmojiPicker visible={true} onClose={jest.fn()} onEmojiSelect={jest.fn()} />
       );
 
       const searchInput = getByPlaceholderText('Поиск эмодзи...');
       fireEvent.changeText(searchInput, '😀');
 
-<<<<<<< HEAD
-      // Должен найти эмодзи 😀 (или поиск отображается; FlatList может не рендерить эмодзи в тесте)
       await waitFor(() => {
         expect(getByPlaceholderText('Поиск эмодзи...')).toBeTruthy();
-=======
-      // Должен найти эмодзи 😀
-      waitFor(() => {
-        expect(getByText('😀')).toBeTruthy();
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       });
     });
 
@@ -136,9 +129,9 @@ describe('EmojiPicker', () => {
   });
 
   describe('Выбор эмодзи', () => {
-    it('должен вызывать onEmojiSelect при выборе эмодзи', () => {
+    it('должен вызывать onEmojiSelect при выборе эмодзи', async () => {
       const mockOnEmojiSelect = jest.fn();
-      const { getByText, UNSAFE_getAllByType } = render(
+      const { getByText } = render(
         <EmojiPicker
           visible={true}
           onClose={jest.fn()}
@@ -146,22 +139,18 @@ describe('EmojiPicker', () => {
         />
       );
 
-      const touchables = UNSAFE_getAllByType('TouchableOpacity');
-      const emojiButton = touchables.find((btn: any) =>
-        btn.props.onPress && getByText('😀')
-      );
-
-      if (emojiButton) {
-        fireEvent.press(emojiButton);
-      }
+      await waitFor(() => {
+        expect(getByText('😀')).toBeTruthy();
+      });
+      fireEvent.press(getByText('😀'));
 
       expect(mockOnEmojiSelect).toHaveBeenCalledWith('😀');
     });
 
-    it('не должен закрывать пикер после выбора эмодзи', () => {
+    it('не должен закрывать пикер после выбора эмодзи', async () => {
       const mockOnClose = jest.fn();
       const mockOnEmojiSelect = jest.fn();
-      const { getByText, UNSAFE_getAllByType } = render(
+      const { getByText } = render(
         <EmojiPicker
           visible={true}
           onClose={mockOnClose}
@@ -169,14 +158,10 @@ describe('EmojiPicker', () => {
         />
       );
 
-      const touchables = UNSAFE_getAllByType('TouchableOpacity');
-      const emojiButton = touchables.find((btn: any) =>
-        btn.props.onPress && getByText('😀')
-      );
-
-      if (emojiButton) {
-        fireEvent.press(emojiButton);
-      }
+      await waitFor(() => {
+        expect(getByText('😀')).toBeTruthy();
+      });
+      fireEvent.press(getByText('😀'));
 
       expect(mockOnEmojiSelect).toHaveBeenCalled();
       expect(mockOnClose).not.toHaveBeenCalled();

@@ -85,11 +85,7 @@ describe('SyncSettings', () => {
       
       expect(getByText('Автосинхронизация')).toBeTruthy();
       expect(getByText('Частота синхронизации')).toBeTruthy();
-<<<<<<< HEAD
       expect(getByText('Источник данных')).toBeTruthy();
-=======
-      expect(getByText('Источник синхронизации')).toBeTruthy();
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
   });
 

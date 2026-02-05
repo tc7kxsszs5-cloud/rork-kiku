@@ -153,6 +153,20 @@ describe('ChatBackgroundPicker', () => {
   });
 
   describe('Отображение фонов', () => {
+    const fullBackgrounds = [
+      { id: 'bg-1', name: 'Синий', type: 'color' as const, value: '#4A90E2' },
+      { id: 'bg-2', name: 'Градиент', type: 'gradient' as const, value: ['#FF6B9D', '#C44569'] },
+      { id: 'bg-3', name: 'Зеленый', type: 'color' as const, value: '#52C41A' },
+    ];
+
+    beforeEach(() => {
+      const { useChatBackgrounds } = require('@/constants/ChatBackgroundsContext');
+      useChatBackgrounds.mockReturnValue({
+        backgrounds: fullBackgrounds,
+        setChatBackground: jest.fn().mockResolvedValue(undefined),
+      });
+    });
+
     it('должен отображать цветные фоны с правильным цветом', () => {
       const { getByText } = render(
         <ChatBackgroundPicker chatId="chat-1" />

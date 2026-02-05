@@ -1,0 +1,12 @@
+# Конфигурация Nanobot для KIKU
+# Запуск: nanobot run ./nanobot.yaml
+# Затем открой в браузере: http://localhost:8080
+
+agents:
+  assistant:
+    name: Помощник
+    model: claude-3-5-sonnet-20241022
+    # Если Anthropic тоже блокирует — понадобится VPN для API
+
+# MCP-серверы можно добавить позже, если понадобятся
+# mcpServers: {}

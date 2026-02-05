@@ -4,11 +4,7 @@
  */
 
 import React from 'react';
-<<<<<<< HEAD
 import { render } from '@testing-library/react-native';
-=======
-import { render, getByText, getByTestId } from '@testing-library/react-native';
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 import SecuritySettingsScreen from '@/app/security-settings';
 import { Chat, RiskLevel, Alert } from '@/constants/types';
 
@@ -165,15 +161,9 @@ describe('SecuritySettingsScreen', () => {
     });
 
     it('должен отображать количество активных тревог', () => {
-<<<<<<< HEAD
       const { getAllByText, getByText } = render(<SecuritySettingsScreen />);
 
       expect(getAllByText('1').length).toBeGreaterThan(0); // 1 нерешенная тревога
-=======
-      const { getByText } = render(<SecuritySettingsScreen />);
-
-      expect(getByText('1')).toBeTruthy(); // 1 нерешенная тревога
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       expect(getByText('Активных тревог')).toBeTruthy();
     });
 
@@ -193,7 +183,6 @@ describe('SecuritySettingsScreen', () => {
     });
 
     it('должен отображать все уровни риска', () => {
-<<<<<<< HEAD
       const { getAllByText } = render(<SecuritySettingsScreen />);
 
       expect(getAllByText('Безопасно').length).toBeGreaterThan(0);
@@ -217,34 +206,6 @@ describe('SecuritySettingsScreen', () => {
       // safe: 1 (33%), low: 1 (33%), high: 1 (33%)
       const percentageTexts = getAllByText(/%/);
       expect(percentageTexts.length).toBeGreaterThan(0);
-=======
-      const { getByText } = render(<SecuritySettingsScreen />);
-
-      expect(getByText('Безопасно')).toBeTruthy();
-      expect(getByText('Низкий')).toBeTruthy();
-      expect(getByText('Средний')).toBeTruthy();
-      expect(getByText('Высокий')).toBeTruthy();
-      expect(getByText('Критический')).toBeTruthy();
-    });
-
-    it('должен показывать правильное количество для каждого уровня риска', () => {
-      const { getByText } = render(<SecuritySettingsScreen />);
-
-      // safe: 1, low: 1, high: 1
-      // Проверяем, что числа отображаются
-      const safeRow = getByText('Безопасно');
-      expect(safeRow).toBeTruthy();
-    });
-
-    it('должен показывать проценты для каждого уровня риска', () => {
-      const { getByText } = render(<SecuritySettingsScreen />);
-
-      // Всего 3 проанализированных сообщения
-      // safe: 1 (33%), low: 1 (33%), high: 1 (33%)
-      // Проверяем наличие процентов
-      const percentageText = getByText(/%/);
-      expect(percentageText).toBeTruthy();
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
   });
 
@@ -266,20 +227,11 @@ describe('SecuritySettingsScreen', () => {
     });
 
     it('должен показывать правильное количество чатов для каждого уровня риска', () => {
-<<<<<<< HEAD
       const { getAllByText } = render(<SecuritySettingsScreen />);
 
       // safe: 1 чат, high: 1 чат — на экране есть числа
       const numbers = getAllByText(/^\d+$/);
       expect(numbers.length).toBeGreaterThan(0);
-=======
-      const { getByText } = render(<SecuritySettingsScreen />);
-
-      // safe: 1 чат, high: 1 чат
-      // Проверяем наличие чисел
-      const chatCards = getByText(/^\d+$/);
-      expect(chatCards).toBeTruthy();
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
   });
 
@@ -366,15 +318,9 @@ describe('SecuritySettingsScreen', () => {
         alerts: [],
       });
 
-<<<<<<< HEAD
       const { getAllByText, getByText } = render(<SecuritySettingsScreen />);
 
       expect(getAllByText('0').length).toBeGreaterThan(0); // Активных тревог: 0
-=======
-      const { getByText } = render(<SecuritySettingsScreen />);
-
-      expect(getByText('0')).toBeTruthy(); // Активных тревог: 0
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       expect(getByText('Активных тревог')).toBeTruthy();
     });
   });
@@ -395,22 +341,12 @@ describe('SecuritySettingsScreen', () => {
     });
 
     it('должен правильно вычислять распределение рисков', () => {
-<<<<<<< HEAD
       const { getAllByText } = render(<SecuritySettingsScreen />);
 
       // safe: 1, low: 1, high: 1
       expect(getAllByText('Безопасно').length).toBeGreaterThan(0);
       expect(getAllByText('Низкий').length).toBeGreaterThan(0);
       expect(getAllByText('Высокий').length).toBeGreaterThan(0);
-=======
-      const { getByText } = render(<SecuritySettingsScreen />);
-
-      // safe: 1, low: 1, high: 1
-      // Проверяем наличие всех уровней
-      expect(getByText('Безопасно')).toBeTruthy();
-      expect(getByText('Низкий')).toBeTruthy();
-      expect(getByText('Высокий')).toBeTruthy();
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     });
 
     it('должен правильно вычислять распределение рисков чатов', () => {

@@ -36,19 +36,6 @@ jest.mock('@/utils/logger', () => ({
   },
 }));
 
-<<<<<<< HEAD
-=======
-jest.mock('react-native', () => {
-  const RN = jest.requireActual('react-native');
-  return {
-    ...RN,
-    Platform: {
-      OS: 'ios',
-    },
-  };
-});
-
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 const createWrapper = () => {
   return ({ children }: { children: React.ReactNode }) => (
     <UserProvider>{children}</UserProvider>
@@ -329,37 +316,29 @@ describe('UserContext', () => {
   });
 
   describe('Язык', () => {
-    it('должен изменять язык при загрузке пользователя с языком', async () => {
+    it('должен загружать пользователя с языком и вызывать changeLanguage', async () => {
       const userWithLanguage = {
         ...mockUser,
         language: 'ru',
       };
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(userWithLanguage));
 
-<<<<<<< HEAD
       const i18nModule = require('@/constants/i18n');
       const i18n = i18nModule.default;
-=======
-      const { i18n } = require('@/constants/i18n');
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
 
-      renderHook(() => useUser(), {
+      const { result } = renderHook(() => useUser(), {
         wrapper: createWrapper(),
       });
 
-<<<<<<< HEAD
-      // Ждём загрузки пользователя и вызова changeLanguage (loadUser асинхронный)
       await waitFor(
         () => {
-          expect(i18n.changeLanguage).toHaveBeenCalledWith('ru');
+          expect(result.current.isLoading).toBe(false);
+          expect(result.current.user?.language).toBe('ru');
         },
         { timeout: 3000 }
       );
-=======
-      await waitFor(() => {
-        expect(i18n.default.changeLanguage).toHaveBeenCalledWith('ru');
-      });
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
+      // При загрузке пользователя с language контекст вызывает i18n.changeLanguage в loadUser
+      expect(i18n.changeLanguage).toHaveBeenCalledWith('ru');
     });
   });
 });

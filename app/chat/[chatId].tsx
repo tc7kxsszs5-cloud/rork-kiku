@@ -482,6 +482,7 @@ export default function ChatScreen() {
                 </TouchableOpacity>
               )}
               <TouchableOpacity
+                testID="sos-button"
                 style={styles.sosButton}
                 onPress={handleSOSTrigger}
               >
@@ -581,16 +582,18 @@ export default function ChatScreen() {
                   <ActivityIndicator size="small" color="#FFD700" />
                 </View>
               ) : (
-                <TouchableOpacity
-                  style={styles.micButton}
-                  onPress={startRecording}
-                  onLongPress={startRecording}
-                >
-                  <Mic size={20} color="#FFD700" />
-                </TouchableOpacity>
+              <TouchableOpacity
+                testID="mic-button"
+                style={styles.micButton}
+                onPress={startRecording}
+                onLongPress={startRecording}
+              >
+                <Mic size={20} color="#FFD700" />
+              </TouchableOpacity>
               )}
               <Animated.View style={{ transform: [{ scale: sendButtonScaleAnim }] }}>
                 <TouchableOpacity
+                  testID="send-button"
                   style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
                   onPress={handleSend}
                   disabled={!inputText.trim()}

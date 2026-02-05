@@ -1,3 +1,8 @@
+/**
+ * Jest configuration — aligned with Jest docs and CI conventions.
+ * Test structure: Jest best practices; queries: Testing Library (user-centric).
+ * See docs/testing/TESTING_STANDARDS.md.
+ */
 module.exports = {
   preset: 'jest-expo',
   transformIgnorePatterns: [
@@ -21,28 +26,14 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
-<<<<<<< HEAD
     // Мок react-native, чтобы не загружать node_modules/react-native (Flow "import typeof" ломает парсер)
     '^react-native$': '<rootDir>/__mocks__/react-native.js',
-=======
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
   },
-  // Fork Tests Configuration
-  // Используем 50% доступных CPU ядер для параллельного выполнения
-  // Это создает отдельные процессы (workers) для каждого теста
+  // CI: limit workers for stability (Jest/CI best practice)
   maxWorkers: process.env.CI ? 2 : '50%',
-  
-  // Timeout для тестов (в миллисекундах)
+
+  // Standard timeout (ms); override per test with it(name, fn, timeout)
   testTimeout: 10000,
-  
-  // Для отладки можно использовать:
-  // maxWorkers: 1 - последовательное выполнение
-  // maxWorkers: 4 - конкретное количество процессов
-  
-  // Настройки для разных уровней сложности:
-  // - Unit тесты (простые): используют maxWorkers по умолчанию
-  // - Integration тесты (сложные): можно запускать с --maxWorkers=2
-  // - E2E тесты (очень сложные): --maxWorkers=1 (последовательно)
   
   // Кэширование результатов тестов для ускорения
   cache: true,
@@ -58,7 +49,6 @@ module.exports = {
     '/node_modules/',
     '/\\.expo/',
     '<rootDir>/__tests__/e2e/',
-<<<<<<< HEAD
     '<rootDir>/__tests__/playwright/',
     '<rootDir>/__tests__/testUtils\\.ts',
   ],
@@ -72,10 +62,6 @@ module.exports = {
       statements: 0,
     },
   },
-=======
-    // contexts.test теперь использует динамические импорты, можно запускать
-  ],
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
   
   // Настройки для работы с ESM модулями
   extensionsToTreatAsEsm: ['.ts', '.tsx'],

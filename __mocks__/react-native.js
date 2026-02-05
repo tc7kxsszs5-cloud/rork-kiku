@@ -20,7 +20,14 @@ module.exports = {
   Text: createMock('Text'),
   TouchableOpacity: createMock('TouchableOpacity'),
   ScrollView: createMock('ScrollView'),
-  FlatList: createMock('FlatList'),
+  FlatList: (props) => {
+    const { data = [], renderItem, keyExtractor, ...rest } = props;
+    if (!data.length || !renderItem) return React.createElement('FlatList', props, null);
+    const children = data.map((item, index) =>
+      renderItem({ item, index, separators: {} })
+    );
+    return React.createElement('View', {}, ...children);
+  },
   ActivityIndicator: createMock('ActivityIndicator'),
   StyleSheet: {
     create: (styles) => styles,

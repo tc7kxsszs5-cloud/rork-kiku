@@ -30,17 +30,11 @@ jest.mock('expo-constants', () => ({
     expoConfig: {
       extra: {
         eas: {
-<<<<<<< HEAD
           projectId: '00000000-0000-0000-0000-000000000000',
         },
         projectId: '00000000-0000-0000-0000-000000000000',
       },
       version: '1.0.0',
-=======
-          projectId: 'test-project-id',
-        },
-      },
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     },
   },
 }));
@@ -104,16 +98,12 @@ const createWrapper = () => {
 describe('NotificationsContext', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-<<<<<<< HEAD
     process.env.EXPO_PUBLIC_PROJECT_ID = '00000000-0000-0000-0000-000000000000';
     (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) => {
       if (key === '@kids_device_id') return Promise.resolve('device-123');
       if (key === '@kids_push_token') return Promise.resolve(null);
       return Promise.resolve(null);
     });
-=======
-    (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
     (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
   });
 
@@ -211,13 +201,10 @@ describe('NotificationsContext', () => {
         wrapper: createWrapper(),
       });
 
-<<<<<<< HEAD
       await waitFor(() => {
         expect(result.current.deviceId).toBeTruthy();
       }, { timeout: 3000 });
 
-=======
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       let diagnostics: any[] = [];
       await act(async () => {
         diagnostics = await result.current.runDiagnostics();
@@ -231,13 +218,10 @@ describe('NotificationsContext', () => {
         wrapper: createWrapper(),
       });
 
-<<<<<<< HEAD
       await waitFor(() => {
         expect(result.current.deviceId).toBeTruthy();
       }, { timeout: 3000 });
 
-=======
->>>>>>> 31b4976e7e3b59e066361accec63d69faa16c8e6
       await act(async () => {
         await result.current.runDiagnostics();
       });
