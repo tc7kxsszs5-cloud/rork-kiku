@@ -29,3 +29,6 @@ test-results/
 
 # OS
 .DS_Store
+
+# Duplicate/copy folder (was mistaken submodule; ignore to avoid Vercel warning)
+rork-kiku/
