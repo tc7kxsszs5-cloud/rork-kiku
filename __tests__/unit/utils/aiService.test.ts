@@ -50,33 +50,28 @@ describe('aiService', () => {
       expect(config.endpoint).toBe('https://api.openai.com/v1');
     });
 
-    it('должен читать конфигурацию из expo-constants', () => {
-      // Используем process.env — в тестах expo-constants может быть из setup
-      const origKey = process.env.OPENAI_API_KEY;
+    it('должен читать provider из env, но никогда не возвращать apiKey на клиенте (security)', () => {
       const origProvider = process.env.AI_PROVIDER;
-      process.env.OPENAI_API_KEY = 'test-key';
       process.env.AI_PROVIDER = 'openai';
 
       const config = getAIConfig();
-      
-      expect(config.provider).toBe('openai');
-      expect(config.apiKey).toBe('test-key');
 
-      process.env.OPENAI_API_KEY = origKey;
+      expect(config.provider).toBe('openai');
+      expect(config.apiKey).toBeUndefined(); // SEC: API key never exposed to client
+
       process.env.AI_PROVIDER = origProvider ?? '';
     });
 
-    it('должен использовать process.env если expo-constants не доступен', () => {
-      const originalEnv = process.env.OPENAI_API_KEY;
+    it('должен возвращать apiKey undefined всегда (backend использует env)', () => {
       process.env.OPENAI_API_KEY = 'env-key';
       process.env.AI_PROVIDER = 'openai';
 
       const config = getAIConfig();
-      
-      expect(config.apiKey).toBe('env-key');
+
+      expect(config.apiKey).toBeUndefined();
       expect(config.provider).toBe('openai');
 
-      process.env.OPENAI_API_KEY = originalEnv;
+      delete process.env.OPENAI_API_KEY;
       delete process.env.AI_PROVIDER;
     });
   });

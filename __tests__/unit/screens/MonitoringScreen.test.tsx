@@ -221,56 +221,26 @@ describe('MonitoringScreen', () => {
       });
     });
 
-    it('должен показывать расширенные фильтры', () => {
-      const { getByText, UNSAFE_getAllByType } = render(<MonitoringScreen />);
+    it('должен показывать расширенные фильтры', async () => {
+      const { getByText, getByTestId } = render(<MonitoringScreen />);
 
-      // Открываем поиск
-      const touchables = UNSAFE_getAllByType('TouchableOpacity');
-      const searchButton = touchables.find((btn: any) =>
-        btn.props.onPress && btn.props.style
-      );
+      fireEvent.press(getByTestId('monitoring-search-toggle'));
+      fireEvent.press(getByTestId('monitoring-filter-toggle'));
 
-      if (searchButton) {
-        fireEvent.press(searchButton);
-      }
-
-      waitFor(() => {
-        // Находим кнопку фильтра
-        const filterButton = touchables.find((btn: any) =>
-          btn.props.onPress && btn.props.style
-        );
-
-        if (filterButton) {
-          fireEvent.press(filterButton);
-        }
-      });
-
-      waitFor(() => {
+      await waitFor(() => {
         expect(getByText('Период')).toBeTruthy();
       });
     });
 
-    it('должен фильтровать по дате', () => {
-      const { getByText, UNSAFE_getAllByType } = render(<MonitoringScreen />);
+    it('должен фильтровать по дате', async () => {
+      const { getByText, getByTestId } = render(<MonitoringScreen />);
 
-      // Открываем расширенные фильтры
-      const touchables = UNSAFE_getAllByType('TouchableOpacity');
-      const filterButton = touchables.find((btn: any) =>
-        btn.props.onPress && btn.props.style
-      );
+      fireEvent.press(getByTestId('monitoring-search-toggle'));
+      fireEvent.press(getByTestId('monitoring-filter-toggle'));
 
-      if (filterButton) {
-        fireEvent.press(filterButton);
-      }
-
-      waitFor(() => {
-        const todayButton = touchables.find((btn: any) =>
-          btn.props.children && getByText('Сегодня')
-        );
-
-        if (todayButton) {
-          fireEvent.press(todayButton);
-        }
+      await waitFor(() => {
+        const todayButton = getByText('Сегодня');
+        fireEvent.press(todayButton);
       });
     });
   });

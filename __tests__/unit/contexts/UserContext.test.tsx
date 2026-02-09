@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { renderHook, waitFor, act } from '@testing-library/react-native';
-import { UserProvider, useUser, User, ChildProfile } from '@/constants/UserContext';
+import type { User, ChildProfile } from '@/constants/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Моки
@@ -15,12 +15,8 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   removeItem: jest.fn(),
 }));
 
-jest.mock('@/constants/i18n', () => ({
-  default: {
-    changeLanguage: jest.fn(),
-    language: 'en',
-  },
-  detectDeviceLanguage: jest.fn(() => Promise.resolve('en')),
+jest.mock('expo-localization', () => ({
+  getLocales: () => [{ languageCode: 'en', languageTag: 'en-US' }],
 }));
 
 jest.mock('@/utils/errorHandler', () => ({
@@ -37,6 +33,7 @@ jest.mock('@/utils/logger', () => ({
 }));
 
 const createWrapper = () => {
+  const { UserProvider } = require('@/constants/UserContext');
   return ({ children }: { children: React.ReactNode }) => (
     <UserProvider>{children}</UserProvider>
   );
@@ -52,6 +49,15 @@ const mockUser: User = {
 };
 
 describe('UserContext', () => {
+  const getUseUser = () => {
+    const { useUser } = require('@/constants/UserContext');
+    return useUser;
+  };
+  const renderUserHook = () => {
+    const useUser = getUseUser();
+    return renderHook(() => useUser(), { wrapper: createWrapper() });
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
@@ -60,9 +66,11 @@ describe('UserContext', () => {
 
   describe('Инициализация', () => {
     it('должен инициализироваться с null пользователем', async () => {
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const i18nModule = require('@/constants/i18n');
+      const i18n = i18nModule.default;
+      const changeSpy = jest.spyOn(i18n, 'changeLanguage').mockImplementation(() => Promise.resolve(i18n));
+
+      const { result } = renderUserHook();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -74,9 +82,7 @@ describe('UserContext', () => {
     it('должен загружать пользователя из AsyncStorage', async () => {
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(mockUser));
 
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = renderUserHook();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -90,9 +96,7 @@ describe('UserContext', () => {
     it('должен обрабатывать ошибку при загрузке из AsyncStorage', async () => {
       (AsyncStorage.getItem as jest.Mock).mockRejectedValue(new Error('Storage error'));
 
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = renderUserHook();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -105,9 +109,7 @@ describe('UserContext', () => {
 
   describe('Управление пользователем', () => {
     it('должен устанавливать пользователя', async () => {
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = renderUserHook();
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
@@ -127,9 +129,7 @@ describe('UserContext', () => {
     it('должен обновлять пользователя', async () => {
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(mockUser));
 
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = renderUserHook();
 
       await waitFor(() => {
         expect(result.current.user).not.toBeNull();
@@ -149,9 +149,7 @@ describe('UserContext', () => {
     it('должен очищать пользователя', async () => {
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(mockUser));
 
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = renderUserHook();
 
       await waitFor(() => {
         expect(result.current.user).not.toBeNull();
@@ -179,9 +177,7 @@ describe('UserContext', () => {
     it('должен добавлять ребенка', async () => {
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(mockUser));
 
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = renderUserHook();
 
       await waitFor(() => {
         expect(result.current.user).not.toBeNull();
@@ -205,9 +201,7 @@ describe('UserContext', () => {
       };
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(userWithChild));
 
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = renderUserHook();
 
       await waitFor(() => {
         expect(result.current.user?.children).toHaveLength(1);
@@ -230,9 +224,7 @@ describe('UserContext', () => {
       };
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(userWithChild));
 
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = renderUserHook();
 
       await waitFor(() => {
         expect(result.current.user?.children).toHaveLength(1);
@@ -257,9 +249,7 @@ describe('UserContext', () => {
       };
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(userWithChild));
 
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = renderUserHook();
 
       await waitFor(() => {
         expect(result.current.user?.children).toHaveLength(1);
@@ -285,9 +275,7 @@ describe('UserContext', () => {
       };
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(userWithoutRole));
 
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = renderUserHook();
 
       await waitFor(() => {
         expect(result.current.user).not.toBeNull();
@@ -304,9 +292,7 @@ describe('UserContext', () => {
       };
       (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(userWithoutChildren));
 
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = renderUserHook();
 
       await waitFor(() => {
         expect(result.current.user).not.toBeNull();
@@ -325,10 +311,9 @@ describe('UserContext', () => {
 
       const i18nModule = require('@/constants/i18n');
       const i18n = i18nModule.default;
+      const changeSpy = jest.spyOn(i18n, 'changeLanguage').mockImplementation(() => Promise.resolve(i18n));
 
-      const { result } = renderHook(() => useUser(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = renderUserHook();
 
       await waitFor(
         () => {
@@ -338,7 +323,8 @@ describe('UserContext', () => {
         { timeout: 3000 }
       );
       // При загрузке пользователя с language контекст вызывает i18n.changeLanguage в loadUser
-      expect(i18n.changeLanguage).toHaveBeenCalledWith('ru');
+      expect(changeSpy).toHaveBeenCalledWith('ru');
+      changeSpy.mockRestore();
     });
   });
 });

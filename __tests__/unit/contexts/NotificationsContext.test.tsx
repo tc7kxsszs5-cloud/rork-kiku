@@ -18,7 +18,7 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 
 jest.mock('expo-notifications', () => ({
   setNotificationHandler: jest.fn(),
-  getPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
+  getPermissionsAsync: jest.fn().mockResolvedValue({ status: 'denied' }),
   requestPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
   getExpoPushTokenAsync: jest.fn().mockResolvedValue({ data: 'ExponentPushToken[test]' }),
   scheduleNotificationAsync: jest.fn().mockResolvedValue('notification-id'),
@@ -95,6 +95,16 @@ const createWrapper = () => {
   );
 };
 
+const renderNotificationsHook = async () => {
+  const result = renderHook(() => useNotifications(), {
+    wrapper: createWrapper(),
+  });
+  await waitFor(() => {
+    expect(result.result.current.permissionStatus).not.toBe('undetermined');
+  }, { timeout: 3000 });
+  return result;
+};
+
 describe('NotificationsContext', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -109,9 +119,7 @@ describe('NotificationsContext', () => {
 
   describe('Инициализация', () => {
     it('должен инициализироваться', async () => {
-      const { result } = renderHook(() => useNotifications(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = await renderNotificationsHook();
 
       await waitFor(() => {
         expect(result.current).toBeDefined();
@@ -126,9 +134,7 @@ describe('NotificationsContext', () => {
         return Promise.resolve(null);
       });
 
-      const { result } = renderHook(() => useNotifications(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = await renderNotificationsHook();
 
       await waitFor(() => {
         expect(result.current.deviceId).toBe('device-123');
@@ -138,9 +144,7 @@ describe('NotificationsContext', () => {
 
   describe('Регистрация устройства', () => {
     it('должен регистрировать устройство', async () => {
-      const { result } = renderHook(() => useNotifications(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = await renderNotificationsHook();
 
       await act(async () => {
         await result.current.registerDevice();
@@ -152,9 +156,7 @@ describe('NotificationsContext', () => {
     });
 
     it('должен запрашивать разрешения', async () => {
-      const { result } = renderHook(() => useNotifications(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = await renderNotificationsHook();
 
       await act(async () => {
         await result.current.registerDevice();
@@ -166,9 +168,7 @@ describe('NotificationsContext', () => {
     });
 
     it('должен получать push token', async () => {
-      const { result } = renderHook(() => useNotifications(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = await renderNotificationsHook();
 
       await act(async () => {
         await result.current.registerDevice();
@@ -182,9 +182,7 @@ describe('NotificationsContext', () => {
 
   describe('Обновление статуса', () => {
     it('должен обновлять статус', async () => {
-      const { result } = renderHook(() => useNotifications(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = await renderNotificationsHook();
 
       await act(async () => {
         await result.current.refreshStatus();
@@ -197,9 +195,7 @@ describe('NotificationsContext', () => {
 
   describe('Диагностика', () => {
     it('должен запускать диагностику', async () => {
-      const { result } = renderHook(() => useNotifications(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = await renderNotificationsHook();
 
       await waitFor(() => {
         expect(result.current.deviceId).toBeTruthy();
@@ -214,9 +210,7 @@ describe('NotificationsContext', () => {
     });
 
     it('должен сохранять результаты диагностики', async () => {
-      const { result } = renderHook(() => useNotifications(), {
-        wrapper: createWrapper(),
-      });
+      const { result } = await renderNotificationsHook();
 
       await waitFor(() => {
         expect(result.current.deviceId).toBeTruthy();
@@ -233,18 +227,14 @@ describe('NotificationsContext', () => {
   });
 
   describe('Поддержка платформы', () => {
-    it('должен определять поддержку платформы', () => {
-      const { result } = renderHook(() => useNotifications(), {
-        wrapper: createWrapper(),
-      });
+    it('должен определять поддержку платформы', async () => {
+      const { result } = await renderNotificationsHook();
 
       expect(typeof result.current.isSupported).toBe('boolean');
     });
 
-    it('должен быть поддержан на iOS', () => {
-      const { result } = renderHook(() => useNotifications(), {
-        wrapper: createWrapper(),
-      });
+    it('должен быть поддержан на iOS', async () => {
+      const { result } = await renderNotificationsHook();
 
       expect(result.current.isSupported).toBe(true);
     });
