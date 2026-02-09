@@ -148,6 +148,7 @@ export interface ParentalSettings {
   sosNotificationsEnabled: boolean;
   guardianEmails: string[];
   guardianPhones: string[];
+  communicationMode?: 'open' | 'groups' | 'invites';
 }
 
 export interface ComplianceLog {

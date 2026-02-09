@@ -2,7 +2,7 @@ import createContextHook from '@nkzw/create-context-hook';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import i18n from './i18n';
+import i18n from '@/constants/i18n';
 import { logger } from '@/utils/logger';
 
 import { UserRole, ParentGender } from './types';

@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
+import * as SecureStore from 'expo-secure-store';
 
 export type BiometricType = 'faceId' | 'touchId' | 'fingerprint' | 'none';
 
@@ -15,6 +16,15 @@ export interface SecuritySettings {
 }
 
 const SECURITY_SETTINGS_STORAGE_KEY = '@security_settings';
+
+// SecureStore on native (encrypted); AsyncStorage on web (SecureStore not available)
+const getStorage = () =>
+  Platform.OS === 'web'
+    ? { getItem: AsyncStorage.getItem.bind(AsyncStorage), setItem: AsyncStorage.setItem.bind(AsyncStorage) }
+    : {
+        getItem: SecureStore.getItemAsync.bind(SecureStore),
+        setItem: SecureStore.setItemAsync.bind(SecureStore),
+      };
 
 const DEFAULT_SECURITY_SETTINGS: SecuritySettings = {
   biometricEnabled: false,
@@ -105,7 +115,8 @@ export const [SecuritySettingsProvider, useSecuritySettings] = createContextHook
     try {
       const updatedSettings = { ...settings, ...updates };
       setSettings(updatedSettings);
-      await AsyncStorage.setItem(SECURITY_SETTINGS_STORAGE_KEY, JSON.stringify(updatedSettings));
+      const storage = getStorage();
+      await storage.setItem(SECURITY_SETTINGS_STORAGE_KEY, JSON.stringify(updatedSettings));
       console.log('[SecuritySettingsContext] Settings updated:', updates);
     } catch (error) {
       console.error('[SecuritySettingsContext] Error updating settings:', error);

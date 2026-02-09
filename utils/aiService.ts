@@ -14,25 +14,22 @@ export interface AIConfig {
 }
 
 /**
- * Get AI configuration from environment or defaults
+ * Get AI configuration from environment or defaults.
+ * Security: API key is never exposed to the client — use backend proxy (ai.analyzeMessage) for real AI.
  */
 export function getAIConfig(): AIConfig {
-  // Read from environment variables (via expo-constants)
-  const apiKey = Constants.expoConfig?.extra?.openaiApiKey || 
-                 process.env.OPENAI_API_KEY || 
-                 undefined;
-  
-  const provider = (Constants.expoConfig?.extra?.aiProvider || 
-                    process.env.AI_PROVIDER || 
+  const provider = (Constants.expoConfig?.extra?.aiProvider ||
+                    (typeof process !== 'undefined' && process.env?.AI_PROVIDER) ||
                     'local') as AIConfig['provider'];
 
-  const endpoint = Constants.expoConfig?.extra?.openaiApiBaseUrl || 
-                   process.env.OPENAI_API_BASE_URL || 
+  const endpoint = Constants.expoConfig?.extra?.openaiApiBaseUrl ||
+                   (typeof process !== 'undefined' && process.env?.OPENAI_API_BASE_URL) ||
                    'https://api.openai.com/v1';
 
+  // Never expose API key to client bundle (REACT-CONFIG-001). Backend uses OPENAI_API_KEY.
   return {
     provider,
-    apiKey,
+    apiKey: undefined,
     endpoint,
   };
 }

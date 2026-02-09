@@ -111,7 +111,7 @@ const mergeAlertsWithServer = (localAlerts: Alert[], serverAlerts: Alert[]): Ale
 };
 
 export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
-  const [chats, setChats] = useState<Chat[]>(MOCK_CHATS);
+  const [chats, setChats] = useState<Chat[]>(__DEV__ ? MOCK_CHATS : []);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -139,36 +139,28 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
       await chatSyncService.initialize();
       await alertSyncService.initialize();
 
-      // 1. Синхронизация чатов - отправляем локальные данные
+      // 1. Синхронизация чатов — отправляем текущие данные; merge по актуальному state, чтобы не затереть только что отправленные сообщения
       const chatsResult = await chatSyncService.syncChats(chats);
       if (chatsResult.success && chatsResult.data && chatsResult.data.length > 0) {
-        // Объединяем с локальными чатами
-        const mergedChats = mergeChatsWithServer(chats, chatsResult.data);
-        setChats(mergedChats);
+        setChats((prev) => mergeChatsWithServer(prev, chatsResult.data!));
       }
 
-      // 2. Получение изменений чатов с сервера
+      // 2. Получение изменений чатов с сервера — merge с актуальным state
       const serverChatsResult = await chatSyncService.getChats();
       if (serverChatsResult.success && serverChatsResult.data && serverChatsResult.data.length > 0) {
-        // Merge с локальными чатами
-        const mergedChats = mergeChatsWithServer(chats, serverChatsResult.data);
-        setChats(mergedChats);
+        setChats((prev) => mergeChatsWithServer(prev, serverChatsResult.data!));
       }
 
-      // 3. Синхронизация алертов - отправляем локальные данные
+      // 3. Синхронизация алертов
       const alertsResult = await alertSyncService.syncAlerts(alerts);
       if (alertsResult.success && alertsResult.data && alertsResult.data.length > 0) {
-        // Объединяем с локальными алертами
-        const mergedAlerts = mergeAlertsWithServer(alerts, alertsResult.data);
-        setAlerts(mergedAlerts);
+        setAlerts((prev) => mergeAlertsWithServer(prev, alertsResult.data!));
       }
 
       // 4. Получение изменений алертов с сервера
       const serverAlertsResult = await alertSyncService.getAlerts();
       if (serverAlertsResult.success && serverAlertsResult.data && serverAlertsResult.data.length > 0) {
-        // Merge с локальными алертами
-        const mergedAlerts = mergeAlertsWithServer(alerts, serverAlertsResult.data);
-        setAlerts(mergedAlerts);
+        setAlerts((prev) => mergeAlertsWithServer(prev, serverAlertsResult.data!));
       }
 
       setLastSyncTimestamp(Date.now());
@@ -274,11 +266,12 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
     setChats((prev) =>
       prev.map((chat) => {
         if (chat.id === chatId) {
+          const prevMessages = Array.isArray(chat.messages) ? chat.messages : [];
           return {
             ...chat,
-            messages: [...chat.messages, newMessage],
+            messages: [...prevMessages, newMessage],
             lastActivity: Date.now(),
-            updatedAt: Date.now(), // Добавляем updatedAt для синхронизации
+            updatedAt: Date.now(),
           };
         }
         return chat;
@@ -338,7 +331,8 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
       setChats((prev) =>
         prev.map((chat) => {
           if (chat.id === chatId) {
-            const updatedMessages = chat.messages.map((msg) =>
+            const baseMessages = Array.isArray(chat.messages) ? chat.messages : [];
+            const updatedMessages = baseMessages.map((msg) =>
               msg.id === newMessage.id
                 ? {
                     ...msg,
@@ -478,10 +472,13 @@ export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
       return;
     }
     setChats((prev) =>
-      prev.map((chat) => ({
-        ...chat,
-        messages: INITIAL_MESSAGES[chat.id] || [],
-      }))
+      prev.map((chat) => {
+        const hasMessages = Array.isArray(chat.messages) && chat.messages.length > 0;
+        return {
+          ...chat,
+          messages: hasMessages ? chat.messages : (INITIAL_MESSAGES[chat.id] || []),
+        };
+      })
     );
   }, []);
 

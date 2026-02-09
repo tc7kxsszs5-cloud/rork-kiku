@@ -8,6 +8,7 @@ import { useState, useCallback, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { logger } from '@/utils/logger';
+import { getAuthToken, setAuthToken, clearAuthToken } from '@/utils/authToken';
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -30,7 +31,12 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
         const stored = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
         if (stored) {
           const state = JSON.parse(stored);
-          setAuthState(state);
+          const token = await getAuthToken();
+          if (token) {
+            setAuthState(state);
+          } else {
+            setAuthState({ isAuthenticated: false });
+          }
         }
       } catch (error) {
         logger.error('Failed to load auth state', error instanceof Error ? error : new Error(String(error)), { context: 'AuthContext', action: 'loadAuthState' });
@@ -42,7 +48,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     loadAuthState();
   }, []);
 
-  const login = useCallback(async (userId: string, role: 'parent' | 'child', pin?: string) => {
+  const login = useCallback(async (userId: string, role: 'parent' | 'child', pin?: string, authToken?: string) => {
     const newState: AuthState = {
       isAuthenticated: true,
       userId,
@@ -55,6 +61,9 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
       await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(newState));
       if (pin) {
         await SecureStore.setItemAsync(PIN_STORAGE_KEY, pin);
+      }
+      if (authToken) {
+        await setAuthToken(authToken);
       }
     } catch (error) {
       console.error('[AuthContext] Failed to save auth state:', error);
@@ -69,6 +78,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     try {
       await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
       await SecureStore.deleteItemAsync(PIN_STORAGE_KEY);
+      await clearAuthToken();
     } catch (error) {
       logger.error('Failed to clear auth state', error instanceof Error ? error : new Error(String(error)), { context: 'AuthContext', action: 'logout' });
     }

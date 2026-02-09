@@ -1,5 +1,6 @@
 import { RiskLevel, RiskAnalysis } from './types';
 import { analyzeMessageWithRealAI, getAIConfig } from '@/utils/aiService';
+import { trpcClient } from '@/lib/trpc';
 import { logger } from '@/utils/logger';
 
 /**
@@ -41,15 +42,19 @@ export async function analyzeMessageWithAI(
   // Если включен расширенный AI анализ
   if (finalConfig.useAdvancedAI) {
     try {
-      // Используем реальный AI API если настроен
       const aiConfig = getAIConfig();
-      if (aiConfig.provider !== 'local' && aiConfig.apiKey) {
-        logger.debug('Using real AI API for analysis', { provider: aiConfig.provider });
-        const realAIAnalysis = await analyzeMessageWithRealAI(text, aiConfig);
-        // Объединяем с базовым анализом для большей точности
-        return combineAnalyses(basicAnalysis, realAIAnalysis);
+      // Prefer backend proxy (keeps API key on server); no client-side API key (security)
+      if (aiConfig.provider !== 'local') {
+        try {
+          const backendResult = await trpcClient.ai.analyzeMessage.query({ text });
+          logger.debug('Using backend AI proxy for analysis', { provider: aiConfig.provider });
+          return combineAnalyses(basicAnalysis, backendResult);
+        } catch (backendError) {
+          logger.warn('Backend AI proxy failed, using heuristics', {
+            error: backendError instanceof Error ? backendError.message : String(backendError),
+          });
+        }
       }
-      
       // Fallback на улучшенный эвристический анализ
       const advancedAnalysis = await analyzeWithAdvancedHeuristics(text);
       return combineAnalyses(basicAnalysis, advancedAnalysis);
@@ -264,4 +269,3 @@ function analyzeImageWithRules(imageUri: string): { blocked: boolean; reasons: s
 
   return { blocked: false, reasons: [] };
 }
-

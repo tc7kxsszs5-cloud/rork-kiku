@@ -3,6 +3,7 @@ import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import Constants from "expo-constants";
 import type { AppRouter } from "@/backend/trpc/app-router";
 import superjson from "superjson";
+import { getAuthToken } from "@/utils/authToken";
 
 export const trpc = createTRPCReact<AppRouter>();
 
@@ -140,9 +141,13 @@ export const trpcClient = createTRPCClient<AppRouter>({
     httpBatchLink({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
-      headers: () => ({
-        'Content-Type': 'application/json',
-      }),
+      headers: async () => {
+        const token = await getAuthToken();
+        return {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        };
+      },
       fetch: async (url, options) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -191,9 +196,13 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
     httpBatchLink({
       url: `${getBaseUrl()}/api/trpc`,
       transformer: superjson,
-      headers: () => ({
-        'Content-Type': 'application/json',
-      }),
+      headers: async () => {
+        const token = await getAuthToken();
+        return {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        };
+      },
       fetch: async (url, options) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
