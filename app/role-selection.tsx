@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, Href } from 'expo-router';
@@ -7,12 +7,14 @@ import { User, Shield, Lock, Eye, Settings, MessageCircle } from 'lucide-react-n
 import { useUser } from '@/constants/UserContext';
 import { useAgeCompliance } from '@/constants/AgeComplianceContext';
 import { useThemeMode } from '@/constants/ThemeContext';
+import { useAuth } from '@/constants/AuthContext';
 import { HapticFeedback } from '@/constants/haptics';
 
 export default function RoleSelectionScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  useUser();
+  const { login } = useAuth();
+  const { setUser } = useUser();
   const { requiresConsent, isTexasCompliant } = useAgeCompliance();
   const { theme } = useThemeMode();
   const [selectedRole, setSelectedRole] = useState<'parent' | 'child' | null>(null);
@@ -120,6 +122,21 @@ export default function RoleSelectionScreen() {
       color: theme.textPrimary,
       lineHeight: 20,
     },
+    demoButton: {
+      marginTop: 24,
+      paddingVertical: 14,
+      paddingHorizontal: 20,
+      borderRadius: 12,
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: theme.borderSoft,
+      backgroundColor: theme.card,
+    },
+    demoButtonText: {
+      fontSize: 15,
+      color: theme.textSecondary,
+      fontWeight: '500',
+    },
   });
 
   const handleRoleSelect = (role: 'parent' | 'child') => {
@@ -148,6 +165,25 @@ export default function RoleSelectionScreen() {
       Alert.alert(t('common.error'), t('roleSelection.navigateError'));
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDemoOpen = async () => {
+    HapticFeedback.light();
+    try {
+      await login('demo_parent', 'parent');
+      const demoUser = {
+        id: 'demo_parent',
+        name: 'Демо-родитель',
+        createdAt: Date.now(),
+        role: 'parent' as const,
+        children: [],
+      };
+      await setUser(demoUser);
+      router.replace('/(tabs)/index' as Href);
+    } catch (error) {
+      console.error('Demo login error:', error);
+      Alert.alert('Ошибка', 'Не удалось войти в демо-режим');
     }
   };
 
@@ -245,6 +281,16 @@ export default function RoleSelectionScreen() {
               {isSubmitting ? t('roleSelection.saving') : t('roleSelection.continue')}
             </Text>
           </TouchableOpacity>
+
+          {Platform.OS === 'web' && (
+            <TouchableOpacity
+              style={[styles.demoButton]}
+              onPress={handleDemoOpen}
+              testID="role-selection-demo-button"
+            >
+              <Text style={styles.demoButtonText}>Демо: открыть приложение без регистрации</Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       </LinearGradient>
     </View>

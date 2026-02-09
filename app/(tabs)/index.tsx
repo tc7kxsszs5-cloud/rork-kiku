@@ -84,8 +84,9 @@ export default function MonitoringScreen() {
           : chat.participantNames.some((name) => name.toLowerCase().includes(query));
 
         // Поиск по содержимому сообщений
-        const messageMatch = chat.messages.some((msg) =>
-          msg.text.toLowerCase().includes(query)
+        const messages = Array.isArray(chat.messages) ? chat.messages : [];
+        const messageMatch = messages.some((msg) =>
+          (msg?.text ?? '').toLowerCase().includes(query)
         );
 
         return nameMatch || messageMatch;
@@ -217,7 +218,7 @@ export default function MonitoringScreen() {
           </View>
           <View style={styles.headerActions}>
             <SyncStatusIndicator variant="compact" />
-            <TouchableOpacity style={styles.iconButton} onPress={toggleSearch}>
+            <TouchableOpacity style={styles.iconButton} onPress={toggleSearch} testID="monitoring-search-toggle">
               <Search size={20} color={theme?.textPrimary || '#000'} />
             </TouchableOpacity>
             <ThemeModeToggle variant="compact" style={styles.headerToggle} />
@@ -251,6 +252,7 @@ export default function MonitoringScreen() {
                 setShowAdvancedFilters(!showAdvancedFilters);
                 HapticFeedback.light();
               }}
+              testID="monitoring-filter-toggle"
             >
               <Filter size={16} color={showAdvancedFilters ? '#fff' : (theme?.textSecondary || '#666')} />
             </TouchableOpacity>
@@ -258,7 +260,7 @@ export default function MonitoringScreen() {
         </Animated.View>
 
         {showAdvancedFilters && (
-          <View style={styles.advancedFiltersContainer}>
+          <View style={styles.advancedFiltersContainer} testID="monitoring-advanced-filters">
             <View style={styles.advancedFiltersSection}>
               <View style={styles.filterSectionHeader}>
                 <Calendar size={16} color={theme.textSecondary} />
@@ -368,12 +370,12 @@ export default function MonitoringScreen() {
         data={filteredChats}
         renderItem={renderChat}
         keyExtractor={(item) => item.id}
+        extraData={filteredChats.length}
         contentContainerStyle={styles.listContainer}
-        // Оптимизация производительности
         initialNumToRender={10}
         maxToRenderPerBatch={10}
         windowSize={10}
-        removeClippedSubviews={true}
+        removeClippedSubviews={false}
         updateCellsBatchingPeriod={50}
         getItemLayout={(data, index) => ({
           length: 150, // Примерная высота карточки чата

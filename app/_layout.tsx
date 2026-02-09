@@ -6,7 +6,7 @@ import { StyleSheet, Platform, View, Text, TouchableOpacity } from "react-native
 import { ChevronLeft } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MonitoringProvider } from "@/constants/MonitoringContext";
-import { UserProvider } from "@/constants/UserContext";
+import { UserProvider, useUser } from "@/constants/UserContext";
 import { ParentalControlsProvider } from "@/constants/ParentalControlsContext";
 import { ThemeProvider } from "@/constants/ThemeContext";
 import { NotificationsProvider } from "@/constants/NotificationsContext";
@@ -142,14 +142,20 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
   }
 }
 
+const isWebDemoMode = () =>
+  Platform.OS === 'web' && (__DEV__ || (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_DEMO_AUTO_LOGIN === '1'));
+
 function RootLayoutNav() {
   const [isReady, setIsReady] = useState(false);
-  
+  const autoDemoDoneRef = React.useRef(false);
+
   const authData = useAuth();
   const isAuthenticated = authData?.isAuthenticated || false;
   const isAuthLoaded = authData?.isLoaded ?? false;
+  const login = authData?.login;
   const router = useRouter();
   const segments = useSegments();
+  const setUser = useUser()?.setUser;
 
   useEffect(() => {
     const timer = setTimeout(() => setIsReady(true), 100);
@@ -158,12 +164,35 @@ function RootLayoutNav() {
 
   useEffect(() => {
     if (!isReady || !isAuthLoaded || !router || !Array.isArray(segments)) return;
-    
+
     const currentRoute = String(segments[0] ?? '');
     const authRoutes = ['role-selection', 'register-parent', 'register-child'];
     const inAuthGroup = authRoutes.includes(currentRoute);
 
-    // Не авторизован: всегда вести на выбор роли, кроме экранов регистрации
+    // Тестовая веб-версия: без авторизации сразу войти как демо и открыть чаты
+    if (!isAuthenticated && isWebDemoMode() && login && setUser && !autoDemoDoneRef.current) {
+      autoDemoDoneRef.current = true;
+      (async () => {
+        try {
+          await login('demo_parent', 'parent');
+          await setUser({
+            id: 'demo_parent',
+            name: 'Демо-родитель',
+            createdAt: Date.now(),
+            role: 'parent',
+            children: [],
+          });
+          router.replace('/(tabs)/index' as never);
+        } catch (e) {
+          console.error('[RootLayoutNav] Auto-demo login failed:', e);
+          autoDemoDoneRef.current = false;
+          router.replace('/role-selection' as never);
+        }
+      })();
+      return;
+    }
+
+    // Не авторизован: вести на выбор роли (кроме тестового веба, где уже сделали авто-демо)
     if (!isAuthenticated) {
       if (!inAuthGroup) {
         const timer = setTimeout(() => {
@@ -183,17 +212,17 @@ function RootLayoutNav() {
     if (isAuthenticated && (currentRoute === 'role-selection' || currentRoute === 'register-child')) {
       const timer = setTimeout(() => {
         try {
-          router.replace('/(tabs)' as never);
+          router.replace('/(tabs)/index' as never);
         } catch (error) {
           console.error('[RootLayoutNav] Navigation to tabs error:', error);
         }
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [isAuthenticated, isAuthLoaded, segments, router, isReady]);
+  }, [isAuthenticated, isAuthLoaded, segments, router, isReady, login, setUser]);
 
   const securityHeaderLeft = useMemo(() => {
-    const HeaderLeftComponent = () => <HeaderBackButton fallbackHref="/(tabs)" forceFallback />;
+    const HeaderLeftComponent = () => <HeaderBackButton fallbackHref="/(tabs)/index" forceFallback />;
     HeaderLeftComponent.displayName = 'SecuritySettingsHeaderLeft';
     return HeaderLeftComponent;
   }, []);
@@ -228,6 +257,7 @@ function RootLayoutNav() {
         options={{
           headerShown: false,
           presentation: 'fullScreenModal',
+          headerBackVisible: false,
         }}
       />
       <Stack.Screen

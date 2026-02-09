@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-import { Send, AlertTriangle, Mic, X, AlertOctagon, Smile, Phone, Video } from 'lucide-react-native';
+import { Send, AlertTriangle, Mic, X, AlertOctagon, Smile, Phone, Video, ChevronLeft } from 'lucide-react-native';
 import { EmojiRenderer } from '@/components/EmojiRenderer';
 import { replaceTextSmileys } from '@/utils/emojiUtils';
 import { useMonitoring } from '@/constants/MonitoringContext';
@@ -58,7 +58,14 @@ const messageAnimations = new Map<string, Animated.Value>();
 
 export default function ChatScreen() {
   const router = useRouter();
-  const { chatId } = useLocalSearchParams<{ chatId: string }>();
+  const params = useLocalSearchParams<{ chatId?: string | string[] }>();
+  // На веб и в части окружений param может прийти как строка или массив — нормализуем
+  const chatId = typeof params.chatId === 'string'
+    ? params.chatId
+    : Array.isArray(params.chatId)
+      ? params.chatId[0]
+      : undefined;
+
   const { chats, addMessage, isAnalyzing } = useMonitoring();
   const { triggerSOS } = useParentalControls();
   const { user } = useUser();
@@ -74,13 +81,42 @@ export default function ChatScreen() {
   const sendButtonScaleAnim = useRef(new Animated.Value(1)).current;
   const isMountedRef = useIsMounted();
 
-  const chat = chats.find((c) => c.id === chatId);
+  const chat = chatId ? chats.find((c) => c.id === chatId) : undefined;
   const chatBackground = chatId ? getChatBackground(chatId) : null;
+  const chatsLoaded = Array.isArray(chats);
+
+  const goToChatList = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)/index' as never);
+    }
+  };
+
+  if (!chatId) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Чат не выбран</Text>
+        <TouchableOpacity style={styles.backButton} onPress={goToChatList}>
+          <Text style={styles.backButtonText}>← Назад к чатам</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   if (!chat) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>Чат не найден</Text>
+        {!chatsLoaded || chats.length === 0 ? (
+          <ActivityIndicator size="large" color="#4A90E2" />
+        ) : (
+          <>
+            <Text style={styles.errorText}>Чат не найден</Text>
+            <TouchableOpacity style={styles.backButton} onPress={goToChatList}>
+              <Text style={styles.backButtonText}>← Назад к чатам</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     );
   }
@@ -431,6 +467,19 @@ export default function ChatScreen() {
       <Stack.Screen
         options={{
           title: chat.isGroup ? chat.groupName : chat.participantNames.join(' и '),
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => {
+                HapticFeedback.light();
+                goToChatList();
+              }}
+              style={styles.headerBackTouchable}
+              testID="chat-header-back"
+            >
+              <ChevronLeft size={24} color="#4A90E2" />
+              <Text style={styles.headerBackLabel}>Назад</Text>
+            </TouchableOpacity>
+          ),
           headerRight: () => (
             <View style={styles.headerRightContainer}>
               {!chat.isGroup && chat.participants && chat.participants.length > 0 && (
@@ -516,22 +565,30 @@ export default function ChatScreen() {
         ) : null}
         <FlatList
           style={styles.messagesListContainer}
-          data={chat.messages}
+          data={Array.isArray(chat.messages) ? chat.messages : []}
           renderItem={renderMessage}
           keyExtractor={(item) => item.id}
+          extraData={chat.messages?.length ?? 0}
           contentContainerStyle={styles.messagesList}
           inverted={false}
-          // Оптимизация производительности
           initialNumToRender={15}
           maxToRenderPerBatch={10}
           windowSize={10}
-          removeClippedSubviews={true}
+          removeClippedSubviews={Platform.OS !== 'web'}
           updateCellsBatchingPeriod={50}
         />
 
         {isAnalyzing && (
           <View style={styles.analyzingContainer}>
             <Text style={styles.analyzingContainerText}>🔍 Анализ сообщения...</Text>
+          </View>
+        )}
+
+        {__DEV__ && (
+          <View style={styles.aiTestHint}>
+            <Text style={styles.aiTestHintText}>
+              Тест ИИ: отправьте сообщение — под ним появится оценка риска (безопасно / низкий / средний / высокий).
+            </Text>
           </View>
         )}
 
@@ -644,6 +701,19 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginTop: 50,
+  },
+  backButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignSelf: 'center',
+    backgroundColor: '#4A90E2',
+    borderRadius: 8,
+  },
+  backButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   messagesListContainer: {
     flex: 1,
@@ -833,6 +903,18 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     fontWeight: '500' as const,
   },
+  headerBackTouchable: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingRight: 12,
+    marginLeft: Platform.OS === 'web' ? 0 : 8,
+  },
+  headerBackLabel: {
+    fontSize: 17,
+    color: '#4A90E2',
+    marginLeft: 4,
+  },
   headerRightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -900,6 +982,18 @@ const styles = StyleSheet.create({
     color: '#0369a1',
     textAlign: 'center',
     fontWeight: '500' as const,
+  },
+  aiTestHint: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#fef3c7',
+    borderTopWidth: 1,
+    borderTopColor: '#fcd34d',
+  },
+  aiTestHintText: {
+    fontSize: 12,
+    color: '#92400e',
+    textAlign: 'center',
   },
   inputContainer: {
     flexDirection: 'row',

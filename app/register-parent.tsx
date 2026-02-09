@@ -72,7 +72,7 @@ export default function RegisterParentScreen() {
         // Сохраняем parentId для дальнейшего использования
         await AsyncStorage.setItem('@parent_id', result.parentId);
         // Логиним родителя
-        await login(result.parentId, 'parent');
+        await login(result.parentId, 'parent', undefined, result.authToken);
       } else {
         Alert.alert('Ошибка', result.error || 'Не удалось зарегистрироваться');
       }
@@ -132,7 +132,7 @@ export default function RegisterParentScreen() {
 
             <TouchableOpacity
               style={styles.continueButton}
-              onPress={() => router.replace('/(tabs)' as Href)}
+              onPress={() => router.replace('/(tabs)/index' as Href)}
             >
               <Text style={styles.continueButtonText}>Продолжить</Text>
             </TouchableOpacity>

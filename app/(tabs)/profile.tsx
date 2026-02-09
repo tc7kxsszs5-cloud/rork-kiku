@@ -459,8 +459,9 @@ export default function ProfileScreen() {
 
   // Красивая версия для детей
   if (isChild) {
-    const chatsCount = chats.length;
-    const safeChatsCount = chats.filter(chat => chat.overallRisk === 'safe' || chat.overallRisk === 'low').length;
+    const chatsList = Array.isArray(chats) ? chats : [];
+    const chatsCount = chatsList.length;
+    const safeChatsCount = chatsList.filter(chat => chat.overallRisk === 'safe' || chat.overallRisk === 'low').length;
 
     return (
       <ScrollView style={styles.container} contentContainerStyle={styles.childContentContainer} testID="profile-screen-child">

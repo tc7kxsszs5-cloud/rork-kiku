@@ -97,10 +97,10 @@ export default function RegisterChildScreen() {
         }
 
         // Логиним ребенка
-        await login(result.childId, 'child');
+        await login(result.childId, 'child', undefined, result.authToken);
 
         // Сразу переходим в чаты (layout тоже перенаправит при isAuthenticated)
-        router.replace('/(tabs)' as Href);
+        router.replace('/(tabs)/index' as Href);
 
         Alert.alert(
           'Успешно!',
