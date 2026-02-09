@@ -1,8 +1,9 @@
 import { z } from 'zod';
-import { publicProcedure } from '../../create-context.js';
+import { protectedProcedure } from '../../create-context.js';
 import { upsertDeviceRecord } from './store.js';
+import { TRPCError } from '@trpc/server';
 
-export const registerDeviceProcedure = publicProcedure
+export const registerDeviceProcedure = protectedProcedure
   .input(
     z.object({
       deviceId: z.string().min(3),
@@ -13,7 +14,13 @@ export const registerDeviceProcedure = publicProcedure
       permissions: z.string().optional(),
     }),
   )
-  .mutation(({ input }) => {
+  .mutation(({ input, ctx }) => {
+    if (ctx.auth?.role === 'child' && ctx.auth.deviceId && ctx.auth.deviceId !== input.deviceId) {
+      throw new TRPCError({ code: 'UNAUTHORIZED' });
+    }
+    if (input.userId && ctx.auth?.userId && input.userId !== ctx.auth.userId) {
+      throw new TRPCError({ code: 'FORBIDDEN' });
+    }
     const device = upsertDeviceRecord(input);
     return {
       device,

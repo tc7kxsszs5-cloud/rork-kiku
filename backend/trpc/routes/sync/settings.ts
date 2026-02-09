@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { publicProcedure, createTRPCRouter } from "../../create-context.js";
+import { protectedProcedure, createTRPCRouter } from "../../create-context.js";
 import { supabase } from "../../../utils/supabase.js";
 import { syncSettingsInputSchema, getSettingsInputSchema } from "../../../utils/validationSchemas.js";
 import { rateLimiters } from "../../middleware/rateLimit.js";
+import { assertDeviceAccess } from "../../../utils/authz.js";
 
 // Merge настройки (клиентские перезаписывают серверные если новее)
 const mergeSettings = (serverSettings: any, clientSettings: any): any => {
@@ -80,7 +81,7 @@ const updateSettingsSyncStatus = async (deviceId: string, timestamp: number): Pr
     }, { onConflict: 'device_id' });
 };
 
-export const syncSettingsProcedure = publicProcedure
+export const syncSettingsProcedure = protectedProcedure
   .input(
     z.object({
       deviceId: z.string(),
@@ -88,11 +89,13 @@ export const syncSettingsProcedure = publicProcedure
       lastSyncTimestamp: z.number().optional(),
     })
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     const { deviceId, settings, lastSyncTimestamp = 0 } = input;
     const timestamp = Date.now();
 
     try {
+      await assertDeviceAccess(ctx, deviceId);
+
       // Получаем настройки с сервера
       const serverSettings = await getSettingsFromDB(deviceId);
 
@@ -128,14 +131,16 @@ export const syncSettingsProcedure = publicProcedure
     }
   });
 
-export const getSettingsProcedure = publicProcedure
+export const getSettingsProcedure = protectedProcedure
   .use(rateLimiters.sync)
   .input(getSettingsInputSchema)
-  .query(async ({ input }) => {
+  .query(async ({ input, ctx }) => {
     const { deviceId } = input;
     const timestamp = Date.now();
 
     try {
+      await assertDeviceAccess(ctx, deviceId);
+
       const settings = await getSettingsFromDB(deviceId);
 
       // Получаем статус синхронизации для lastSyncTimestamp
@@ -171,4 +176,3 @@ export const syncSettingsRouter = createTRPCRouter({
   sync: syncSettingsProcedure,
   get: getSettingsProcedure,
 });
-

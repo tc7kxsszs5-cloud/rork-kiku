@@ -1,11 +1,13 @@
 import { z } from 'zod';
-import { publicProcedure } from '../../create-context.js';
+import { protectedProcedure } from '../../create-context.js';
 import { getDeviceRecord, listDeviceRecords } from './store.js';
+import { assertDeviceAccess } from '../../../utils/authz.js';
 
-export const getSyncStatusProcedure = publicProcedure
+export const getSyncStatusProcedure = protectedProcedure
   .input(z.object({ deviceId: z.string().optional() }).optional())
-  .query(({ input }) => {
+  .query(async ({ input, ctx }) => {
     if (input?.deviceId) {
+      await assertDeviceAccess(ctx, input.deviceId);
       const device = getDeviceRecord(input.deviceId);
       return {
         devices: device ? [device] : [],
@@ -14,7 +16,7 @@ export const getSyncStatusProcedure = publicProcedure
     }
 
     return {
-      devices: listDeviceRecords(),
+      devices: [],
       device: null,
     };
   });

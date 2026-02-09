@@ -216,3 +216,67 @@ ALTER TABLE alerts ADD COLUMN IF NOT EXISTS child_id TEXT REFERENCES children(id
 ALTER TABLE alerts ADD COLUMN IF NOT EXISTS parent_notified BOOLEAN DEFAULT false;
 
 CREATE INDEX IF NOT EXISTS idx_alerts_child_id ON alerts(child_id);
+
+-- ============================================
+-- Связи и группы для детского общения
+-- ============================================
+
+-- Связи между детьми (для режима по приглашениям)
+CREATE TABLE IF NOT EXISTS child_connections (
+  child_id TEXT NOT NULL REFERENCES children(id) ON DELETE CASCADE,
+  other_child_id TEXT NOT NULL REFERENCES children(id) ON DELETE CASCADE,
+  status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'blocked')),
+  created_at BIGINT NOT NULL,
+  updated_at BIGINT NOT NULL,
+  approved_by_parent_id TEXT REFERENCES parents(id),
+  method TEXT CHECK (method IN ('invite', 'group', 'open')),
+  PRIMARY KEY (child_id, other_child_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_child_connections_child ON child_connections(child_id);
+CREATE INDEX IF NOT EXISTS idx_child_connections_other ON child_connections(other_child_id);
+CREATE INDEX IF NOT EXISTS idx_child_connections_status ON child_connections(status);
+
+-- Участники чатов
+CREATE TABLE IF NOT EXISTS chat_members (
+  chat_id TEXT NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
+  child_id TEXT NOT NULL REFERENCES children(id) ON DELETE CASCADE,
+  role TEXT DEFAULT 'member' CHECK (role IN ('member', 'admin')),
+  added_at BIGINT NOT NULL,
+  added_by_child_id TEXT REFERENCES children(id),
+  added_by_parent_id TEXT REFERENCES parents(id),
+  PRIMARY KEY (chat_id, child_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_chat_members_chat ON chat_members(chat_id);
+CREATE INDEX IF NOT EXISTS idx_chat_members_child ON chat_members(child_id);
+
+-- Группы (класс/кружок/спорт)
+CREATE TABLE IF NOT EXISTS groups (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  group_type TEXT NOT NULL CHECK (group_type IN ('class', 'group', 'club')),
+  description TEXT,
+  created_by_parent_id TEXT REFERENCES parents(id),
+  created_by_child_id TEXT REFERENCES children(id),
+  created_at BIGINT NOT NULL,
+  is_active BOOLEAN DEFAULT true
+);
+
+CREATE INDEX IF NOT EXISTS idx_groups_type ON groups(group_type);
+CREATE INDEX IF NOT EXISTS idx_groups_active ON groups(is_active);
+
+-- Участники групп
+CREATE TABLE IF NOT EXISTS group_members (
+  group_id TEXT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+  child_id TEXT NOT NULL REFERENCES children(id) ON DELETE CASCADE,
+  role TEXT DEFAULT 'member' CHECK (role IN ('member', 'admin')),
+  status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'blocked')),
+  added_at BIGINT NOT NULL,
+  approved_by_parent_id TEXT REFERENCES parents(id),
+  PRIMARY KEY (group_id, child_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_group_members_group ON group_members(group_id);
+CREATE INDEX IF NOT EXISTS idx_group_members_child ON group_members(child_id);
+CREATE INDEX IF NOT EXISTS idx_group_members_status ON group_members(status);

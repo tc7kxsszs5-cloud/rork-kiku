@@ -1,6 +1,8 @@
 import { z } from 'zod';
-import { publicProcedure } from '../../create-context.js';
+import { protectedProcedure } from '../../create-context.js';
 import { listDeviceRecords, getDeviceRecord } from './store.js';
+import { TRPCError } from '@trpc/server';
+import { assertDeviceAccess } from '../../../utils/authz.js';
 
 // Интерфейс для Expo Push Notification
 interface ExpoPushMessage {
@@ -41,7 +43,7 @@ const sendExpoPushNotification = async (message: ExpoPushMessage): Promise<{ sta
 };
 
 // Отправка push уведомления одному устройству
-export const sendPushToDeviceProcedure = publicProcedure
+export const sendPushToDeviceProcedure = protectedProcedure
   .input(
     z.object({
       deviceId: z.string().min(3),
@@ -53,7 +55,11 @@ export const sendPushToDeviceProcedure = publicProcedure
       channelId: z.string().optional(),
     })
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
+    if (ctx.auth?.role !== 'parent') {
+      throw new TRPCError({ code: 'FORBIDDEN' });
+    }
+    await assertDeviceAccess(ctx, input.deviceId);
     const { deviceId, title, body, data, sound, priority, channelId } = input;
 
     // Получаем запись устройства
@@ -101,7 +107,7 @@ export const sendPushToDeviceProcedure = publicProcedure
   });
 
 // Отправка push уведомления всем устройствам пользователя (родителям)
-export const sendPushToUserProcedure = publicProcedure
+export const sendPushToUserProcedure = protectedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -113,7 +119,13 @@ export const sendPushToUserProcedure = publicProcedure
       channelId: z.string().optional(),
     })
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
+    if (ctx.auth?.role !== 'parent') {
+      throw new TRPCError({ code: 'FORBIDDEN' });
+    }
+    if (ctx.auth.userId !== input.userId) {
+      throw new TRPCError({ code: 'FORBIDDEN' });
+    }
     const { userId, title, body, data, sound, priority, channelId } = input;
 
     // Получаем все устройства пользователя
@@ -162,7 +174,7 @@ export const sendPushToUserProcedure = publicProcedure
   });
 
 // Отправка push уведомления при обнаружении риска (для родителей)
-export const sendRiskAlertPushProcedure = publicProcedure
+export const sendRiskAlertPushProcedure = protectedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -173,7 +185,13 @@ export const sendRiskAlertPushProcedure = publicProcedure
       chatName: z.string().optional(),
     })
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
+    if (ctx.auth?.role !== 'parent') {
+      throw new TRPCError({ code: 'FORBIDDEN' });
+    }
+    if (ctx.auth.userId !== input.userId) {
+      throw new TRPCError({ code: 'FORBIDDEN' });
+    }
     const { userId, chatId, messageId, riskLevel, reasons, chatName } = input;
 
     const riskLevelLabels: Record<string, string> = {

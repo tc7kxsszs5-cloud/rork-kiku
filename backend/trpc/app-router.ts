@@ -11,6 +11,7 @@ import { dbCheckProcedure } from "./routes/test/db-check.js";
 import { registerParentProcedure } from "./routes/auth/register-parent.js";
 import { registerChildProcedure } from "./routes/auth/register-child.js";
 import { validateParentCodeProcedure } from "./routes/auth/validate-code.js";
+import { analyzeMessageProcedure } from "./routes/ai/analyze-message.js";
 
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
@@ -36,6 +37,9 @@ export const appRouter = createTRPCRouter({
     registerParent: registerParentProcedure,
     registerChild: registerChildProcedure,
     validateParentCode: validateParentCodeProcedure,
+  }),
+  ai: createTRPCRouter({
+    analyzeMessage: analyzeMessageProcedure,
   }),
 });
 

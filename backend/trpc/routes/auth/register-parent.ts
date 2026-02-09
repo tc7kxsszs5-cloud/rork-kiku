@@ -3,6 +3,7 @@ import { publicProcedure } from "../../create-context.js";
 import { supabase } from "../../../utils/supabase.js";
 import { sanitizeEmail } from "../../../utils/security.js";
 import { rateLimiters } from "../../middleware/rateLimit.js";
+import { signAuthToken } from "../../../utils/authToken.js";
 
 /**
  * Генерация уникального кода родителя
@@ -53,7 +54,7 @@ async function createUniqueCode(): Promise<string> {
 }
 
 export const registerParentProcedure = publicProcedure
-  .use(rateLimiters.general)
+  .use(rateLimiters.auth)
   .input(
     z.object({
       name: z.string().min(1).max(100),
@@ -166,6 +167,11 @@ export const registerParentProcedure = publicProcedure
         success: true,
         parentId,
         code,
+        authToken: await signAuthToken({
+          userId: parentId,
+          role: 'parent',
+          parentId,
+        }),
         message: 'Регистрация успешна! Сохраните код для регистрации ребенка.',
       };
     } catch (error) {

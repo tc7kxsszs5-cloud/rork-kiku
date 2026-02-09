@@ -46,7 +46,7 @@ async function validateParentCode(code: string): Promise<{ valid: boolean; paren
 }
 
 export const validateParentCodeProcedure = publicProcedure
-  .use(rateLimiters.general)
+  .use(rateLimiters.auth)
   .input(
     z.object({
       code: z.string().regex(/^KIKU-[A-Z0-9]{6}$/, 'Неверный формат кода'),

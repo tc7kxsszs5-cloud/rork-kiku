@@ -46,28 +46,70 @@ export const phoneSchema = z.string()
  */
 export const chatSchema = z.object({
   id: z.string().min(1).max(100),
-  contactName: z.string().min(1).max(200),
+  contactName: z.string().min(1).max(200).optional(),
   contactPhone: phoneSchema.optional(),
   lastMessage: z.string().max(1000).optional(),
   lastMessageTimestamp: timestampSchema.optional(),
-  riskLevel: z.enum(['safe', 'low', 'medium', 'high', 'critical']),
-  unreadCount: z.number().int().min(0).max(10000),
-  createdAt: timestampSchema,
-  updatedAt: timestampSchema,
-}).strict();
+  riskLevel: z.enum(['safe', 'low', 'medium', 'high', 'critical']).optional(),
+  unreadCount: z.number().int().min(0).max(10000).optional(),
+  createdAt: timestampSchema.optional(),
+  updatedAt: timestampSchema.optional(),
+  // Новый формат чатов (клиент)
+  participants: z.array(z.string().min(1).max(100)).max(100).optional(),
+  participantNames: z.array(z.string().min(1).max(200)).max(100).optional(),
+  overallRisk: z.enum(['safe', 'low', 'medium', 'high', 'critical']).optional(),
+  lastActivity: timestampSchema.optional(),
+  isGroup: z.boolean().optional(),
+  groupName: z.string().min(1).max(200).optional(),
+  groupType: z.enum(['class', 'group', 'club']).optional(),
+  groupDescription: z.string().max(1000).optional(),
+  adminIds: z.array(z.string().min(1).max(100)).max(100).optional(),
+  messages: z.array(z.lazy(() => messageSchema)).max(5000).optional(),
+  contactChildId: z.string().min(1).max(100).optional(),
+}).strict().superRefine((value, ctx) => {
+  const hasContactName = typeof value.contactName === 'string' && value.contactName.length > 0;
+  const hasParticipantNames = Array.isArray(value.participantNames) && value.participantNames.length > 0;
+  if (!hasContactName && !hasParticipantNames) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Either contactName or participantNames is required',
+      path: ['contactName'],
+    });
+  }
+});
 
 /**
  * Message schema - strict validation
  */
 export const messageSchema = z.object({
   id: z.string().min(1).max(100),
-  sender: z.string().min(1).max(200),
-  content: z.string().min(1).max(10000), // Max 10KB per message
+  sender: z.string().min(1).max(200).optional(),
+  senderId: z.string().min(1).max(100).optional(),
+  senderName: z.string().min(1).max(200).optional(),
+  content: z.string().min(1).max(10000).optional(), // Max 10KB per message
+  text: z.string().min(1).max(10000).optional(),
   timestamp: timestampSchema,
   messageType: z.enum(['text', 'image', 'voice', 'video']).default('text'),
   riskLevel: z.enum(['safe', 'low', 'medium', 'high', 'critical']).optional(),
   aiAnalysis: z.any().optional(),
-}).strict();
+}).strict().superRefine((value, ctx) => {
+  const hasSender = !!value.sender || !!value.senderId || !!value.senderName;
+  const hasContent = !!value.content || !!value.text;
+  if (!hasSender) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Sender is required',
+      path: ['sender'],
+    });
+  }
+  if (!hasContent) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Content is required',
+      path: ['content'],
+    });
+  }
+});
 
 /**
  * Alert schema - strict validation
@@ -100,6 +142,7 @@ export const settingsSchema = z.object({
   sosNotificationsEnabled: z.boolean(),
   guardianEmails: z.array(emailSchema).max(10), // Max 10 emails
   guardianPhones: z.array(phoneSchema).max(10), // Max 10 phones
+  communicationMode: z.enum(['open', 'groups', 'invites']).optional(),
   updatedAt: timestampSchema.optional(),
 }).strict();
 

@@ -1,9 +1,10 @@
 import { z } from "zod";
-import { publicProcedure, createTRPCRouter } from "../../create-context.js";
+import { protectedProcedure, createTRPCRouter } from "../../create-context.js";
 import { getDeltaAlerts } from "../../../utils/syncHelpers.js";
 import { supabase } from "../../../utils/supabase.js";
 import { syncAlertsInputSchema, getAlertsInputSchema } from "../../../utils/validationSchemas.js";
 import { rateLimiters } from "../../middleware/rateLimit.js";
+import { assertDeviceAccess } from "../../../utils/authz.js";
 
 const mergeAlerts = (serverAlerts: any[], clientAlerts: any[]): any[] => {
   const alertMap = new Map<string, any>();
@@ -92,14 +93,16 @@ const updateAlertsSyncStatus = async (deviceId: string, timestamp: number): Prom
     }, { onConflict: 'device_id' });
 };
 
-export const syncAlertsProcedure = publicProcedure
+export const syncAlertsProcedure = protectedProcedure
   .use(rateLimiters.sync)
   .input(syncAlertsInputSchema)
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     const { deviceId, alerts, lastSyncTimestamp = 0 } = input;
     const timestamp = Date.now();
 
     try {
+      await assertDeviceAccess(ctx, deviceId);
+
       // Получаем существующие алерты из базы данных
       const serverAlerts = await getAlertsFromDB(deviceId);
 
@@ -152,13 +155,15 @@ export const syncAlertsProcedure = publicProcedure
     }
   });
 
-export const getAlertsProcedure = publicProcedure
+export const getAlertsProcedure = protectedProcedure
   .use(rateLimiters.sync)
   .input(getAlertsInputSchema)
-  .query(async ({ input }) => {
+  .query(async ({ input, ctx }) => {
     const { deviceId, lastSyncTimestamp = 0 } = input;
 
     try {
+      await assertDeviceAccess(ctx, deviceId);
+
       const allAlerts = await getAlertsFromDB(deviceId);
       
       // Получаем последний timestamp синхронизации

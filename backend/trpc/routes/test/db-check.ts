@@ -1,11 +1,11 @@
-import { publicProcedure } from "../../create-context.js";
+import { protectedProcedure } from "../../create-context.js";
 import { supabase } from "../../../utils/supabase.js";
 
 /**
  * Тестовый endpoint для проверки подключения к базе данных через Supabase SDK
  * Доступен через: /api/trpc/test.dbCheck
  */
-export const dbCheckProcedure = publicProcedure.query(async () => {
+export const dbCheckProcedure = protectedProcedure.query(async () => {
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 

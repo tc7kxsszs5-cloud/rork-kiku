@@ -3,6 +3,7 @@ import { publicProcedure } from "../../create-context.js";
 import { supabase } from "../../../utils/supabase.js";
 import { sanitizeDeviceId } from "../../../utils/security.js";
 import { rateLimiters } from "../../middleware/rateLimit.js";
+import { signAuthToken } from "../../../utils/authToken.js";
 
 /**
  * Валидация кода родителя (используется в register-child и validate-code)
@@ -56,7 +57,7 @@ function getUIVersion(age: number): 'young' | 'middle' | 'standard' {
 }
 
 export const registerChildProcedure = publicProcedure
-  .use(rateLimiters.general)
+  .use(rateLimiters.auth)
   .input(
     z.object({
       parentCode: z.string().regex(/^KIKU-[A-Z0-9]{6}$/, 'Неверный формат кода'),
@@ -162,6 +163,13 @@ export const registerChildProcedure = publicProcedure
         parentId,
         parentName: codeValidation.parentName,
         uiVersion,
+        authToken: await signAuthToken({
+          userId: childId,
+          role: 'child',
+          parentId,
+          childId,
+          deviceId,
+        }),
         message: 'Регистрация успешна! Устройства связаны.',
       };
     } catch (error) {

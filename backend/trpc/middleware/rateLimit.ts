@@ -92,4 +92,11 @@ export const rateLimiters = {
     windowMs: 60000, // 1 minute
     identifier: 'general',
   }),
+
+  // Auth endpoints - stricter to prevent brute-force (SEC-005)
+  auth: rateLimitMiddleware({
+    maxRequests: 15,
+    windowMs: 60000, // 1 minute
+    identifier: 'auth',
+  }),
 };
