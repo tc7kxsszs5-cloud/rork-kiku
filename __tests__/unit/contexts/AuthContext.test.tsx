@@ -8,6 +8,7 @@ import { renderHook, waitFor, act } from '@testing-library/react-native';
 import { AuthProvider, useAuth, AuthState } from '@/constants/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import { getAuthToken, setAuthToken, clearAuthToken } from '@/utils/authToken';
 
 // Моки
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -28,6 +29,12 @@ jest.mock('@/utils/logger', () => ({
     warn: jest.fn(),
     info: jest.fn(),
   },
+}));
+
+jest.mock('@/utils/authToken', () => ({
+  getAuthToken: jest.fn(),
+  setAuthToken: jest.fn(),
+  clearAuthToken: jest.fn(),
 }));
 
 const createWrapper = () => {
@@ -51,6 +58,9 @@ describe('AuthContext', () => {
     (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(null);
     (SecureStore.setItemAsync as jest.Mock).mockResolvedValue(undefined);
     (SecureStore.deleteItemAsync as jest.Mock).mockResolvedValue(undefined);
+    (getAuthToken as jest.Mock).mockResolvedValue('mock-token');
+    (setAuthToken as jest.Mock).mockResolvedValue(undefined);
+    (clearAuthToken as jest.Mock).mockResolvedValue(undefined);
   });
 
   describe('Инициализация', () => {
