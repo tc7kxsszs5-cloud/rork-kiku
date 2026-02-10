@@ -111,7 +111,8 @@ const mergeAlertsWithServer = (localAlerts: Alert[], serverAlerts: Alert[]): Ale
 };
 
 export const [MonitoringProvider, useMonitoring] = createContextHook(() => {
-  const [chats, setChats] = useState<Chat[]>(__DEV__ ? MOCK_CHATS : []);
+  // Загружаем моковые данные если нет реального бэкенда
+  const [chats, setChats] = useState<Chat[]>(MOCK_CHATS);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);

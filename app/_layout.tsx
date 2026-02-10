@@ -288,6 +288,25 @@ function RootLayoutNav() {
           presentation: 'fullScreenModal',
         }}
       />
+      <Stack.Screen
+        name="modal"
+        options={{
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name="native-intent"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="notifications-diagnostics"
+        options={{
+          title: "Диагностика уведомлений",
+          presentation: 'card',
+        }}
+      />
     </Stack>
   );
 }
