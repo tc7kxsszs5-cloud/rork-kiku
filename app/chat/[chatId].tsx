@@ -358,7 +358,7 @@ export default function ChatScreen() {
     // Яркие градиенты для детских сообщений
     const childGradients = isCurrentUser
       ? [
-          ['#FFD700', '#FFA500'], // Золотой → оранжевый
+          ['#C9A84C', '#B8923A'], // Золотой → оранжевый
           ['#FF6B9D', '#C44569'], // Розовый → малиновый
           ['#4ECDC4', '#44A08D'], // Бирюзовый → зеленый
         ]
@@ -623,7 +623,7 @@ export default function ChatScreen() {
                   HapticFeedback.light();
                 }}
               >
-                <Smile size={22} color="#FFD700" />
+                <Smile size={22} color="#C9A84C" />
               </TouchableOpacity>
               <TextInput
                 style={styles.input}
@@ -636,7 +636,7 @@ export default function ChatScreen() {
               />
               {isTranscribing ? (
                 <View style={styles.transcribingButton}>
-                  <ActivityIndicator size="small" color="#FFD700" />
+                  <ActivityIndicator size="small" color="#C9A84C" />
                 </View>
               ) : (
               <TouchableOpacity
@@ -645,7 +645,7 @@ export default function ChatScreen() {
                 onPress={startRecording}
                 onLongPress={startRecording}
               >
-                <Mic size={20} color="#FFD700" />
+                <Mic size={20} color="#C9A84C" />
               </TouchableOpacity>
               )}
               <Animated.View style={{ transform: [{ scale: sendButtonScaleAnim }] }}>
@@ -739,7 +739,7 @@ const styles = StyleSheet.create({
   },
   bubbleGradient: {
     borderBottomRightRadius: 6,
-    shadowColor: '#FFD700',
+    shadowColor: '#C9A84C',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 6,
@@ -1012,8 +1012,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
     backgroundColor: '#FFF9C4',
     borderWidth: 2,
-    borderColor: '#FFD700',
-    shadowColor: '#FFD700',
+    borderColor: '#C9A84C',
+    shadowColor: '#C9A84C',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -1033,19 +1033,19 @@ const styles = StyleSheet.create({
     fontWeight: '500' as const,
   },
   sendButton: {
-    backgroundColor: '#FFD700',
+    backgroundColor: '#C9A84C',
     width: 50,
     height: 50,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#FFD700',
+    shadowColor: '#C9A84C',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.5,
     shadowRadius: 6,
     elevation: 5,
     borderWidth: 2,
-    borderColor: '#FFA500',
+    borderColor: '#B8923A',
   },
   sendButtonDisabled: {
     backgroundColor: '#e5e5e5',
@@ -1108,8 +1108,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 8,
     borderWidth: 2,
-    borderColor: '#FFD700',
-    shadowColor: '#FFD700',
+    borderColor: '#C9A84C',
+    shadowColor: '#C9A84C',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,

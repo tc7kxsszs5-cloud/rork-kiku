@@ -315,7 +315,7 @@ export const [NotificationsProvider, useNotifications] = createContextHook<Notif
       try {
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: 'Тестовое уведомление KIDS',
+            title: 'Тестовое уведомление Safe Zone',
             body: 'Проверка доставки уведомлений',
             data: { type: 'diagnostic' },
           },

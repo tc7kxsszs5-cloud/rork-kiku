@@ -15,7 +15,7 @@ export const TEST_CUSTOM_EMOJIS: CustomEmojiData[] = [
     id: 'kiku_shield',
     name: 'KIKU Shield',
     type: 'svg',
-    source: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FFD700">
+    source: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#C9A84C">
       <path d="M12 2L4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3zm0 2.18l6 2.25v5.57c0 4.42-2.72 8.44-6 9.87-3.28-1.43-6-5.45-6-9.87V6.43l6-2.25z"/>
       <path d="M12 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-2.21 0-4-1.79-4-4h2c0 1.1.9 2 2 2s2-.9 2-2h2c0 2.21-1.79 4-4 4z" fill="#FF6B35"/>
     </svg>`,

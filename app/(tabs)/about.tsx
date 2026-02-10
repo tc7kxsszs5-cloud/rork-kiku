@@ -64,11 +64,11 @@ export default function AboutScreen() {
             resizeMode="contain"
             testID="about-app-icon"
           />
-          <Text style={styles.iconLabel} testID="about-app-icon-label" numberOfLines={1}>
-            KIDS
-          </Text>
         </View>
-        <Text style={styles.title} numberOfLines={1}>by Kiku</Text>
+        <Text style={styles.iconLabel} testID="about-app-icon-label" numberOfLines={1}>
+          Safe Zone
+        </Text>
+        <Text style={styles.title} numberOfLines={1}>by KIKU</Text>
         <Text style={styles.subtitle} numberOfLines={2}>{t('about.subtitle')}</Text>
         <Text style={styles.version}>{t('about.version')}</Text>
       </View>
@@ -156,7 +156,7 @@ export default function AboutScreen() {
         
         <View style={styles.feature}>
           <View style={styles.featureIcon}>
-            <Eye size={24} color="#FFD700" />
+            <Eye size={24} color="#C9A84C" />
           </View>
           <View style={styles.featureContent}>
             <Text style={styles.featureTitle} numberOfLines={2}>{t('about.aiMonitoring')}</Text>
@@ -168,7 +168,7 @@ export default function AboutScreen() {
 
         <View style={styles.feature}>
           <View style={styles.featureIcon}>
-            <ImageIcon size={24} color="#FFD700" />
+            <ImageIcon size={24} color="#C9A84C" />
           </View>
           <View style={styles.featureContent}>
             <Text style={styles.featureTitle} numberOfLines={2}>{t('about.imageFiltering')}</Text>
@@ -180,7 +180,7 @@ export default function AboutScreen() {
 
         <View style={styles.feature}>
           <View style={styles.featureIcon}>
-            <AlertOctagon size={24} color="#FFD700" />
+            <AlertOctagon size={24} color="#C9A84C" />
           </View>
           <View style={styles.featureContent}>
             <Text style={styles.featureTitle} numberOfLines={2}>{t('about.sosButton')}</Text>
@@ -192,7 +192,7 @@ export default function AboutScreen() {
 
         <View style={styles.feature}>
           <View style={styles.featureIcon}>
-            <Clock size={24} color="#FFD700" />
+            <Clock size={24} color="#C9A84C" />
           </View>
           <View style={styles.featureContent}>
             <Text style={styles.featureTitle} numberOfLines={2}>{t('about.timeRestrictions')}</Text>
@@ -204,7 +204,7 @@ export default function AboutScreen() {
 
         <View style={styles.feature}>
           <View style={styles.featureIcon}>
-            <Users size={24} color="#FFD700" />
+            <Users size={24} color="#C9A84C" />
           </View>
           <View style={styles.featureContent}>
             <Text style={styles.featureTitle} numberOfLines={2}>{t('about.contactWhitelist')}</Text>
@@ -216,7 +216,7 @@ export default function AboutScreen() {
 
         <View style={styles.feature}>
           <View style={styles.featureIcon}>
-            <Lock size={24} color="#FFD700" />
+            <Lock size={24} color="#C9A84C" />
           </View>
           <View style={styles.featureContent}>
             <Text style={styles.featureTitle} numberOfLines={2}>{t('about.dataEncryption')}</Text>
@@ -228,7 +228,7 @@ export default function AboutScreen() {
 
         <View style={styles.feature}>
           <View style={styles.featureIcon}>
-            <FileText size={24} color="#FFD700" />
+            <FileText size={24} color="#C9A84C" />
           </View>
           <View style={styles.featureContent}>
             <Text style={styles.featureTitle} numberOfLines={2}>{t('about.coppaCompliance')}</Text>
@@ -326,30 +326,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 40,
     paddingTop: 20,
-    backgroundColor: '#FFD700',
+    backgroundColor: '#C9A84C',
   },
   iconWrapper: {
-    width: 128,
-    height: 128,
-    borderRadius: 32,
-    backgroundColor: '#0d1b2a',
-    marginBottom: 16,
+    width: 140,
+    height: 140,
+    borderRadius: 36,
+    backgroundColor: '#2A3441',
+    marginBottom: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative',
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(201, 168, 76, 0.3)',
   },
   appIcon: {
-    width: 128,
-    height: 128,
-    borderRadius: 32,
+    width: 140,
+    height: 140,
+    borderRadius: 36,
   },
   iconLabel: {
-    position: 'absolute',
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '800' as const,
-    color: '#FFFFFF',
+    color: '#C9A84C',
     letterSpacing: 3,
+    marginBottom: 4,
   },
   title: {
     fontSize: 36,
@@ -529,7 +535,7 @@ const styles = StyleSheet.create({
   },
   techBullet: {
     fontSize: 20,
-    color: '#FFD700',
+    color: '#C9A84C',
     marginRight: 12,
     fontWeight: '700' as const,
   },

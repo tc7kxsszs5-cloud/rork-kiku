@@ -89,6 +89,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="alerts"
+        options={{
+          href: null, // Скрываем из навигации, доступно через мониторинг
+        }}
+      />
+      <Tabs.Screen
         name="about"
         options={{
           title: "О приложении",

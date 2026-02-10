@@ -213,8 +213,8 @@ export default function MonitoringScreen() {
       <LinearGradient colors={theme.surfaceGradient} style={styles.gradientBackground}>
         <View style={styles.header} testID="monitoring-header">
           <View style={styles.headerTop} testID="monitoring-header-top">
-            <Text style={styles.headerTitle} testID="monitoring-title">KIDS</Text>
-            <Text style={styles.headerSubtitle} testID="monitoring-subtitle">Защита переписок с AI</Text>
+            <Text style={styles.headerTitle} testID="monitoring-title">Safe Zone</Text>
+            <Text style={styles.headerSubtitle} testID="monitoring-subtitle">Безопасный мессенджер</Text>
           </View>
           <View style={styles.headerActions}>
             <SyncStatusIndicator variant="compact" />
@@ -415,13 +415,13 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '800' as const,
-    color: '#FFD700', // Всегда ярко-желтый цвет (золотой) - не зависит от темы
-    letterSpacing: 1,
-    textShadowColor: '#FFA500', // Оранжевая тень для яркости
+    color: '#C9A84C', // Gold из логотипа Safe Zone
+    letterSpacing: 2,
+    textShadowColor: 'rgba(201, 168, 76, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    textShadowRadius: 4,
   },
   headerSubtitle: {
     fontSize: 14,

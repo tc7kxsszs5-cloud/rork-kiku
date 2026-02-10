@@ -477,7 +477,7 @@ export default function ProfileScreen() {
               <UserIcon color="#FFFFFF" size={64} fill="#FFFFFF" />
             </View>
             <View style={styles.childSparkle1}>
-              <Sparkles size={24} color="#FFD700" fill="#FFD700" />
+              <Sparkles size={24} color="#C9A84C" fill="#C9A84C" />
             </View>
             <View style={styles.childSparkle2}>
               <Star size={20} color="#FF6B9D" fill="#FF6B9D" />
@@ -543,7 +543,7 @@ export default function ProfileScreen() {
 
         {/* Декоративные элементы */}
         <View style={styles.childDecorativeStars}>
-          <Star size={32} color="#FFD700" fill="#FFD700" opacity={0.3} />
+          <Star size={32} color="#C9A84C" fill="#C9A84C" opacity={0.3} />
           <Sparkles size={28} color="#FF6B9D" fill="#FF6B9D" opacity={0.2} />
           <Star size={24} color="#4ECDC4" fill="#4ECDC4" opacity={0.25} />
         </View>

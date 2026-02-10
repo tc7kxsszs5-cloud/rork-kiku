@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
   },
   errorContainer: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: '#2A3441',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   errorButton: {
-    backgroundColor: '#facc15',
+    backgroundColor: '#C9A84C',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 999,
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
   errorButtonText: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: '#0f172a',
+    color: '#1E2A3A',
     textTransform: 'uppercase' as const,
   },
   headerBackButton: {
