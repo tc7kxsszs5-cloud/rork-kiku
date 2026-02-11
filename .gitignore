@@ -35,3 +35,9 @@ rork-kiku/
 
 # Junk / temp files
 *.tmp
+
+# Local logs (keep private, do not commit)
+local/command-logs/
+local/session-logs/
+local/chat-exports/
+local/terminal-logs/
