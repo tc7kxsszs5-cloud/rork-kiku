@@ -16,6 +16,7 @@
     "hono": "^4.10.6",
     "pg": "^8.17.2",
     "superjson": "^2.2.1",
+    "vercel": "^50.18.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

@@ -126,8 +126,8 @@ export const EXAMPLE_CUSTOM_EMOJIS: CustomEmojiData[] = [
   {
     id: 'custom_1',
     name: 'KIKU Logo',
-    type: 'image',
-    source: 'https://example.com/kiku-logo.png', // Замените на реальный URL
+    type: 'svg',
+    source: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#C9A84C"><path d="M12 2L4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3z"/></svg>`,
     category: 'brand',
     tags: ['logo', 'kiku', 'brand'],
   },

@@ -135,29 +135,27 @@ describe('MonitoringScreen', () => {
 
       expect(getByTestId('monitoring-screen')).toBeTruthy();
       expect(getByTestId('monitoring-header')).toBeTruthy();
-      expect(getByTestId('monitoring-title')).toBeTruthy();
+      expect(getByTestId('monitoring-search-toggle')).toBeTruthy();
     });
 
-    it('должен отображать заголовок и подзаголовок', () => {
+    it('должен отображать шапку и кнопку фильтров', () => {
       const { getByTestId } = render(<MonitoringScreen />);
 
-      expect(getByTestId('monitoring-title')).toBeTruthy();
-      expect(getByTestId('monitoring-subtitle')).toBeTruthy();
+      expect(getByTestId('monitoring-header')).toBeTruthy();
+      expect(getByTestId('monitoring-filter-toggle')).toBeTruthy();
     });
 
-    it('должен отображать статистику', () => {
-      const { getByText } = render(<MonitoringScreen />);
+    it('должен отображать поисковый плейсхолдер', () => {
+      const { getByPlaceholderText } = render(<MonitoringScreen />);
 
-      expect(getByText('Чатов')).toBeTruthy();
-      expect(getByText('Сообщений')).toBeTruthy();
-      expect(getByText('Тревог')).toBeTruthy();
+      expect(getByPlaceholderText('Поиск по участникам и содержимому сообщений...')).toBeTruthy();
     });
 
     it('должен отображать список чатов', () => {
       const { getByText } = render(<MonitoringScreen />);
-      // FlatList в тесте может не рендерить элементы — проверяем заголовки статистики
-      expect(getByText('Чатов')).toBeTruthy();
-      expect(getByText('Сообщений')).toBeTruthy();
+
+      expect(getByText('Алексей и Мария')).toBeTruthy();
+      expect(getByText('Дмитрий и Анна')).toBeTruthy();
     });
   });
 
@@ -246,24 +244,21 @@ describe('MonitoringScreen', () => {
   });
 
   describe('Статистика', () => {
-    it('должен отображать правильное количество чатов', () => {
-      const { getAllByText } = render(<MonitoringScreen />);
-      expect(getAllByText('2').length).toBeGreaterThan(0);
+    it('должен отображать два чата в списке', () => {
+      const { getByText } = render(<MonitoringScreen />);
+      expect(getByText('Алексей и Мария')).toBeTruthy();
+      expect(getByText('Дмитрий и Анна')).toBeTruthy();
     });
 
-    it('должен отображать правильное количество сообщений', () => {
+    it('должен отображать уровни риска', () => {
       const { getAllByText } = render(<MonitoringScreen />);
-      expect(getAllByText('2').length).toBeGreaterThan(0);
+      expect(getAllByText('Безопасно').length).toBeGreaterThan(0);
+      expect(getAllByText('Высокий').length).toBeGreaterThan(0);
     });
 
-    it('должен отображать правильное количество тревог', () => {
-      const { getAllByText } = render(<MonitoringScreen />);
-      expect(getAllByText('1').length).toBeGreaterThan(0);
-    });
-
-    it('должен показывать бейдж с количеством тревог', () => {
-      const { getAllByText } = render(<MonitoringScreen />);
-      expect(getAllByText('1').length).toBeGreaterThan(0);
+    it('должен показывать бейдж с количеством тревог в шапке', () => {
+      const { getByText } = render(<MonitoringScreen />);
+      expect(getByText('1')).toBeTruthy();
     });
   });
 
@@ -288,12 +283,8 @@ describe('MonitoringScreen', () => {
 
   describe('Отображение чатов', () => {
     it('должен отображать информацию о чате', () => {
-      const { getAllByText, queryByText } = render(<MonitoringScreen />);
-      if (queryByText('Алексей и Мария')) {
-        expect(getAllByText(/Последняя активность/).length).toBeGreaterThan(0);
-      } else {
-        expect(getAllByText('Чатов').length).toBeGreaterThan(0);
-      }
+      const { getAllByText } = render(<MonitoringScreen />);
+      expect(getAllByText(/Последняя активность/).length).toBeGreaterThan(0);
     });
 
     it('должен отображать бейдж риска для чата', () => {
@@ -310,9 +301,9 @@ describe('MonitoringScreen', () => {
         unresolvedAlerts: [],
       });
 
-      const { getByText } = render(<MonitoringScreen />);
-      // При пустых чатах экран всё равно показывает блок статистики
-      expect(getByText('Чатов')).toBeTruthy();
+      const { getByTestId } = render(<MonitoringScreen />);
+      expect(getByTestId('monitoring-screen')).toBeTruthy();
+      expect(getByTestId('monitoring-header')).toBeTruthy();
     });
   });
 
@@ -324,8 +315,8 @@ describe('MonitoringScreen', () => {
         unresolvedAlerts: [],
       });
 
-      const { getAllByText } = render(<MonitoringScreen />);
-      expect(getAllByText('0').length).toBeGreaterThan(0);
+      const { getByTestId } = render(<MonitoringScreen />);
+      expect(getByTestId('monitoring-screen')).toBeTruthy();
     });
 
     it('должен обрабатывать пустой массив чатов', () => {
@@ -335,8 +326,9 @@ describe('MonitoringScreen', () => {
         unresolvedAlerts: [],
       });
 
-      const { getByText } = render(<MonitoringScreen />);
-      expect(getByText('Чатов')).toBeTruthy();
+      const { getByTestId } = render(<MonitoringScreen />);
+      expect(getByTestId('monitoring-screen')).toBeTruthy();
+      expect(getByTestId('monitoring-header')).toBeTruthy();
     });
   });
 });

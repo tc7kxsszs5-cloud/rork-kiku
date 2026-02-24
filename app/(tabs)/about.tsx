@@ -3,10 +3,20 @@ import { View, Text, StyleSheet, ScrollView, Image as RNImage, Pressable, Linkin
 import { AlertOctagon, Image as ImageIcon, Clock, Users, Lock, FileText, Eye } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import appIcon from '@/assets/images/icon.png';
+import appIconLight from '@/assets/images/logo-hands-gold.png';
+import { useThemeMode } from '@/constants/ThemeContext';
 import { PayPalButton, QuickDonateButton } from '@/components/PayPalButton';
 import { logger } from '@/utils/logger';
 
 const PROJECT_URL = 'https://rork.app/p/d8v7u672uumlfpscvnbps';
+
+// ---------- Логотип в «О приложении» — ЗАФИКСИРОВАНО (синхронно с Чатами) ----------
+// Контейнер: 200×200, borderRadius 24. Ночь: icon.png, cover, marginTop контейнера 32, иконки внутри 28.
+// День: logo-hands-gold.png, contain, фон контейнера = theme.backgroundPrimary.
+const LOGO_CONTAINER_SIZE = 200;
+const LOGO_CONTENT_RATIO = 0.42;
+const LOGO_IMAGE_SIZE = Math.round(LOGO_CONTAINER_SIZE / LOGO_CONTENT_RATIO);
+const LOGO_LIGHT_SIZE = 300;
 
 type StageHighlight = {
   title: string;
@@ -17,7 +27,8 @@ type StageHighlight = {
 
 
 export default function AboutScreen() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(undefined, { lng: 'ru' });
+  const { themeMode, theme } = useThemeMode();
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 375;
   const isLargeScreen = width >= 414;
@@ -49,28 +60,49 @@ export default function AboutScreen() {
     },
   ];
 
+  const isDay = themeMode !== 'midnight';
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, isDay && { backgroundColor: theme.backgroundPrimary }]}>
       <ScrollView 
-        style={styles.container}
+        style={[styles.container, isDay && { backgroundColor: theme.backgroundPrimary }]}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
-      <View style={styles.header}>
-        <View style={styles.iconWrapper}>
+      <View style={[styles.header, isDay && { backgroundColor: theme.backgroundPrimary }]}>
+        <View style={[
+          styles.iconWrapper,
+          !isDay && { marginTop: 32 },
+          isDay && {
+            backgroundColor: theme.backgroundPrimary,
+            borderWidth: 0,
+            shadowOpacity: 0,
+            elevation: 0,
+          },
+        ]}>
           <RNImage
-            source={appIcon}
-            style={styles.appIcon}
-            resizeMode="contain"
+            source={themeMode === 'midnight' ? appIcon : appIconLight}
+            style={[
+              styles.appIcon,
+              themeMode === 'midnight' && { marginTop: 28 },
+              themeMode !== 'midnight' && {
+                width: LOGO_LIGHT_SIZE,
+                height: LOGO_LIGHT_SIZE,
+                minWidth: LOGO_LIGHT_SIZE,
+                minHeight: LOGO_LIGHT_SIZE,
+              },
+            ]}
+            resizeMode={themeMode === 'midnight' ? 'cover' : 'contain'}
             testID="about-app-icon"
           />
         </View>
-        <Text style={styles.iconLabel} testID="about-app-icon-label" numberOfLines={1}>
-          Safe Zone
+        <Text style={[styles.appName, isDay && { color: theme.primary }]} testID="about-app-icon-label" numberOfLines={1}>
+          Safe Zone By Kiku
         </Text>
-        <Text style={styles.title} numberOfLines={1}>by KIKU</Text>
-        <Text style={styles.subtitle} numberOfLines={2}>{t('about.subtitle')}</Text>
-        <Text style={styles.version}>{t('about.version')}</Text>
+        <Text style={[styles.subtitle, isDay && { color: theme.textSecondary }]} numberOfLines={2}>{t('about.subtitle')}</Text>
+        <Text style={[styles.version, isDay && { color: theme.textSecondary }]}>{t('about.version')}</Text>
+        <Text style={[styles.vpStage, isDay && { color: theme.textPrimary }]} numberOfLines={0}>
+          {t('about.currentStatusDescription')}
+        </Text>
       </View>
 
       <View style={styles.section}>
@@ -313,11 +345,11 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff9e6',
+    backgroundColor: '#1a1f2e',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff9e6',
+    backgroundColor: '#1a1f2e',
   },
   contentContainer: {
     paddingBottom: 20,
@@ -325,55 +357,59 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     padding: 40,
-    paddingTop: 20,
-    backgroundColor: '#C9A84C',
+    paddingTop: 24,
+    paddingBottom: 32,
+    backgroundColor: '#1a1f2e',
   },
+  // Логотип: окно 200×200, выравнивание по центру; ночной сдвиг задаётся условно в разметке
   iconWrapper: {
-    width: 140,
-    height: 140,
-    borderRadius: 36,
-    backgroundColor: '#2A3441',
+    width: LOGO_CONTAINER_SIZE,
+    height: LOGO_CONTAINER_SIZE,
+    minWidth: LOGO_CONTAINER_SIZE,
+    minHeight: LOGO_CONTAINER_SIZE,
+    borderRadius: 24,
     marginBottom: 20,
+    marginTop: 24,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    elevation: 12,
-    borderWidth: 2,
-    borderColor: 'rgba(201, 168, 76, 0.3)',
+    backgroundColor: 'transparent',
   },
   appIcon: {
-    width: 140,
-    height: 140,
-    borderRadius: 36,
+    width: LOGO_IMAGE_SIZE,
+    height: LOGO_IMAGE_SIZE,
+    minWidth: LOGO_IMAGE_SIZE,
+    minHeight: LOGO_IMAGE_SIZE,
+    borderRadius: 24,
+    overflow: 'hidden',
   },
-  iconLabel: {
-    fontSize: 28,
+  appName: {
+    fontSize: 24,
     fontWeight: '800' as const,
     color: '#C9A84C',
-    letterSpacing: 3,
-    marginBottom: 4,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: '800' as const,
-    color: '#1a1a1a',
-    marginTop: 16,
-    letterSpacing: 2,
+    letterSpacing: 1,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
     fontWeight: '600' as const,
-    color: '#4a4a4a',
-    marginTop: 8,
+    color: '#ffffff',
+    marginTop: 0,
+    textAlign: 'center',
   },
   version: {
-    fontSize: 12,
-    color: '#666',
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
     marginTop: 8,
+  },
+  vpStage: {
+    fontSize: 15,
+    color: '#ffffff',
+    lineHeight: 22,
+    marginTop: 20,
+    textAlign: 'center',
+    paddingHorizontal: 16,
   },
   section: {
     padding: 20,
@@ -382,12 +418,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: '700' as const,
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 16,
   },
   description: {
     fontSize: 15,
-    color: '#666',
+    color: 'rgba(255,255,255,0.85)',
     lineHeight: 24,
   },
   stageGrid: {
@@ -405,14 +441,11 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: '48%',
     maxWidth: '48%',
-    backgroundColor: '#fff',
+    backgroundColor: '#0d1b2a',
     borderRadius: 16,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   stageCardSmall: {
     minWidth: '100%',
@@ -439,13 +472,13 @@ const styles = StyleSheet.create({
   stageValue: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: '#0d1b2a',
+    color: '#ffffff',
     marginBottom: 6,
     flexShrink: 1,
   },
   stageDescription: {
     fontSize: 13,
-    color: '#4a4a4a',
+    color: 'rgba(255,255,255,0.75)',
     lineHeight: 18,
     flexShrink: 1,
   },
@@ -492,20 +525,17 @@ const styles = StyleSheet.create({
   feature: {
     flexDirection: 'row',
     marginBottom: 24,
-    backgroundColor: '#fff',
+    backgroundColor: '#0d1b2a',
     padding: 16,
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   featureIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#FFF9C4',
+    backgroundColor: 'rgba(201, 168, 76, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -517,12 +547,12 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 16,
     fontWeight: '600' as const,
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 4,
   },
   featureDescription: {
     fontSize: 14,
-    color: '#666',
+    color: 'rgba(255,255,255,0.75)',
     lineHeight: 20,
   },
   techList: {
@@ -543,12 +573,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexShrink: 1,
     fontSize: 15,
-    color: '#666',
+    color: 'rgba(255,255,255,0.85)',
     lineHeight: 22,
   },
   contactText: {
     fontSize: 15,
-    color: '#007AFF',
+    color: '#64b5f6',
     marginTop: 8,
   },
   urlCard: {
@@ -578,24 +608,21 @@ const styles = StyleSheet.create({
   },
   licenseCard: {
     marginTop: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#0d1b2a',
     borderRadius: 16,
     padding: 20,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   licenseStatus: {
     fontSize: 16,
     fontWeight: '700' as const,
-    color: '#1a1a1a',
+    color: '#ffffff',
     marginBottom: 8,
   },
   licenseHint: {
     fontSize: 14,
-    color: '#4a4a4a',
+    color: 'rgba(255,255,255,0.75)',
     lineHeight: 20,
     marginTop: 6,
   },
@@ -606,12 +633,12 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: '#999',
+    color: 'rgba(255,255,255,0.6)',
     textAlign: 'center',
   },
   footerSubtext: {
     fontSize: 12,
-    color: '#bbb',
+    color: 'rgba(255,255,255,0.5)',
     marginTop: 8,
     textAlign: 'center',
   },
@@ -621,7 +648,7 @@ const styles = StyleSheet.create({
   },
   donateHint: {
     fontSize: 13,
-    color: '#666',
+    color: 'rgba(255,255,255,0.7)',
     textAlign: 'center',
     marginTop: 12,
     fontStyle: 'italic',

@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>6/8</span>
+                <span class='fraction'>6/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">85.71% </span>
+                <span class="strong">75% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>6/7</span>
+                <span class='fraction'>6/8</span>
             </div>
         
             
@@ -354,13 +354,11 @@
 <a name='L289'></a><a href='#L289'>289</a>
 <a name='L290'></a><a href='#L290'>290</a>
 <a name='L291'></a><a href='#L291'>291</a>
-<a name='L292'></a><a href='#L292'>292</a>
-<a name='L293'></a><a href='#L293'>293</a>
-<a name='L294'></a><a href='#L294'>294</a>
-<a name='L295'></a><a href='#L295'>295</a>
-<a name='L296'></a><a href='#L296'>296</a>
-<a name='L297'></a><a href='#L297'>297</a>
-<a name='L298'></a><a href='#L298'>298</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L292'></a><a href='#L292'>292</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -375,18 +373,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -639,7 +625,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -651,6 +637,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -658,300 +646,294 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * ЯРКАЯ цветовая система KIKU для детей
+ * Цветовая система Safe Zone
+ * 
+ * Палитра на основе логотипа:
+ * - Navy (тёмно-синий) — основной фон, доверие, защита
+ * - Gold (золотой) — акценты, тепло, забота
+ * - Off-white — светлый фон, чистота
  * 
  * Принципы:
- * - Яркие, веселые цвета для детской аудитории
- * - Доминирующие цвета с резкими акцентами
+ * - Премиальный, строгий, но тёплый стиль
+ * - Золотые акценты на тёмном фоне = ощущение безопасности
  * - Контекстно-специфичные цвета для детской безопасности
- * - Яркие, дружелюбные цвета
  */
 &nbsp;
 /**
- * Яркие цвета для детской безопасности
- * Яркие, веселые, привлекательные для детей
+ * Safe Zone Color Tokens
+ * Navy + Gold + статусные цвета
  */
 export const ColorTokens = {
-  // Safety Orange - яркий оранжевый для безопасности
-  // Яркий, дружелюбный, привлекательный
-  safety: {
-    50: '#FFF3E0',
-    100: '#FFE0B2',
-    200: '#FFCC80',
-    300: '#FFB74D',
-    400: '#FFA726',
-    500: '#FF9800', // Яркий основной цвет безопасности
-    600: '#FB8C00',
-    700: '#F57C00',
-    800: '#EF6C00',
-    900: '#E65100',
+  // Navy — основной бренд-цвет (защита, доверие)
+  navy: {
+    50: '#F0F3F7',
+    100: '#D6DDE6',
+    200: '#B0BFCF',
+    300: '#8A9DB8',
+    400: '#6580A0',
+    500: '#4A6484',
+    600: '#3A5070',
+    700: '#2F4260',
+    800: '#2A3441',
+    900: '#1E2A3A',
+    950: '#151E2B',
   },
-  
-  // Trust Blue - яркий синий для доверия
-  // Яркий, веселый, привлекательный
-  trust: {
-    50: '#E3F2FD',
-    100: '#BBDEFB',
-    200: '#90CAF9',
-    300: '#64B5F6',
-    400: '#42A5F5',
-    500: '#2196F3', // Яркий основной цвет доверия
-    600: '#1E88E5',
-    700: '#1976D2',
-    800: '#1565C0',
-    900: '#0D47A1',
+&nbsp;
+  // Gold — акцентный бренд-цвет (тепло, забота, ценность)
+  gold: {
+    50: '#FDF8ED',
+    100: '#F9EDD0',
+    200: '#F2DCA3',
+    300: '#E8C76E',
+    400: '#D4AD4A',
+    500: '#C9A84C',
+    600: '#B8923A',
+    700: '#9A7830',
+    800: '#7D6128',
+    900: '#5E4A1F',
+    950: '#3D3014',
   },
-  
-  // Care Green - яркий зеленый для заботы
-  // Яркий, свежий, привлекательный
+&nbsp;
+  // Care Green — безопасность
   care: {
-    50: '#E8F5E9',
-    100: '#C8E6C9',
-    200: '#A5D6A7',
-    300: '#81C784',
-    400: '#66BB6A',
-    500: '#4CAF50', // Яркий основной цвет заботы
-    600: '#43A047',
-    700: '#388E3C',
-    800: '#2E7D32',
-    900: '#1B5E20',
+    50: '#ECFDF5',
+    100: '#D1FAE5',
+    200: '#A7F3D0',
+    300: '#6EE7B7',
+    400: '#34D399',
+    500: '#10B981',
+    600: '#059669',
+    700: '#047857',
+    800: '#065F46',
+    900: '#064E3B',
   },
-  
-  // Alert Amber - яркий желтый для предупреждений
-  // Яркий, заметный, веселый
-  alert: {
-    50: '#FFFDE7',
-    100: '#FFF9C4',
-    200: '#FFF59D',
-    300: '#FFF176',
-    400: '#FFEE58',
-    500: '#FFEB3B', // Яркий основной цвет предупреждения
-    600: '#FDD835',
-    700: '#FBC02D',
-    800: '#F9A825',
-    900: '#F57F17',
+&nbsp;
+  // Amber — предупреждения
+  amber: {
+    50: '#FFFBEB',
+    100: '#FEF3C7',
+    200: '#FDE68A',
+    300: '#FCD34D',
+    400: '#FBBF24',
+    500: '#F59E0B',
+    600: '#D97706',
+    700: '#B45309',
+    800: '#92400E',
+    900: '#78350F',
   },
-  
-  // Danger Red - яркий красный для критических рисков
-  // Яркий, заметный, но дружелюбный
+&nbsp;
+  // Red — опасность, критические риски
   danger: {
-    50: '#FFEBEE',
-    100: '#FFCDD2',
-    200: '#EF9A9A',
-    300: '#E57373',
-    400: '#EF5350',
-    500: '#F44336', // Яркий основной цвет опасности
-    600: '#E53935',
-    700: '#D32F2F',
-    800: '#C62828',
-    900: '#B71C1C',
+    50: '#FEF2F2',
+    100: '#FEE2E2',
+    200: '#FECACA',
+    300: '#FCA5A5',
+    400: '#F87171',
+    500: '#EF4444',
+    600: '#DC2626',
+    700: '#B91C1C',
+    800: '#991B1B',
+    900: '#7F1D1D',
   },
-  
-  // Neutral - для текста и фонов
-  // Яркие, чистые нейтральные цвета
+&nbsp;
+  // Neutral — тексты и фоны
   neutral: {
-    50: '#FFFFFF',
-    100: '#F5F5F5',
-    200: '#EEEEEE',
-    300: '#E0E0E0',
-    400: '#BDBDBD',
-    500: '#9E9E9E',
-    600: '#757575',
-    700: '#616161',
-    800: '#424242',
-    900: '#212121',
-    950: '#000000',
+    50: '#F5F3EF',    // Off-white (из логотипа)
+    100: '#EDE9E1',
+    200: '#DDD8CE',
+    300: '#C5BFB5',
+    400: '#A09A90',
+    500: '#7D786F',
+    600: '#5E5A53',
+    700: '#45423C',
+    800: '#2E2C28',
+    900: '#1A1917',
+    950: '#0D0C0B',
   },
 };
 &nbsp;
 /**
  * Семантические цвета для тем
- * Уникальные, не клишированные
  */
 export interface SemanticColors {
-  // Backgrounds - теплые, защищающие
   background: {
-    primary: string;      // Доминирующий фон
-    secondary: string;    // Вторичный фон
-    tertiary: string;     // Третичный фон
-    elevated: string;    // Приподнятые поверхности
-    warm: string;        // Теплый акцентный фон
+    primary: string;
+    secondary: string;
+    tertiary: string;
+    elevated: string;
+    warm: string;
   };
-  
-  // Surfaces - структурированные поверхности
+&nbsp;
   surface: {
     primary: string;
     secondary: string;
     muted: string;
     elevated: string;
-    accent: string;      // Акцентная поверхность
+    accent: string;
   };
-  
-  // Text - высокий контраст, но теплый
+&nbsp;
   text: {
-    primary: string;     // Основной текст
-    secondary: string;   // Вторичный текст
-    tertiary: string;    // Третичный текст
-    inverse: string;     // Инверсный текст
-    accent: string;      // Акцентный текст (резкий)
-    warm: string;       // Теплый текст
+    primary: string;
+    secondary: string;
+    tertiary: string;
+    inverse: string;
+    accent: string;
+    warm: string;
   };
-  
-  // Borders - мягкие, но заметные
+&nbsp;
   border: {
     primary: string;
     secondary: string;
     muted: string;
-    accent: string;      // Резкий акцент
-    warm: string;       // Теплая граница
+    accent: string;
+    warm: string;
   };
-  
-  // Interactive - резкие, но не кричащие
+&nbsp;
   interactive: {
-    primary: string;     // Доминирующий
+    primary: string;
     primaryHover: string;
-    secondary: string;   // Резкий акцент
+    secondary: string;
     secondaryHover: string;
-    accent: string;     // Яркий акцент
+    accent: string;
     accentHover: string;
-    safety: string;     // Цвет безопасности
-    trust: string;      // Цвет доверия
+    safety: string;
+    trust: string;
   };
-  
-  // Status - контекстно-специфичные
+&nbsp;
   status: {
-    safe: string;       // Безопасно (care green)
-    warning: string;    // Предупреждение (alert amber)
-    danger: string;    // Опасность (danger red)
-    info: string;       // Информация (trust blue)
+    safe: string;
+    warning: string;
+    danger: string;
+    info: string;
   };
 }
 &nbsp;
 /**
- * Light Theme - яркий, дружелюбный для детей
- * Яркие цвета с насыщенными акцентами
+ * Light Theme — тёплый, светлый с золотыми акцентами
  */
 export const lightThemeColors: SemanticColors = {
   background: {
-    primary: ColorTokens.safety[50],      // Яркий теплый фон
+    primary: ColorTokens.neutral[50],         // Off-white фон
     secondary: '#FFFFFF',
-    tertiary: ColorTokens.alert[50],      // Яркий желтый оттенок
+    tertiary: ColorTokens.gold[50],
     elevated: '#FFFFFF',
-    warm: ColorTokens.alert[100],         // Яркий теплый акцент
+    warm: ColorTokens.gold[100],
   },
   surface: {
     primary: '#FFFFFF',
-    secondary: ColorTokens.safety[50],
+    secondary: ColorTokens.neutral[50],
     muted: ColorTokens.neutral[100],
     elevated: '#FFFFFF',
-    accent: ColorTokens.safety[100],      // Яркая акцентная поверхность
+    accent: ColorTokens.gold[50],
   },
   text: {
-    primary: ColorTokens.neutral[900],    // Четкий контраст
-    secondary: ColorTokens.neutral[700],
-    tertiary: ColorTokens.neutral[600],
+    primary: ColorTokens.navy[900],
+    secondary: ColorTokens.navy[600],
+    tertiary: ColorTokens.navy[400],
     inverse: '#FFFFFF',
-    accent: ColorTokens.safety[600],      // Яркий акцент
-    warm: ColorTokens.safety[700],        // Яркий теплый текст
+    accent: ColorTokens.gold[600],
+    warm: ColorTokens.gold[700],
   },
   border: {
-    primary: ColorTokens.neutral[300],
-    secondary: ColorTokens.safety[300],
-    muted: ColorTokens.neutral[200],
-    accent: ColorTokens.safety[500],      // Яркий акцент
-    warm: ColorTokens.alert[400],         // Яркая теплая граница
+    primary: ColorTokens.neutral[200],
+    secondary: ColorTokens.gold[200],
+    muted: ColorTokens.neutral[100],
+    accent: ColorTokens.gold[500],
+    warm: ColorTokens.gold[300],
   },
   interactive: {
-    primary: ColorTokens.safety[500],     // Яркий доминирующий
-    primaryHover: ColorTokens.safety[600],
-    secondary: ColorTokens.trust[500],    // Яркий акцент
-    secondaryHover: ColorTokens.trust[600],
-    accent: ColorTokens.alert[500],       // Яркий акцент
-    accentHover: ColorTokens.alert[600],
-    safety: ColorTokens.safety[500],
-    trust: ColorTokens.trust[500],
+    primary: ColorTokens.navy[800],
+    primaryHover: ColorTokens.navy[700],
+    secondary: ColorTokens.gold[500],
+    secondaryHover: ColorTokens.gold[600],
+    accent: ColorTokens.gold[400],
+    accentHover: ColorTokens.gold[500],
+    safety: ColorTokens.navy[800],
+    trust: ColorTokens.navy[600],
   },
   status: {
-    safe: ColorTokens.care[500],          // Яркий зеленый
-    warning: ColorTokens.alert[500],      // Яркий желтый
-    danger: ColorTokens.danger[500],      // Яркий красный
-    info: ColorTokens.trust[500],         // Яркий синий
+    safe: ColorTokens.care[500],
+    warning: ColorTokens.amber[500],
+    danger: ColorTokens.danger[500],
+    info: ColorTokens.navy[500],
   },
 };
 &nbsp;
 /**
- * Dark Theme - глубокий с яркими акцентами
- * Доминирующий темный с яркими неоновыми акцентами для детей
+ * Dark Theme — глубокий navy с золотыми акцентами
+ * Основан на цветах логотипа (тёмный квадрат + золотые руки)
  */
 export const darkThemeColors: SemanticColors = {
   background: {
-    primary: ColorTokens.neutral[950],   // Доминирующий темный
-    secondary: ColorTokens.neutral[900],
-    tertiary: ColorTokens.neutral[800],
-    elevated: ColorTokens.neutral[800],
-    warm: ColorTokens.safety[900],       // Теплый акцент
+    primary: ColorTokens.navy[950],
+    secondary: ColorTokens.navy[900],
+    tertiary: ColorTokens.navy[800],
+    elevated: ColorTokens.navy[800],
+    warm: ColorTokens.gold[900],
   },
   surface: {
-    primary: ColorTokens.neutral[900],
-    secondary: ColorTokens.neutral[800],
-    muted: ColorTokens.neutral[700],
-    elevated: ColorTokens.neutral[800],
-    accent: ColorTokens.safety[800],     // Акцентная поверхность
+    primary: ColorTokens.navy[900],
+    secondary: ColorTokens.navy[800],
+    muted: ColorTokens.navy[700],
+    elevated: ColorTokens.navy[800],
+    accent: ColorTokens.gold[900],
   },
   text: {
-    primary: ColorTokens.neutral[50],    // Резкий контраст
+    primary: ColorTokens.neutral[50],
     secondary: ColorTokens.neutral[300],
-    tertiary: ColorTokens.neutral[500],
-    inverse: ColorTokens.neutral[950],
-    accent: ColorTokens.safety[400],     // Яркий неоновый акцент
-    warm: ColorTokens.alert[400],        // Яркий неоновый текст
+    tertiary: ColorTokens.neutral[400],
+    inverse: ColorTokens.navy[950],
+    accent: ColorTokens.gold[400],
+    warm: ColorTokens.gold[300],
   },
   border: {
-    primary: ColorTokens.neutral[700],
-    secondary: ColorTokens.neutral[600],
-    muted: ColorTokens.neutral[800],
-    accent: ColorTokens.safety[500],     // Яркий неоновый акцент
-    warm: ColorTokens.alert[500],       // Яркая неоновая граница
+    primary: ColorTokens.navy[700],
+    secondary: ColorTokens.navy[600],
+    muted: ColorTokens.navy[800],
+    accent: ColorTokens.gold[500],
+    warm: ColorTokens.gold[600],
   },
   interactive: {
-    primary: ColorTokens.safety[500],    // Яркий доминирующий
-    primaryHover: ColorTokens.safety[400],
-    secondary: ColorTokens.trust[500],   // Яркий акцент
-    secondaryHover: ColorTokens.trust[400],
-    accent: ColorTokens.alert[500],      // Яркий неоновый акцент
-    accentHover: ColorTokens.alert[400],
-    safety: ColorTokens.safety[500],
-    trust: ColorTokens.trust[500],
+    primary: ColorTokens.gold[500],
+    primaryHover: ColorTokens.gold[400],
+    secondary: ColorTokens.navy[400],
+    secondaryHover: ColorTokens.navy[300],
+    accent: ColorTokens.gold[400],
+    accentHover: ColorTokens.gold[300],
+    safety: ColorTokens.gold[500],
+    trust: ColorTokens.navy[400],
   },
   status: {
-    safe: ColorTokens.care[500],         // Яркий зеленый
-    warning: ColorTokens.alert[500],      // Яркий желтый
-    danger: ColorTokens.danger[500],      // Яркий красный
-    info: ColorTokens.trust[500],         // Яркий синий
+    safe: ColorTokens.care[400],
+    warning: ColorTokens.amber[400],
+    danger: ColorTokens.danger[400],
+    info: ColorTokens.navy[300],
   },
 };
 &nbsp;
 /**
  * Хелпер для получения цвета из токена
  */
-export const getColor = <span class="fstat-no" title="function not covered" >(t</span>oken: keyof typeof ColorTokens, shade: keyof typeof ColorTokens.safety): string =&gt; {
-<span class="cstat-no" title="statement not covered" >  return ColorTokens[token][shade];</span>
+export const getColor = <span class="fstat-no" title="function not covered" >(t</span>oken: keyof typeof ColorTokens, shade: number): string =&gt; {
+  const tokenObj = <span class="cstat-no" title="statement not covered" >ColorTokens[token] as Record&lt;number, string&gt;;</span>
+<span class="cstat-no" title="statement not covered" >  return tokenObj[shade] || '';</span>
 };
 &nbsp;
 /**
  * Хелпер для создания градиентов
- * Уникальные, не клишированные
  */
 export const createGradient = <span class="fstat-no" title="function not covered" >(c</span>olors: string[]): string[] =&gt; <span class="cstat-no" title="statement not covered" >colors;</span>
 &nbsp;
 /**
- * Уникальные градиенты для KIKU
+ * Градиенты Safe Zone
  */
 export const Gradients = {
-  safety: [ColorTokens.safety[400], ColorTokens.safety[600]],
-  trust: [ColorTokens.trust[400], ColorTokens.trust[600]],
+  brand: [ColorTokens.navy[800], ColorTokens.navy[950]],
+  gold: [ColorTokens.gold[400], ColorTokens.gold[600]],
+  safety: [ColorTokens.navy[700], ColorTokens.navy[900]],
+  trust: [ColorTokens.navy[600], ColorTokens.navy[800]],
   care: [ColorTokens.care[400], ColorTokens.care[600]],
-  warm: [ColorTokens.alert[300], ColorTokens.safety[400]],
+  warm: [ColorTokens.gold[300], ColorTokens.gold[500]],
   danger: [ColorTokens.danger[400], ColorTokens.danger[600]],
 };
 &nbsp;</pre></td></tr></table></pre>
@@ -961,7 +943,7 @@ export const Gradients = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-02T09:49:44.765Z
+                at 2026-02-18T09:36:04.955Z
             </div>
         <script src="../prettify.js"></script>
         <script>

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">7.14% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>1/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">88.88% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/9</span>
+                <span class='fraction'>8/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">8.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>1/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -171,29 +171,27 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -210,7 +208,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -260,35 +260,35 @@ interface ChatBackgroundPickerProps {
   onClose?: () =&gt; void;
 }
 &nbsp;
-export function <span class="fstat-no" title="function not covered" >ChatBackgroundPicker(</span>{ chatId, onSelect, visible = <span class="branch-0 cbranch-no" title="branch not covered" >true,</span> onClose }: ChatBackgroundPickerProps) {
-  const { backgrounds, setChatBackground } = <span class="cstat-no" title="statement not covered" >useChatBackgrounds();</span>
-  const { theme } = <span class="cstat-no" title="statement not covered" >useThemeMode();</span>
-  const styles = <span class="cstat-no" title="statement not covered" >createStyles(theme);</span>
+export function ChatBackgroundPicker({ chatId, onSelect, visible = true, onClose }: ChatBackgroundPickerProps) {
+  const { backgrounds, setChatBackground } = useChatBackgrounds();
+  const { theme } = useThemeMode();
+  const styles = createStyles(theme);
 &nbsp;
-  const handleSelect = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (backgroundId: string) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    await setChatBackground(chatId, backgroundId);</span>
-<span class="cstat-no" title="statement not covered" >    onSelect?.(backgroundId);</span>
-<span class="cstat-no" title="statement not covered" >    onClose?.();</span>
+  const handleSelect = async (backgroundId: string) =&gt; {
+    await setChatBackground(chatId, backgroundId);
+    onSelect?.(backgroundId);
+    onClose?.();
   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  if (!visible) <span class="cstat-no" title="statement not covered" >return null;</span></span>
+  if (!visible) return null;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;View style={styles.container}&gt;
       &lt;Text style={styles.title}&gt;Выберите фон чата&lt;/Text&gt;
       &lt;View style={styles.grid}&gt;
-        {backgrounds.map(<span class="fstat-no" title="function not covered" >(b</span>g) =&gt; (
-<span class="cstat-no" title="statement not covered" >          &lt;TouchableOpacity</span>
+        {backgrounds.map((bg) =&gt; (
+          &lt;TouchableOpacity
             key={bg.id}
             style={styles.backgroundItem}
-            onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >handleSelect(bg.id)}</span>
+            onPress={() =&gt; handleSelect(bg.id)}
           &gt;
             &lt;View
               style={[
                 styles.backgroundPreview,
                 bg.type === 'color' &amp;&amp; { backgroundColor: bg.value as string },
                 bg.type === 'gradient' &amp;&amp; {
-                  backgroundColor: Array.isArray(bg.value) ? bg.value[0] : '#FFFFFF',
+                  backgroundColor: Array.isArray(bg.value) ? bg.value[0] : <span class="branch-1 cbranch-no" title="branch not covered" >'#FFFFFF',</span>
                 },
               ]}
             /&gt;
@@ -300,7 +300,7 @@ export function <span class="fstat-no" title="function not covered" >ChatBackgro
   );
 }
 &nbsp;
-const createStyles = <span class="fstat-no" title="function not covered" >(t</span>heme: any) =&gt; <span class="cstat-no" title="statement not covered" >StyleSheet.create({</span>
+const createStyles = (theme: any) =&gt; StyleSheet.create({
   container: {
     padding: 16,
   },
@@ -340,7 +340,7 @@ const createStyles = <span class="fstat-no" title="function not covered" >(t</sp
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-02T09:49:44.765Z
+                at 2026-02-18T09:36:04.955Z
             </div>
         <script src="../prettify.js"></script>
         <script>

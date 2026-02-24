@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/83</span>
+                <span class='fraction'>0/85</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/82</span>
+                <span class='fraction'>0/84</span>
             </div>
         
             
@@ -330,7 +330,11 @@
 <a name='L265'></a><a href='#L265'>265</a>
 <a name='L266'></a><a href='#L266'>266</a>
 <a name='L267'></a><a href='#L267'>267</a>
-<a name='L268'></a><a href='#L268'>268</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L268'></a><a href='#L268'>268</a>
+<a name='L269'></a><a href='#L269'>269</a>
+<a name='L270'></a><a href='#L270'>270</a>
+<a name='L271'></a><a href='#L271'>271</a>
+<a name='L272'></a><a href='#L272'>272</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -346,6 +350,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -373,7 +378,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -383,6 +390,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -595,10 +604,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { RiskLevel, RiskAnalysis } from './types';
 import { analyzeMessageWithRealAI, getAIConfig } from '@/utils/aiService';
+import { trpcClient } from '@/lib/trpc';
 import { logger } from '@/utils/logger';
 &nbsp;
 /**
@@ -640,15 +649,19 @@ export async function <span class="fstat-no" title="function not covered" >analy
   // Если включен расширенный AI анализ
 <span class="cstat-no" title="statement not covered" >  if (finalConfig.useAdvancedAI) {</span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
-      // Используем реальный AI API если настроен
       const aiConfig = <span class="cstat-no" title="statement not covered" >getAIConfig();</span>
-<span class="cstat-no" title="statement not covered" >      if (aiConfig.provider !== 'local' &amp;&amp; aiConfig.apiKey) {</span>
-<span class="cstat-no" title="statement not covered" >        logger.debug('Using real AI API for analysis', { provider: aiConfig.provider });</span>
-        const realAIAnalysis = <span class="cstat-no" title="statement not covered" >await analyzeMessageWithRealAI(text, aiConfig);</span>
-        // Объединяем с базовым анализом для большей точности
-<span class="cstat-no" title="statement not covered" >        return combineAnalyses(basicAnalysis, realAIAnalysis);</span>
+      // Prefer backend proxy (keeps API key on server); no client-side API key (security)
+<span class="cstat-no" title="statement not covered" >      if (aiConfig.provider !== 'local') {</span>
+<span class="cstat-no" title="statement not covered" >        try {</span>
+          const backendResult = <span class="cstat-no" title="statement not covered" >await trpcClient.ai.analyzeMessage.query({ text });</span>
+<span class="cstat-no" title="statement not covered" >          logger.debug('Using backend AI proxy for analysis', { provider: aiConfig.provider });</span>
+<span class="cstat-no" title="statement not covered" >          return combineAnalyses(basicAnalysis, backendResult);</span>
+        } catch (backendError) {
+<span class="cstat-no" title="statement not covered" >          logger.warn('Backend AI proxy failed, using heuristics', {</span>
+            error: backendError instanceof Error ? backendError.message : String(backendError),
+          });
+        }
       }
-      
       // Fallback на улучшенный эвристический анализ
       const advancedAnalysis = <span class="cstat-no" title="statement not covered" >await analyzeWithAdvancedHeuristics(text);</span>
 <span class="cstat-no" title="statement not covered" >      return combineAnalyses(basicAnalysis, advancedAnalysis);</span>
@@ -863,7 +876,6 @@ function <span class="fstat-no" title="function not covered" >analyzeImageWithRu
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return { blocked: false, reasons: [] };</span>
 }
-&nbsp;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -871,7 +883,7 @@ function <span class="fstat-no" title="function not covered" >analyzeImageWithRu
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-02T09:49:44.765Z
+                at 2026-02-18T09:36:04.955Z
             </div>
         <script src="../prettify.js"></script>
         <script>

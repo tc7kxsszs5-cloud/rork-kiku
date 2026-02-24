@@ -24,7 +24,8 @@
 | **Location** | `utils/aiService.ts` (getAIConfig), `.env` (EXPO_PUBLIC_OPENAI_API_KEY) |
 | **Evidence** | `Constants.expoConfig?.extra?.openaiApiKey \|\| process.env.OPENAI_API_KEY` — при сборке Expo переменные EXPO_PUBLIC_* встраиваются в bundle и доступны любому пользователю приложения. |
 | **Impact** | Утечка OpenAI API ключа → несанкционированное использование, расход средств, компрометация аккаунта. |
-| **Fix** | Реализован backend proxy: процедура `ai.analyzeMessage` на backend использует серверный `OPENAI_API_KEY`; клиент вызывает только tRPC, ключ на клиенте не передаётся. |
+| **Fix** | Реализован backend proxy: процедура `ai.analyzeMessage` на backend использует серверный `OPENAI_API_KEY`; клиент вызывает тол
+ько tRPC, ключ на клиенте не передаётся. |
 | **Status** | ✅ Исправлено (backend proxy + клиент использует backend при доступности) |
 
 ---
@@ -167,14 +168,4 @@
 
 ---
 
-*Отчёт подготовлен в соответствии с security best practices (OWASP, React/Express security specs).*
-
----
-
-## 8. Production Checklist (2026-02-08)
-
-1. **Vercel Production env**: `DATABASE_URL`, `OPENAI_API_KEY`, `JWT_SECRET`, `SUPABASE_*` добавлены.
-2. **Публичный доступ**: Password Protection выключен для production домена; `https://rork-kiku.vercel.app` отвечает `200`.
-3. **EAS Production env (frontend)**: заполнены `EXPO_PUBLIC_API_URL`, `EXPO_PUBLIC_BACKEND_URL`, `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
-4. **API health-check**: `/` и `/api/trpc` доступны (HTTP `200`/`204`).
-5. **Unit tests**: `bun run test:unit` — 41/42 suites passed, 1 skipped, 642 tests passed.
+    *Отчёт подготовлен в соответствии с security best practices (OWASP, React/Express security specs).  

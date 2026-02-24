@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
-import { StyleSheet, Platform, View, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Platform, View, Text, TouchableOpacity, Image, SafeAreaView } from "react-native";
 import { ChevronLeft } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MonitoringProvider } from "@/constants/MonitoringContext";
@@ -28,6 +28,33 @@ import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
 import { applyGlobalCursorStyles } from "@/utils/cursorStyles";
 import { initializeTestCustomEmojis } from "@/utils/initCustomEmojis";
+
+const splashLogo = require("@/assets/images/logo-hands-gold.png");
+
+const LOGO_SIZE = 160;
+const TITLE_GAP = 20;
+
+function CustomSplashScreen() {
+  return (
+    <SafeAreaView style={splashStyles.wrapper}>
+      <View style={splashStyles.container}>
+        <View style={splashStyles.content}>
+          <View style={splashStyles.logoWrap}>
+            <Image
+              source={splashLogo}
+              style={[
+                splashStyles.logo,
+                Platform.OS === 'web' && { objectFit: 'contain' as const },
+              ]}
+              resizeMode="contain"
+            />
+          </View>
+          <Text style={splashStyles.title}>Safe Zone</Text>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
 
 // Применяем пользовательские курсоры для web
 try {
@@ -169,8 +196,8 @@ function RootLayoutNav() {
     const authRoutes = ['role-selection', 'register-parent', 'register-child'];
     const inAuthGroup = authRoutes.includes(currentRoute);
 
-    // Тестовая веб-версия: без авторизации сразу войти как демо и открыть чаты
-    if (!isAuthenticated && isWebDemoMode() && login && setUser && !autoDemoDoneRef.current) {
+    // Тестовый режим: без авторизации сразу войти как демо и открыть чаты
+    if (!isAuthenticated && login && setUser && !autoDemoDoneRef.current) {
       autoDemoDoneRef.current = true;
       (async () => {
         try {
@@ -192,7 +219,7 @@ function RootLayoutNav() {
       return;
     }
 
-    // Не авторизован: вести на выбор роли (кроме тестового веба, где уже сделали авто-демо)
+    // Не авторизован: вести на выбор роли (кроме тестового режима, где уже сделали авто-демо)
     if (!isAuthenticated) {
       if (!inAuthGroup) {
         const timer = setTimeout(() => {
@@ -387,20 +414,17 @@ export default function RootLayout() {
       return;
     }
     
-    // Для нативных платформ запускаем инициализацию
-    initializeApp();
-
-    SplashScreen.hideAsync()
-      .catch((error) => {
-        import('@/utils/logger').then(({ logger }) => {
-          logger.error('Failed to hide splash screen', error instanceof Error ? error : new Error(String(error)), { component: 'RootLayout', action: 'hideSplashScreen' });
-        });
-      })
-      .finally(() => {
-        if (isMounted) {
-          setIsReady(true);
-        }
+    // Скрываем нативный сплеш, чтобы показать кастомный (логотип + Safe Zone)
+    SplashScreen.hideAsync().catch((error) => {
+      import('@/utils/logger').then(({ logger }) => {
+        logger.error('Failed to hide splash screen', error instanceof Error ? error : new Error(String(error)), { component: 'RootLayout', action: 'hideSplashScreen' });
       });
+    });
+
+    // Инициализация и переход в приложение
+    initializeApp().then(() => {
+      if (isMounted) setIsReady(true);
+    });
 
     return () => {
       isMounted = false;
@@ -408,7 +432,7 @@ export default function RootLayout() {
   }, []);
 
   if (!isReady) {
-    return null;
+    return <CustomSplashScreen />;
   }
 
   return (
@@ -419,6 +443,45 @@ export default function RootLayout() {
     </AppProviders>
   );
 }
+
+const splashStyles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  content: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  logoWrap: {
+    width: LOGO_SIZE,
+    height: LOGO_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: TITLE_GAP,
+    overflow: 'hidden',
+  },
+  logo: {
+    width: LOGO_SIZE,
+    height: LOGO_SIZE,
+    maxWidth: LOGO_SIZE,
+    maxHeight: LOGO_SIZE,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    letterSpacing: 0.8,
+    textAlign: 'center',
+  },
+});
 
 const styles = StyleSheet.create({
   container: {

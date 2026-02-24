@@ -25,7 +25,46 @@ interface Call {
 export default function CallsScreen() {
   const router = useRouter();
   const { theme } = useThemeMode();
-  const [calls] = useState<Call[]>([]);
+  const [calls] = useState<Call[]>([
+    {
+      id: '1',
+      contactName: 'Анна Иванова',
+      phoneNumber: '+7 999 123-45-67',
+      type: 'video',
+      direction: 'incoming',
+      status: 'answered',
+      duration: 342,
+      timestamp: Date.now() - 1000 * 60 * 30,
+    },
+    {
+      id: '2',
+      contactName: 'Дмитрий Смирнов',
+      phoneNumber: '+7 999 234-56-78',
+      type: 'audio',
+      direction: 'outgoing',
+      status: 'answered',
+      duration: 125,
+      timestamp: Date.now() - 1000 * 60 * 60 * 2,
+    },
+    {
+      id: '3',
+      contactName: 'Мария Петрова',
+      phoneNumber: '+7 999 345-67-89',
+      type: 'audio',
+      direction: 'incoming',
+      status: 'missed',
+      timestamp: Date.now() - 1000 * 60 * 60 * 5,
+    },
+    {
+      id: '4',
+      contactName: 'Алексей Козлов',
+      phoneNumber: '+7 999 456-78-90',
+      type: 'video',
+      direction: 'outgoing',
+      status: 'rejected',
+      timestamp: Date.now() - 1000 * 60 * 60 * 24,
+    },
+  ]);
 
   const styles = createStyles(theme);
 

@@ -7,10 +7,22 @@ import {
   TouchableOpacity,
   TextInput,
   Animated,
+  Image,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+
+// ---------- Логотип в шапке Чатов — ЗАФИКСИРОВАНО (не менять без согласования) ----------
+// Контейнер: 200×200, borderRadius 24. Ночь: иконка icon.png, cover, marginTop контейнера 32, иконки внутри 28.
+// День: иконка logo-hands-gold.png, contain, фон контейнера = theme.backgroundPrimary. Градиент шапки: heroGradient.
+// При смене темы меняются только цвета/картинка, не расположение (кроме ночного сдвига иконки вниз).
+/** Размер контейнера логотипа в шапке */
+const LOGO_BOX = 160;
+/** Размер картинки — чуть меньше контейнера для отступов */
+const LOGO_IMG = Math.round(LOGO_BOX * 0.85);
 import { useRouter } from 'expo-router';
 import { MessageCircle, AlertTriangle, Shield, Search, X, Calendar, Users, Filter } from 'lucide-react-native';
+import logoHands from '@/assets/images/logo-hands-gold-trimmed.png';
 import { useMonitoring } from '@/constants/MonitoringContext';
 import { Chat, RiskLevel } from '@/constants/types';
 import { HapticFeedback } from '@/constants/haptics';
@@ -40,7 +52,7 @@ type DateFilter = 'all' | 'today' | 'week' | 'month';
 export default function MonitoringScreen() {
   const router = useRouter();
   const { chats, unresolvedAlerts } = useMonitoring();
-  const { theme } = useThemeMode();
+  const { theme, themeMode } = useThemeMode();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRiskFilter, setSelectedRiskFilter] = useState<RiskLevel | 'all'>('all');
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
@@ -210,12 +222,36 @@ export default function MonitoringScreen() {
 
   return (
     <View style={styles.container} testID="monitoring-screen">
-      <LinearGradient colors={theme.surfaceGradient} style={styles.gradientBackground}>
-        <View style={styles.header} testID="monitoring-header">
-          <View style={styles.headerTop} testID="monitoring-header-top">
-            <Text style={styles.headerTitle} testID="monitoring-title">Safe Zone</Text>
-            <Text style={styles.headerSubtitle} testID="monitoring-subtitle">Безопасный мессенджер</Text>
+      <LinearGradient
+        colors={themeMode === 'midnight' ? theme.surfaceGradient : theme.heroGradient}
+        style={styles.gradientBackground}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+      >
+        <View style={[styles.header, ]} testID="monitoring-header">
+          <View style={[
+            styles.headerLogoWrapper,
+            {
+              width: LOGO_BOX,
+              height: LOGO_BOX,
+              backgroundColor: '#131b2e',
+              borderRadius: 28,
+              overflow: 'hidden',
+              justifyContent: 'center',
+              alignItems: 'center',
+            },
+          ]}>
+            <Image
+              source={logoHands}
+              style={{
+                width: LOGO_IMG,
+                height: LOGO_IMG,
+                ...(Platform.OS === 'web' && { objectFit: 'contain' as const }),
+              }}
+              resizeMode="contain"
+            />
           </View>
+          <View style={styles.headerSpacer} />
           <View style={styles.headerActions}>
             <SyncStatusIndicator variant="compact" />
             <TouchableOpacity style={styles.iconButton} onPress={toggleSearch} testID="monitoring-search-toggle">
@@ -320,50 +356,6 @@ export default function MonitoringScreen() {
           </View>
         )}
 
-        <View style={styles.filterContainer}>
-          <TouchableOpacity
-            style={[styles.filterChip, selectedRiskFilter === 'all' && styles.filterChipActive]}
-            onPress={() => handleRiskFilter('all')}
-          >
-            <Text style={[styles.filterChipText, selectedRiskFilter === 'all' && styles.filterChipTextActive]}>Все</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterChip, selectedRiskFilter === 'safe' && styles.filterChipActive, { borderColor: RISK_COLORS.safe }]}
-            onPress={() => handleRiskFilter('safe')}
-          >
-            <Text style={[styles.filterChipText, selectedRiskFilter === 'safe' && styles.filterChipTextActive]}>Безопасно</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterChip, selectedRiskFilter === 'medium' && styles.filterChipActive, { borderColor: RISK_COLORS.medium }]}
-            onPress={() => handleRiskFilter('medium')}
-          >
-            <Text style={[styles.filterChipText, selectedRiskFilter === 'medium' && styles.filterChipTextActive]}>Средний</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterChip, selectedRiskFilter === 'high' && styles.filterChipActive, { borderColor: RISK_COLORS.high }]}
-            onPress={() => handleRiskFilter('high')}
-          >
-            <Text style={[styles.filterChipText, selectedRiskFilter === 'high' && styles.filterChipTextActive]}>Высокий</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <MessageCircle size={28} color={theme.textPrimary} />
-            <Text style={styles.statNumber}>{totalChats}</Text>
-            <Text style={styles.statLabel}>Чатов</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Shield size={28} color="#10b981" />
-            <Text style={styles.statNumber}>{totalMessages}</Text>
-            <Text style={styles.statLabel}>Сообщений</Text>
-          </View>
-          <View style={styles.statCard}>
-            <AlertTriangle size={28} color="#ef4444" />
-            <Text style={styles.statNumber}>{unresolvedAlerts.length}</Text>
-            <Text style={styles.statLabel}>Тревог</Text>
-          </View>
-        </View>
       </LinearGradient>
 
       <FlatList
@@ -371,6 +363,7 @@ export default function MonitoringScreen() {
         renderItem={renderChat}
         keyExtractor={(item) => item.id}
         extraData={filteredChats.length}
+        style={styles.listBackground}
         contentContainerStyle={styles.listContainer}
         initialNumToRender={10}
         maxToRenderPerBatch={10}
@@ -402,32 +395,25 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     paddingBottom: 16,
     borderBottomLeftRadius: 32,
     borderBottomRightRadius: 32,
+    minHeight: 1,
+    width: '100%',
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 12,
   },
-  headerTop: {
+  headerLogoWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+    marginRight: 12,
+    marginTop: 0,
+  },
+  headerSpacer: {
     flex: 1,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: '800' as const,
-    color: '#C9A84C', // Gold из логотипа Safe Zone
-    letterSpacing: 2,
-    textShadowColor: 'rgba(201, 168, 76, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    fontWeight: '500' as const,
-    color: theme.textSecondary,
-    marginTop: 4,
   },
   headerActions: {
     flexDirection: 'row',
@@ -556,9 +542,11 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
     gap: 10,
+    justifyContent: 'flex-start',
   },
   statCard: {
-    flex: 1,
+    width: 150,
+    maxWidth: 160,
     backgroundColor: theme.card,
     borderRadius: 16,
     padding: 16,
@@ -598,6 +586,10 @@ const createStyles = (theme: ThemePalette) => StyleSheet.create({
     fontWeight: '600' as const,
     color: theme.textPrimary,
     marginTop: 16,
+  },
+  listBackground: {
+    flex: 1,
+    backgroundColor: theme.backgroundPrimary,
   },
   listContainer: {
     padding: 16,

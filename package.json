@@ -132,7 +132,7 @@
     "react-native-svg": "15.12.1",
     "react-native-web": "^0.21.0",
     "superjson": "^2.2.5",
-    "vercel": "^50.13.2",
+    "vercel": "^50.18.0",
     "zod": "^4.1.13",
     "zustand": "^5.0.2"
   },
@@ -153,6 +153,7 @@
     "jest-expo": "^54.0.16",
     "playwright": "^1.58.0",
     "react-test-renderer": "19.1.0",
+    "sharp": "^0.34.5",
     "typescript": "~5.8.3"
   },
   "overrides": {

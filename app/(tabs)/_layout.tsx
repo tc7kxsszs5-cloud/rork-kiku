@@ -1,10 +1,12 @@
 import { Tabs } from "expo-router";
-import { MessageCircle, Info, User, Settings, Trophy, BookOpen, Users, Phone } from "lucide-react-native";
+import { MessageCircle, User, Settings, Users, Phone } from "lucide-react-native";
 import React from "react";
 import { StyleSheet } from "react-native";
 import { useThemeMode } from "@/constants/ThemeContext";
 import { ThemeModeToggle } from "@/components/ThemeModeToggle";
 
+// Нижняя панель: Чаты, Контакты, Звонки, Настройки, Профиль.
+// Остальные экраны (Достижения, Уроки, О приложении, Аналитика и т.д.) доступны из Профиля.
 export default function TabLayout() {
   const { theme } = useThemeMode();
   return (
@@ -56,49 +58,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="analytics"
-        options={{
-          href: null, // Скрываем из навигации, доступно только через профиль
-        }}
-      />
-      <Tabs.Screen
-        name="achievements"
-        options={{
-          title: "Достижения",
-          tabBarIcon: ({ color }: { color: string }) => <Trophy color={color} size={24} />,
-        }}
-      />
-      <Tabs.Screen
-        name="lessons"
-        options={{
-          title: "Уроки",
-          tabBarIcon: ({ color }: { color: string }) => <BookOpen color={color} size={24} />,
-        }}
-      />
-      <Tabs.Screen
-        name="custom-emojis"
-        options={{
-          href: null, // Скрываем из навигации, доступно только через профиль
-        }}
-      />
-      <Tabs.Screen
         name="messenger-settings"
         options={{
           title: "Настройки",
           tabBarIcon: ({ color }: { color: string }) => <Settings color={color} size={24} />,
-        }}
-      />
-      <Tabs.Screen
-        name="alerts"
-        options={{
-          href: null, // Скрываем из навигации, доступно через мониторинг
-        }}
-      />
-      <Tabs.Screen
-        name="about"
-        options={{
-          title: "О приложении",
-          tabBarIcon: ({ color }: { color: string }) => <Info color={color} size={24} />,
         }}
       />
       <Tabs.Screen
@@ -109,6 +72,12 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
+      <Tabs.Screen name="analytics" options={{ href: null }} />
+      <Tabs.Screen name="achievements" options={{ href: null }} />
+      <Tabs.Screen name="lessons" options={{ href: null }} />
+      <Tabs.Screen name="custom-emojis" options={{ href: null }} />
+      <Tabs.Screen name="alerts" options={{ href: null }} />
+      <Tabs.Screen name="about" options={{ href: null }} />
     </Tabs>
   );
 }

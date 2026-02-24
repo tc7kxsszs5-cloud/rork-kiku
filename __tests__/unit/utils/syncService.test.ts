@@ -47,12 +47,18 @@ jest.mock('@/utils/logger', () => ({
   },
 }));
 
+const mockGetAuthToken = jest.fn();
+jest.mock('@/utils/authToken', () => ({
+  getAuthToken: (...args: unknown[]) => mockGetAuthToken(...args),
+}));
+
 // Mock timers для ускорения тестов с задержками
 jest.useFakeTimers();
 
 describe('syncService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetAuthToken.mockResolvedValue('test-token');
     (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
     (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
   });

@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Chat, Alert, ParentalSettings } from '@/constants/types';
 import { trpcVanillaClient } from '@/lib/trpc';
 import { logger } from '@/utils/logger';
+import { getAuthToken } from '@/utils/authToken';
 
 export interface SyncResult<T> {
   success: boolean;
@@ -57,6 +58,35 @@ function isTimeoutError(error: unknown): boolean {
       error.message.includes('fetch failed') ||
       error.message.includes('Failed to fetch')
     );
+  }
+  return false;
+}
+
+/**
+ * Check if auth token exists (skip sync in demo/unauthenticated mode)
+ */
+async function hasAuthToken(): Promise<boolean> {
+  const token = await getAuthToken();
+  return Boolean(token);
+}
+
+/**
+ * Check if error is an auth/permission error
+ */
+function isUnauthorizedError(error: unknown): boolean {
+  const anyError = error as { data?: { code?: string; httpStatus?: number }; shape?: { code?: string; data?: { httpStatus?: number } } };
+  const code = anyError?.data?.code || anyError?.shape?.code;
+  const httpStatus = anyError?.data?.httpStatus || anyError?.shape?.data?.httpStatus;
+
+  if (code === 'UNAUTHORIZED' || code === 'FORBIDDEN') {
+    return true;
+  }
+  if (httpStatus === 401 || httpStatus === 403) {
+    return true;
+  }
+  if (error instanceof Error) {
+    const message = error.message || '';
+    return message.includes('UNAUTHORIZED') || message.includes('FORBIDDEN') || message.includes('401') || message.includes('403');
   }
   return false;
 }
@@ -139,6 +169,9 @@ class ChatSyncService {
   async syncChats(chats: Chat[]): Promise<SyncResult<Chat[]>> {
     try {
       await this.initialize();
+      if (!(await hasAuthToken())) {
+        return { success: false, error: 'UNAUTHORIZED' };
+      }
       const deviceId = await getDeviceId();
       const lastSync = await getLastSyncTimestamp(this.lastSyncKey);
 
@@ -168,6 +201,16 @@ class ChatSyncService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const isTimeout = isTimeoutError(error);
+      const isUnauthorized = isUnauthorizedError(error);
+
+      if (isUnauthorized) {
+        logger.warn('Chat sync skipped due to unauthorized', {
+          component: 'ChatSyncService',
+          action: 'syncChats',
+          errorMessage,
+        });
+        return { success: false, error: 'UNAUTHORIZED' };
+      }
       
       logger.error('Chat sync failed', error instanceof Error ? error : new Error(errorMessage), {
         component: 'ChatSyncService',
@@ -188,6 +231,9 @@ class ChatSyncService {
   async getChats(): Promise<SyncResult<Chat[]>> {
     try {
       await this.initialize();
+      if (!(await hasAuthToken())) {
+        return { success: false, error: 'UNAUTHORIZED' };
+      }
       const deviceId = await getDeviceId();
       const lastSync = await getLastSyncTimestamp(this.lastSyncKey);
 
@@ -216,6 +262,16 @@ class ChatSyncService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const isTimeout = isTimeoutError(error);
+      const isUnauthorized = isUnauthorizedError(error);
+
+      if (isUnauthorized) {
+        logger.warn('Get chats skipped due to unauthorized', {
+          component: 'ChatSyncService',
+          action: 'getChats',
+          errorMessage,
+        });
+        return { success: false, error: 'UNAUTHORIZED' };
+      }
       
       logger.error('Get chats failed', error instanceof Error ? error : new Error(errorMessage), {
         component: 'ChatSyncService',
@@ -249,6 +305,9 @@ class AlertSyncService {
   async syncAlerts(alerts: Alert[]): Promise<SyncResult<Alert[]>> {
     try {
       await this.initialize();
+      if (!(await hasAuthToken())) {
+        return { success: false, error: 'UNAUTHORIZED' };
+      }
       const deviceId = await getDeviceId();
       const lastSync = await getLastSyncTimestamp(this.lastSyncKey);
 
@@ -278,6 +337,16 @@ class AlertSyncService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const isTimeout = isTimeoutError(error);
+      const isUnauthorized = isUnauthorizedError(error);
+
+      if (isUnauthorized) {
+        logger.warn('Alert sync skipped due to unauthorized', {
+          component: 'AlertSyncService',
+          action: 'syncAlerts',
+          errorMessage,
+        });
+        return { success: false, error: 'UNAUTHORIZED' };
+      }
       
       logger.error('Alert sync failed', error instanceof Error ? error : new Error(errorMessage), {
         component: 'AlertSyncService',
@@ -298,6 +367,9 @@ class AlertSyncService {
   async getAlerts(): Promise<SyncResult<Alert[]>> {
     try {
       await this.initialize();
+      if (!(await hasAuthToken())) {
+        return { success: false, error: 'UNAUTHORIZED' };
+      }
       const deviceId = await getDeviceId();
       const lastSync = await getLastSyncTimestamp(this.lastSyncKey);
 
@@ -326,6 +398,16 @@ class AlertSyncService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const isTimeout = isTimeoutError(error);
+      const isUnauthorized = isUnauthorizedError(error);
+
+      if (isUnauthorized) {
+        logger.warn('Get alerts skipped due to unauthorized', {
+          component: 'AlertSyncService',
+          action: 'getAlerts',
+          errorMessage,
+        });
+        return { success: false, error: 'UNAUTHORIZED' };
+      }
       
       logger.error('Get alerts failed', error instanceof Error ? error : new Error(errorMessage), {
         component: 'AlertSyncService',
@@ -359,6 +441,9 @@ class SettingsSyncService {
   async syncSettings(settings: ParentalSettings): Promise<SyncResult<ParentalSettings>> {
     try {
       await this.initialize();
+      if (!(await hasAuthToken())) {
+        return { success: false, error: 'UNAUTHORIZED' };
+      }
       const deviceId = await getDeviceId();
       const lastSync = await getLastSyncTimestamp(this.lastSyncKey);
 
@@ -387,6 +472,16 @@ class SettingsSyncService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const isTimeout = isTimeoutError(error);
+      const isUnauthorized = isUnauthorizedError(error);
+
+      if (isUnauthorized) {
+        logger.warn('Settings sync skipped due to unauthorized', {
+          component: 'SettingsSyncService',
+          action: 'syncSettings',
+          errorMessage,
+        });
+        return { success: false, error: 'UNAUTHORIZED' };
+      }
       
       logger.error('Settings sync failed', error instanceof Error ? error : new Error(errorMessage), {
         component: 'SettingsSyncService',
@@ -407,6 +502,9 @@ class SettingsSyncService {
   async getSettings(): Promise<SyncResult<ParentalSettings>> {
     try {
       await this.initialize();
+      if (!(await hasAuthToken())) {
+        return { success: false, error: 'UNAUTHORIZED' };
+      }
       const deviceId = await getDeviceId();
 
       const result = await withRetry(
@@ -432,6 +530,16 @@ class SettingsSyncService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       const isTimeout = isTimeoutError(error);
+      const isUnauthorized = isUnauthorizedError(error);
+
+      if (isUnauthorized) {
+        logger.warn('Get settings skipped due to unauthorized', {
+          component: 'SettingsSyncService',
+          action: 'getSettings',
+          errorMessage,
+        });
+        return { success: false, error: 'UNAUTHORIZED' };
+      }
       
       logger.error('Get settings failed', error instanceof Error ? error : new Error(errorMessage), {
         component: 'SettingsSyncService',

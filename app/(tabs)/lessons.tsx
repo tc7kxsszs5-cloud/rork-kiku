@@ -1,120 +1,304 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
-import { BookOpen, CheckCircle, Lock, Play } from 'lucide-react-native';
+import { BookOpen, CheckCircle, Play, Clock, Star, Shield, Lock } from 'lucide-react-native';
 import { useThemeMode } from '@/constants/ThemeContext';
+import { useGamification } from '@/constants/GamificationContext';
+
+interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  points: number;
+  category: 'safety' | 'privacy' | 'bullying' | 'digital';
+  emoji: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
+const LESSONS: Lesson[] = [
+  {
+    id: 'lesson_1',
+    title: 'Безопасность в интернете',
+    description: 'Основные правила защиты в сети — пароли, незнакомцы, ссылки',
+    duration: '15 мин',
+    points: 50,
+    category: 'safety',
+    emoji: '🛡️',
+    difficulty: 'easy',
+  },
+  {
+    id: 'lesson_2',
+    title: 'Общение с незнакомцами',
+    description: 'Как безопасно общаться и когда стоит насторожиться',
+    duration: '20 мин',
+    points: 75,
+    category: 'safety',
+    emoji: '🤝',
+    difficulty: 'easy',
+  },
+  {
+    id: 'lesson_3',
+    title: 'Защита личных данных',
+    description: 'Что нельзя публиковать в сети и почему это важно',
+    duration: '25 мин',
+    points: 100,
+    category: 'privacy',
+    emoji: '🔐',
+    difficulty: 'medium',
+  },
+  {
+    id: 'lesson_4',
+    title: 'Кибербуллинг',
+    description: 'Что делать, если вас обижают в интернете',
+    duration: '30 мин',
+    points: 100,
+    category: 'bullying',
+    emoji: '🤗',
+    difficulty: 'medium',
+  },
+  {
+    id: 'lesson_5',
+    title: 'Фишинг и мошенничество',
+    description: 'Как распознать мошенников и не попасться на их уловки',
+    duration: '20 мин',
+    points: 125,
+    category: 'digital',
+    emoji: '🎣',
+    difficulty: 'medium',
+  },
+  {
+    id: 'lesson_6',
+    title: 'Цифровой след',
+    description: 'Что остаётся в интернете навсегда и как это влияет на вас',
+    duration: '25 мин',
+    points: 150,
+    category: 'privacy',
+    emoji: '👣',
+    difficulty: 'hard',
+  },
+  {
+    id: 'lesson_7',
+    title: 'Безопасные пароли',
+    description: 'Создание надёжных паролей и двухфакторная аутентификация',
+    duration: '15 мин',
+    points: 75,
+    category: 'safety',
+    emoji: '🔑',
+    difficulty: 'easy',
+  },
+  {
+    id: 'lesson_8',
+    title: 'Манипуляции онлайн',
+    description: 'Как распознать психологические манипуляции в сети',
+    duration: '35 мин',
+    points: 200,
+    category: 'bullying',
+    emoji: '🧠',
+    difficulty: 'hard',
+  },
+];
+
+const DIFFICULTY_COLORS = {
+  easy: '#10b981',
+  medium: '#f59e0b',
+  hard: '#ef4444',
+};
+
+const DIFFICULTY_LABELS = {
+  easy: 'Лёгкий',
+  medium: 'Средний',
+  hard: 'Сложный',
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  safety: 'Безопасность',
+  privacy: 'Приватность',
+  bullying: 'Буллинг',
+  digital: 'Цифровая грамотность',
+};
 
 export default function LessonsScreen() {
   const { theme } = useThemeMode();
+  const { data, completeLesson, addPoints } = useGamification();
+  const [activeCategory, setActiveCategory] = useState<string>('all');
   const styles = createStyles(theme);
 
-  // Демо-данные уроков
-  const lessons = [
-    {
-      id: '1',
-      title: 'Безопасность в интернете',
-      description: 'Узнайте, как защитить себя в интернете',
-      duration: '15 мин',
-      completed: true,
-      progress: 100,
-    },
-    {
-      id: '2',
-      title: 'Общение с незнакомцами',
-      description: 'Правила безопасного общения',
-      duration: '20 мин',
-      completed: false,
-      progress: 0,
-    },
-    {
-      id: '3',
-      title: 'Защита личных данных',
-      description: 'Как защитить свою информацию',
-      duration: '25 мин',
-      completed: false,
-      progress: 0,
-    },
-    {
-      id: '4',
-      title: 'Кибербуллинг',
-      description: 'Что делать, если вас обижают в интернете',
-      duration: '30 мин',
-      completed: false,
-      progress: 0,
-    },
-  ];
+  const completedIds = new Set(
+    (data?.stats.lessonsCompleted ?? 0) > 0
+      ? LESSONS.slice(0, data?.stats.lessonsCompleted ?? 0).map((l) => l.id)
+      : []
+  );
+
+  const completedLessons = data?.stats.lessonsCompleted ?? 0;
+
+  const categories = ['all', ...Array.from(new Set(LESSONS.map((l) => l.category)))];
+
+  const filtered = activeCategory === 'all'
+    ? LESSONS
+    : LESSONS.filter((l) => l.category === activeCategory);
+
+  const handleStartLesson = (lesson: Lesson) => {
+    const isCompleted = completedLessons >= LESSONS.findIndex((l) => l.id === lesson.id) + 1;
+    if (isCompleted) {
+      Alert.alert('Урок пройден', 'Вы уже прошли этот урок!');
+      return;
+    }
+
+    Alert.alert(
+      lesson.title,
+      `${lesson.description}\n\nПродолжительность: ${lesson.duration}\nНаграда: +${lesson.points} очков`,
+      [
+        { text: 'Отмена', style: 'cancel' },
+        {
+          text: 'Начать',
+          onPress: () => {
+            completeLesson(lesson.id);
+            addPoints(lesson.points, `Урок: ${lesson.title}`);
+            Alert.alert('🎉 Урок завершён!', `+${lesson.points} очков начислено`);
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Заголовок */}
       <View style={styles.header}>
-        <BookOpen size={32} color={theme.accentPrimary} />
+        <BookOpen size={36} color={theme.accentPrimary} />
         <Text style={styles.headerTitle}>Уроки безопасности</Text>
         <Text style={styles.headerSubtitle}>
-          Изучайте правила безопасного использования интернета
+          Пройдено: {completedLessons} из {LESSONS.length}
         </Text>
       </View>
 
-      <View style={styles.lessonsList}>
-        {lessons.map((lesson) => (
-          <TouchableOpacity
-            key={lesson.id}
+      {/* Прогресс */}
+      <View style={styles.progressCard}>
+        <View style={styles.progressHeader}>
+          <Shield size={18} color={theme.accentPrimary} />
+          <Text style={styles.progressTitle}>Ваш прогресс</Text>
+          <Text style={styles.progressPercent}>
+            {Math.round((completedLessons / LESSONS.length) * 100)}%
+          </Text>
+        </View>
+        <View style={styles.progressBarBg}>
+          <View
             style={[
-              styles.lessonCard,
-              lesson.completed && styles.lessonCardCompleted,
+              styles.progressBarFill,
+              { width: `${(completedLessons / LESSONS.length) * 100}%` as any },
             ]}
+          />
+        </View>
+        <Text style={styles.progressSub}>
+          Осталось {LESSONS.length - completedLessons} уроков
+        </Text>
+      </View>
+
+      {/* Фильтр категорий */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.categoriesScroll}
+        contentContainerStyle={styles.categories}
+      >
+        {categories.map((cat) => (
+          <TouchableOpacity
+            key={cat}
+            style={[
+              styles.categoryChip,
+              activeCategory === cat && styles.categoryChipActive,
+            ]}
+            onPress={() => setActiveCategory(cat)}
           >
-            <View style={styles.lessonIcon}>
-              {lesson.completed ? (
-                <CheckCircle size={32} color={theme.accentPrimary} />
-              ) : (
-                <Play size={32} color={theme.textSecondary} />
-              )}
-            </View>
-            <View style={styles.lessonInfo}>
-              <View style={styles.lessonHeader}>
-                <Text
-                  style={[
-                    styles.lessonTitle,
-                    lesson.completed && styles.lessonTitleCompleted,
-                  ]}
-                >
-                  {lesson.title}
-                </Text>
-                {lesson.completed && (
-                  <View style={styles.completedBadge}>
-                    <Text style={styles.completedBadgeText}>Завершено</Text>
-                  </View>
-                )}
-              </View>
-              <Text style={styles.lessonDescription}>
-                {lesson.description}
-              </Text>
-              <View style={styles.lessonMeta}>
-                <Text style={styles.lessonDuration}>⏱ {lesson.duration}</Text>
-                {lesson.progress > 0 && !lesson.completed && (
-                  <View style={styles.progressBar}>
-                    <View
-                      style={[
-                        styles.progressFill,
-                        { width: `${lesson.progress}%` },
-                      ]}
-                    />
-                  </View>
-                )}
-              </View>
-            </View>
-            {!lesson.completed && (
-              <View style={styles.lockIcon}>
-                <Lock size={20} color={theme.textSecondary} />
-              </View>
-            )}
+            <Text
+              style={[
+                styles.categoryChipText,
+                activeCategory === cat && styles.categoryChipTextActive,
+              ]}
+            >
+              {cat === 'all' ? 'Все' : CATEGORY_LABELS[cat] || cat}
+            </Text>
           </TouchableOpacity>
         ))}
+      </ScrollView>
+
+      {/* Список уроков */}
+      <View style={styles.lessonsList}>
+        {filtered.map((lesson, index) => {
+          const globalIndex = LESSONS.findIndex((l) => l.id === lesson.id);
+          const isCompleted = completedLessons > globalIndex;
+          const isLocked = globalIndex > completedLessons;
+
+          return (
+            <TouchableOpacity
+              key={lesson.id}
+              style={[
+                styles.lessonCard,
+                isCompleted && styles.lessonCardCompleted,
+                isLocked && styles.lessonCardLocked,
+              ]}
+              onPress={() => !isLocked && handleStartLesson(lesson)}
+              activeOpacity={isLocked ? 1 : 0.7}
+            >
+              <View style={[
+                styles.lessonEmoji,
+                isCompleted && { backgroundColor: theme.accentPrimary + '20' },
+                isLocked && { backgroundColor: theme.borderSoft },
+              ]}>
+                {isLocked ? (
+                  <Lock size={24} color={theme.textSecondary} />
+                ) : (
+                  <Text style={styles.emojiText}>{lesson.emoji}</Text>
+                )}
+              </View>
+
+              <View style={styles.lessonInfo}>
+                <View style={styles.lessonTitleRow}>
+                  <Text style={[
+                    styles.lessonTitle,
+                    isCompleted && { color: theme.accentPrimary },
+                    isLocked && { color: theme.textSecondary },
+                  ]}>
+                    {lesson.title}
+                  </Text>
+                  {isCompleted && <CheckCircle size={18} color={theme.accentPrimary} />}
+                </View>
+
+                <Text style={styles.lessonDescription}>{lesson.description}</Text>
+
+                <View style={styles.lessonMeta}>
+                  <View style={styles.metaItem}>
+                    <Clock size={12} color={theme.textSecondary} />
+                    <Text style={styles.metaText}>{lesson.duration}</Text>
+                  </View>
+                  <View style={styles.metaItem}>
+                    <Star size={12} color="#f59e0b" />
+                    <Text style={styles.metaText}>+{lesson.points} очков</Text>
+                  </View>
+                  <Text style={[
+                    styles.difficultyBadge,
+                    { color: DIFFICULTY_COLORS[lesson.difficulty] },
+                  ]}>
+                    {DIFFICULTY_LABELS[lesson.difficulty]}
+                  </Text>
+                </View>
+              </View>
+
+              {!isLocked && !isCompleted && (
+                <View style={styles.playButton}>
+                  <Play size={18} color="#fff" />
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </ScrollView>
   );
@@ -132,7 +316,7 @@ const createStyles = (theme: any) =>
     },
     header: {
       alignItems: 'center',
-      marginBottom: 32,
+      marginBottom: 20,
       gap: 8,
     },
     headerTitle: {
@@ -141,90 +325,151 @@ const createStyles = (theme: any) =>
       color: theme.textPrimary,
     },
     headerSubtitle: {
-      fontSize: 16,
+      fontSize: 15,
       color: theme.textSecondary,
-      textAlign: 'center',
     },
-    lessonsList: {
-      gap: 16,
-    },
-    lessonCard: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: 20,
-      backgroundColor: theme.card,
-      borderRadius: 16,
+    progressCard: {
+      backgroundColor: theme.card || theme.backgroundSecondary,
+      borderRadius: 20,
+      padding: 18,
+      marginBottom: 20,
       borderWidth: 1,
       borderColor: theme.borderSoft,
-      gap: 16,
+      gap: 10,
     },
-    lessonCardCompleted: {
-      borderColor: theme.accentPrimary,
-      backgroundColor: theme.accentPrimary + '10',
-    },
-    lessonIcon: {
-      width: 64,
-      height: 64,
-      borderRadius: 32,
-      backgroundColor: theme.accentPrimary + '20',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    lessonInfo: {
-      flex: 1,
-      gap: 8,
-    },
-    lessonHeader: {
+    progressHeader: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 12,
+      gap: 8,
     },
-    lessonTitle: {
-      fontSize: 18,
+    progressTitle: {
+      fontSize: 16,
       fontWeight: '700',
       color: theme.textPrimary,
       flex: 1,
     },
-    lessonTitleCompleted: {
+    progressPercent: {
+      fontSize: 18,
+      fontWeight: '800',
       color: theme.accentPrimary,
     },
-    completedBadge: {
-      backgroundColor: theme.accentPrimary,
-      paddingHorizontal: 12,
-      paddingVertical: 4,
-      borderRadius: 12,
+    progressBarBg: {
+      height: 10,
+      backgroundColor: theme.borderSoft,
+      borderRadius: 5,
+      overflow: 'hidden',
     },
-    completedBadgeText: {
-      color: '#fff',
-      fontSize: 12,
+    progressBarFill: {
+      height: '100%',
+      backgroundColor: theme.accentPrimary,
+      borderRadius: 5,
+    },
+    progressSub: {
+      fontSize: 13,
+      color: theme.textSecondary,
+    },
+    categoriesScroll: {
+      marginBottom: 20,
+    },
+    categories: {
+      gap: 10,
+      paddingRight: 10,
+    },
+    categoryChip: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 20,
+      backgroundColor: theme.backgroundSecondary,
+      borderWidth: 1,
+      borderColor: theme.borderSoft,
+    },
+    categoryChipActive: {
+      backgroundColor: theme.accentPrimary,
+      borderColor: theme.accentPrimary,
+    },
+    categoryChipText: {
+      fontSize: 14,
       fontWeight: '600',
+      color: theme.textSecondary,
+    },
+    categoryChipTextActive: {
+      color: '#fff',
+    },
+    lessonsList: {
+      gap: 14,
+    },
+    lessonCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      backgroundColor: theme.card || theme.backgroundSecondary,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: theme.borderSoft,
+      gap: 14,
+    },
+    lessonCardCompleted: {
+      borderColor: theme.accentPrimary,
+    },
+    lessonCardLocked: {
+      opacity: 0.5,
+    },
+    lessonEmoji: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: theme.accentPrimary + '15',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    emojiText: {
+      fontSize: 26,
+    },
+    lessonInfo: {
+      flex: 1,
+      gap: 6,
+    },
+    lessonTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    lessonTitle: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: theme.textPrimary,
+      flex: 1,
     },
     lessonDescription: {
-      fontSize: 14,
+      fontSize: 13,
       color: theme.textSecondary,
+      lineHeight: 18,
     },
     lessonMeta: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 12,
+      flexWrap: 'wrap',
     },
-    lessonDuration: {
+    metaItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    metaText: {
       fontSize: 12,
       color: theme.textSecondary,
     },
-    progressBar: {
-      flex: 1,
-      height: 4,
-      backgroundColor: theme.borderSoft,
-      borderRadius: 2,
-      overflow: 'hidden',
+    difficultyBadge: {
+      fontSize: 12,
+      fontWeight: '600',
     },
-    progressFill: {
-      height: '100%',
+    playButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
       backgroundColor: theme.accentPrimary,
-    },
-    lockIcon: {
-      padding: 8,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
   });

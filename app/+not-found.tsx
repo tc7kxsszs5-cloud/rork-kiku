@@ -1,16 +1,14 @@
-// template
 import { Link, Stack, Href } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function NotFoundScreen() {
   return (
     <>
-      <Stack.Screen options={{ title: "Oops!" }} />
+      <Stack.Screen options={{ title: "Страница не найдена" }} />
       <View style={styles.container}>
-        <Text style={styles.title}>This screen doesn&apos;t exist.</Text>
-
+        <Text style={styles.title}>Такой страницы нет.</Text>
         <Link href={"/" as Href} style={styles.link}>
-          <Text style={styles.linkText}>Go to home screen!</Text>
+          <Text style={styles.linkText}>На главную</Text>
         </Link>
       </View>
     </>

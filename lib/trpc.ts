@@ -7,7 +7,7 @@ import { getAuthToken } from "@/utils/authToken";
 
 export const trpc = createTRPCReact<AppRouter>();
 
-const PROJECT_BASE_URL = 'https://d8v7u672uumlfpscvnbps.rork.live';
+const PROJECT_BASE_URL = 'https://backend-three-mauve-67.vercel.app';
 
 type ExpoExtra = {
   rork?: { apiBaseUrl?: string };
@@ -91,7 +91,8 @@ const getDevServerFromExtras = () => {
 const getBaseUrl = () => {
   const rorkUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
   const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
-  const envUrl = rorkUrl || backendUrl;
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+  const envUrl = backendUrl || apiUrl || rorkUrl;
   if (envUrl) {
     if (__DEV__) {
       console.log('[tRPC] Using base URL from env:', envUrl);
@@ -162,18 +163,22 @@ export const trpcClient = createTRPCClient<AppRouter>({
           
           if (!response.ok) {
             const contentType = response.headers.get('content-type');
-            console.error('[tRPC] HTTP error:', {
+            const isAuthError = response.status === 401 || response.status === 403;
+            const logFn = isAuthError ? console.warn : console.error;
+            logFn('[tRPC] HTTP error:', {
               status: response.status,
               statusText: response.statusText,
               url,
               contentType,
             });
             
-            try {
-              const text = await response.clone().text();
-              console.error('[tRPC] Response body:', text.substring(0, 200));
-            } catch {
-              console.error('[tRPC] Could not read response body');
+            if (!isAuthError) {
+              try {
+                const text = await response.clone().text();
+                console.error('[tRPC] Response body:', text.substring(0, 200));
+              } catch {
+                console.error('[tRPC] Could not read response body');
+              }
             }
           }
           return response;
@@ -181,7 +186,7 @@ export const trpcClient = createTRPCClient<AppRouter>({
           clearTimeout(timeoutId);
           const msg = error instanceof Error ? error.message : String(error);
           if (msg === 'Load failed' || msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
-            console.warn('[tRPC] Backend unreachable:', url, '— проверьте EXPO_PUBLIC_RORK_API_BASE_URL / EXPO_PUBLIC_BACKEND_URL и CORS.');
+            console.warn('[tRPC] Backend unreachable:', url, '— проверьте EXPO_PUBLIC_BACKEND_URL / EXPO_PUBLIC_API_URL / EXPO_PUBLIC_RORK_API_BASE_URL и CORS.');
           }
           console.error('[tRPC] Fetch error:', error);
           throw error;
@@ -217,18 +222,22 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
           
           if (!response.ok) {
             const contentType = response.headers.get('content-type');
-            console.error('[tRPC Vanilla] HTTP error:', {
+            const isAuthError = response.status === 401 || response.status === 403;
+            const logFn = isAuthError ? console.warn : console.error;
+            logFn('[tRPC Vanilla] HTTP error:', {
               status: response.status,
               statusText: response.statusText,
               url,
               contentType,
             });
             
-            try {
-              const text = await response.clone().text();
-              console.error('[tRPC Vanilla] Response body:', text.substring(0, 200));
-            } catch {
-              console.error('[tRPC Vanilla] Could not read response body');
+            if (!isAuthError) {
+              try {
+                const text = await response.clone().text();
+                console.error('[tRPC Vanilla] Response body:', text.substring(0, 200));
+              } catch {
+                console.error('[tRPC Vanilla] Could not read response body');
+              }
             }
           }
           return response;
@@ -236,7 +245,7 @@ export const trpcVanillaClient = createTRPCClient<AppRouter>({
           clearTimeout(timeoutId);
           const msg = error instanceof Error ? error.message : String(error);
           if (msg === 'Load failed' || msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
-            console.warn('[tRPC Vanilla] Backend unreachable:', url, '— проверьте EXPO_PUBLIC_RORK_API_BASE_URL / EXPO_PUBLIC_BACKEND_URL и CORS.');
+            console.warn('[tRPC Vanilla] Backend unreachable:', url, '— проверьте EXPO_PUBLIC_BACKEND_URL / EXPO_PUBLIC_API_URL / EXPO_PUBLIC_RORK_API_BASE_URL и CORS.');
           }
           console.error('[tRPC Vanilla] Fetch error:', error);
           throw error;

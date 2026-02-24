@@ -10,9 +10,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/logo-hands-gold.png",
       "resizeMode": "contain",
-      "backgroundColor": "#2A3441"
+      "backgroundColor": "#FFFFFF"
     },
     "ios": {
       "supportsTablet": true,
@@ -33,7 +33,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#2A3441"
+        "backgroundColor": "#000000"
       },
       "package": "app.rork.greeting_project_58uufiz",
       "versionCode": 1,

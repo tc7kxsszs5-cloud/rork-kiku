@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">96.15% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>46/46</span>
+                <span class='fraction'>50/52</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">78.57% </span>
+                <span class="strong">72.22% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>11/14</span>
+                <span class='fraction'>13/18</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">96.15% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>46/46</span>
+                <span class='fraction'>50/52</span>
             </div>
         
             
@@ -180,7 +180,18 @@
 <a name='L115'></a><a href='#L115'>115</a>
 <a name='L116'></a><a href='#L116'>116</a>
 <a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -213,6 +224,11 @@
 <span class="cline-any cline-yes">21x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
@@ -238,6 +254,9 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -250,6 +269,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -307,6 +327,7 @@ import { useState, useCallback, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { logger } from '@/utils/logger';
+import { getAuthToken, setAuthToken, clearAuthToken } from '@/utils/authToken';
 &nbsp;
 export interface AuthState {
   isAuthenticated: boolean;
@@ -329,7 +350,12 @@ export const [AuthProvider, useAuth] = createContextHook(() =&gt; {
         const stored = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
         if (stored) {
           const state = JSON.parse(stored);
-          setAuthState(state);
+          const token = await getAuthToken();
+          if (token) {
+            setAuthState(state);
+          } else <span class="missing-if-branch" title="else path not taken" >E</span>{
+<span class="cstat-no" title="statement not covered" >            setAuthState({ isAuthenticated: false });</span>
+          }
         }
       } catch (error) {
         logger.error('Failed to load auth state', error instanceof Error ? error : <span class="branch-1 cbranch-no" title="branch not covered" >new Error(String(error)),</span> { context: 'AuthContext', action: 'loadAuthState' });
@@ -341,7 +367,7 @@ export const [AuthProvider, useAuth] = createContextHook(() =&gt; {
     loadAuthState();
   }, []);
 &nbsp;
-  const login = useCallback(async (userId: string, role: 'parent' | 'child', pin?: string) =&gt; {
+  const login = useCallback(async (userId: string, role: 'parent' | 'child', pin?: string, authToken?: string) =&gt; {
     const newState: AuthState = {
       isAuthenticated: true,
       userId,
@@ -354,6 +380,9 @@ export const [AuthProvider, useAuth] = createContextHook(() =&gt; {
       await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(newState));
       if (pin) {
         await SecureStore.setItemAsync(PIN_STORAGE_KEY, pin);
+      }
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (authToken) {
+<span class="cstat-no" title="statement not covered" >        await setAuthToken(authToken);</span>
       }
     } catch (error) {
       console.error('[AuthContext] Failed to save auth state:', error);
@@ -368,6 +397,7 @@ export const [AuthProvider, useAuth] = createContextHook(() =&gt; {
     try {
       await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
       await SecureStore.deleteItemAsync(PIN_STORAGE_KEY);
+      await clearAuthToken();
     } catch (error) {
       logger.error('Failed to clear auth state', error instanceof Error ? error : <span class="branch-1 cbranch-no" title="branch not covered" >new Error(String(error)),</span> { context: 'AuthContext', action: 'logout' });
     }
@@ -421,7 +451,7 @@ export const [AuthProvider, useAuth] = createContextHook(() =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-02T09:49:44.765Z
+                at 2026-02-18T09:36:04.955Z
             </div>
         <script src="../prettify.js"></script>
         <script>

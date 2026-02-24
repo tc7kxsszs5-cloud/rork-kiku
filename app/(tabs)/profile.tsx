@@ -34,6 +34,12 @@ import {
   Heart,
   Sparkles,
   MessageCircle,
+  Phone,
+  Trophy,
+  BookOpen,
+  Info,
+  BarChart3,
+  Smile,
 } from 'lucide-react-native';
 import { useUser } from '@/constants/UserContext';
 import { useAuth } from '@/constants/AuthContext';
@@ -96,6 +102,16 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
     target: '/ai-recommendations' as Href,
     Icon: Lightbulb,
   },
+];
+
+type ProfileNavLink = { key: string; title: string; description: string; accent: string; target: Href; Icon: typeof Phone };
+const PROFILE_NAV_LINKS: ProfileNavLink[] = [
+  { key: 'calls', title: 'Звонки', description: 'История и управление звонками', accent: '#22c55e', target: '/(tabs)/calls' as Href, Icon: Phone },
+  { key: 'achievements', title: 'Достижения', description: 'Награды и прогресс', accent: '#eab308', target: '/(tabs)/achievements' as Href, Icon: Trophy },
+  { key: 'lessons', title: 'Уроки', description: 'Обучающие материалы', accent: '#8b5cf6', target: '/(tabs)/lessons' as Href, Icon: BookOpen },
+  { key: 'analytics', title: 'Аналитика', description: 'KPI и отчёты', accent: '#0ea5e9', target: '/(tabs)/analytics' as Href, Icon: BarChart3 },
+  { key: 'custom-emojis', title: 'Кастомные эмодзи', description: 'Создание и управление', accent: '#ec4899', target: '/(tabs)/custom-emojis' as Href, Icon: Smile },
+  { key: 'about', title: 'О приложении', description: 'Версия, этапы и контент', accent: '#64748b', target: '/(tabs)/about' as Href, Icon: Info },
 ];
 
 const PERMISSION_STATUS_META: Record<PushPermissionState, { label: string; description: string; color: string; textColor: string }> = {
@@ -707,6 +723,29 @@ export default function ProfileScreen() {
             <View style={styles.shortcutTextWrapper}>
               <Text style={styles.shortcutTitle}>{shortcut.title}</Text>
               <Text style={styles.shortcutDescription}>{shortcut.description}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Разделы</Text>
+        {PROFILE_NAV_LINKS.map((item) => (
+          <TouchableOpacity
+            key={item.key}
+            style={styles.shortcutCard}
+            onPress={() => {
+              HapticFeedback.light();
+              router.push(item.target);
+            }}
+            testID={`profile-nav-${item.key}`}
+          >
+            <View style={[styles.shortcutIcon, { backgroundColor: item.accent }]}>
+              <item.Icon color={theme.isDark ? '#0b1220' : '#1a1a1a'} size={20} />
+            </View>
+            <View style={styles.shortcutTextWrapper}>
+              <Text style={styles.shortcutTitle}>{item.title}</Text>
+              <Text style={styles.shortcutDescription}>{item.description}</Text>
             </View>
           </TouchableOpacity>
         ))}
