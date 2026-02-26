@@ -33,7 +33,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#1B2B47"
       },
       "package": "app.rork.greeting_project_58uufiz",
       "versionCode": 1,
