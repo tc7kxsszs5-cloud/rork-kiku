@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, View, StyleSheet, ViewStyle } from 'react-native';
+import { Animated, Image, View, ViewStyle, Platform, StyleSheet } from 'react-native';
 
 const logoHands = require('@/assets/images/logo-hands-gold-trimmed.png');
 
 interface AnimatedLogoProps {
   size?: number;
-  /** Длительность одного полного оборота в мс (по умолчанию 9000 = 9 сек) */
+  /** Длительность одного полного оборота в мс */
   duration?: number;
   style?: ViewStyle;
 }
@@ -18,8 +18,9 @@ export function AnimatedLogo({ size = 120, duration = 9000, style }: AnimatedLog
       Animated.timing(rotation, {
         toValue: 1,
         duration,
-        useNativeDriver: true,
-        easing: (t) => t, // линейная скорость
+        // useNativeDriver: false обязателен для web; на нативе чуть медленнее, но работает везде
+        useNativeDriver: false,
+        easing: (t) => t,
       })
     );
     anim.start();
@@ -31,8 +32,13 @@ export function AnimatedLogo({ size = 120, duration = 9000, style }: AnimatedLog
     outputRange: ['0deg', '360deg'],
   });
 
-  const radius = size * 0.22;
-  const handsSize = size * 0.7;
+  const handsSize = size * 0.75;
+
+  // На web: mix-blend-mode: multiply убирает белый фон изображения
+  // (белый × тёмно-синий = тёмно-синий, золото остаётся видимым)
+  const webImageStyle = Platform.OS === 'web'
+    ? ({ mixBlendMode: 'multiply' } as any)
+    : {};
 
   return (
     <View
@@ -41,21 +47,30 @@ export function AnimatedLogo({ size = 120, duration = 9000, style }: AnimatedLog
         {
           width: size,
           height: size,
-          borderRadius: radius,
-          backgroundColor: '#0F1E38',
+          borderRadius: size * 0.22,
         },
         style,
       ]}
     >
-      <Animated.Image
-        source={logoHands}
+      {/* Тёмно-синий фон — статичен */}
+      <View style={[StyleSheet.absoluteFillObject, { borderRadius: size * 0.22, backgroundColor: '#0F1E38' }]} />
+
+      {/* Золотые руки вращаются */}
+      <Animated.View
         style={{
           width: handsSize,
           height: handsSize,
           transform: [{ rotate }],
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
-        resizeMode="contain"
-      />
+      >
+        <Image
+          source={logoHands}
+          style={[{ width: handsSize, height: handsSize }, webImageStyle]}
+          resizeMode="contain"
+        />
+      </Animated.View>
     </View>
   );
 }
