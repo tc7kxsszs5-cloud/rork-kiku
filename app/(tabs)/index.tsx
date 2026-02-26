@@ -11,15 +11,6 @@ import {
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-
-// ---------- Логотип в шапке Чатов — ЗАФИКСИРОВАНО (не менять без согласования) ----------
-// Контейнер: 200×200, borderRadius 24. Ночь: иконка icon.png, cover, marginTop контейнера 32, иконки внутри 28.
-// День: иконка logo-hands-gold.png, contain, фон контейнера = theme.backgroundPrimary. Градиент шапки: heroGradient.
-// При смене темы меняются только цвета/картинка, не расположение (кроме ночного сдвига иконки вниз).
-/** Размер контейнера логотипа в шапке */
-const LOGO_BOX = 160;
-/** Размер картинки — чуть меньше контейнера для отступов */
-const LOGO_IMG = Math.round(LOGO_BOX * 0.85);
 import { useRouter } from 'expo-router';
 import { MessageCircle, AlertTriangle, Shield, Search, X, Calendar, Users, Filter } from 'lucide-react-native';
 import logoHands from '@/assets/images/logo-hands-gold-trimmed.png';
@@ -30,6 +21,15 @@ import { useThemeMode, ThemePalette } from '@/constants/ThemeContext';
 import { ThemeModeToggle } from '@/components/ThemeModeToggle';
 import { SyncStatusIndicator } from '@/components/SyncStatusIndicator';
 import { OnlineStatus } from '@/components/OnlineStatus';
+
+// ---------- Логотип в шапке Чатов — ЗАФИКСИРОВАНО (не менять без согласования) ----------
+// Контейнер: 200×200, borderRadius 24. Ночь: иконка icon.png, cover, marginTop контейнера 32, иконки внутри 28.
+// День: иконка logo-hands-gold.png, contain, фон контейнера = theme.backgroundPrimary. Градиент шапки: heroGradient.
+// При смене темы меняются только цвета/картинка, не расположение (кроме ночного сдвига иконки вниз).
+/** Размер контейнера логотипа в шапке */
+const LOGO_BOX = 160;
+/** Размер картинки — чуть меньше контейнера для отступов */
+const LOGO_IMG = Math.round(LOGO_BOX * 0.85);
 
 const RISK_COLORS: Record<RiskLevel, string> = {
   safe: '#10b981',
@@ -54,7 +54,7 @@ export default function MonitoringScreen() {
   const { chats, unresolvedAlerts } = useMonitoring();
   const { theme, themeMode } = useThemeMode();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedRiskFilter, setSelectedRiskFilter] = useState<RiskLevel | 'all'>('all');
+  const [selectedRiskFilter] = useState<RiskLevel | 'all'>('all');
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
   const [participantFilter, setParticipantFilter] = useState<string | 'all'>('all');
   const searchBarHeight = useRef(new Animated.Value(0)).current;
@@ -63,10 +63,6 @@ export default function MonitoringScreen() {
   
   const styles = useMemo(() => createStyles(theme), [theme]);
   
-  // Безопасная проверка данных
-  const totalChats = chats?.length || 0;
-  const totalMessages = chats?.reduce((sum, chat) => sum + (chat.messages?.length || 0), 0) || 0;
-
   // Получаем список всех участников для фильтра
   const allParticipants = useMemo(() => {
     if (!chats || !Array.isArray(chats)) return [];
@@ -152,11 +148,6 @@ export default function MonitoringScreen() {
       duration: 250,
       useNativeDriver: false,
     }).start();
-  };
-
-  const handleRiskFilter = (risk: RiskLevel | 'all') => {
-    HapticFeedback.selection();
-    setSelectedRiskFilter(risk);
   };
 
   const renderChat = useCallback(({ item }: { item: Chat }) => {

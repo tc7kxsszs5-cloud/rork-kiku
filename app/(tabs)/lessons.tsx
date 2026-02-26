@@ -130,12 +130,6 @@ export default function LessonsScreen() {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const styles = createStyles(theme);
 
-  const completedIds = new Set(
-    (data?.stats.lessonsCompleted ?? 0) > 0
-      ? LESSONS.slice(0, data?.stats.lessonsCompleted ?? 0).map((l) => l.id)
-      : []
-  );
-
   const completedLessons = data?.stats.lessonsCompleted ?? 0;
 
   const categories = ['all', ...Array.from(new Set(LESSONS.map((l) => l.category)))];

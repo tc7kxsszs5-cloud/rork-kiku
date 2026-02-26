@@ -51,6 +51,7 @@ module.exports = {
     '<rootDir>/__tests__/e2e/',
     '<rootDir>/__tests__/playwright/',
     '<rootDir>/__tests__/testUtils\\.ts',
+    '<rootDir>/\\.claude/worktrees/',
   ],
 
   // Покрытие: пороги не блокируют сборку, но показывают в отчёте

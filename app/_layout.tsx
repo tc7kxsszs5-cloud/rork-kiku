@@ -169,9 +169,6 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
   }
 }
 
-const isWebDemoMode = () =>
-  Platform.OS === 'web' && (__DEV__ || (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_DEMO_AUTO_LOGIN === '1'));
-
 function RootLayoutNav() {
   const [isReady, setIsReady] = useState(false);
   const autoDemoDoneRef = React.useRef(false);
