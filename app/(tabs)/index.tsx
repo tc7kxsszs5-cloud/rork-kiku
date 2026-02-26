@@ -7,13 +7,10 @@ import {
   TouchableOpacity,
   TextInput,
   Animated,
-  Image,
-  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { MessageCircle, AlertTriangle, Shield, Search, X, Calendar, Users, Filter } from 'lucide-react-native';
-import logoHands from '@/assets/images/logo-hands-gold-trimmed.png';
 import { useMonitoring } from '@/constants/MonitoringContext';
 import { Chat, RiskLevel } from '@/constants/types';
 import { HapticFeedback } from '@/constants/haptics';
@@ -21,15 +18,14 @@ import { useThemeMode, ThemePalette } from '@/constants/ThemeContext';
 import { ThemeModeToggle } from '@/components/ThemeModeToggle';
 import { SyncStatusIndicator } from '@/components/SyncStatusIndicator';
 import { OnlineStatus } from '@/components/OnlineStatus';
+import { AnimatedLogo } from '@/components/AnimatedLogo';
 
 // ---------- Логотип в шапке Чатов — ЗАФИКСИРОВАНО (не менять без согласования) ----------
 // Контейнер: 200×200, borderRadius 24. Ночь: иконка icon.png, cover, marginTop контейнера 32, иконки внутри 28.
 // День: иконка logo-hands-gold.png, contain, фон контейнера = theme.backgroundPrimary. Градиент шапки: heroGradient.
 // При смене темы меняются только цвета/картинка, не расположение (кроме ночного сдвига иконки вниз).
-/** Размер контейнера логотипа в шапке */
-const LOGO_BOX = 160;
-/** Размер картинки — чуть меньше контейнера для отступов */
-const LOGO_IMG = Math.round(LOGO_BOX * 0.85);
+/** Размер логотипа в шапке */
+const LOGO_BOX = 60;
 
 const RISK_COLORS: Record<RiskLevel, string> = {
   safe: '#10b981',
@@ -220,28 +216,7 @@ export default function MonitoringScreen() {
         end={{ x: 0.5, y: 1 }}
       >
         <View style={[styles.header, ]} testID="monitoring-header">
-          <View style={[
-            styles.headerLogoWrapper,
-            {
-              width: LOGO_BOX,
-              height: LOGO_BOX,
-              backgroundColor: '#131b2e',
-              borderRadius: 28,
-              overflow: 'hidden',
-              justifyContent: 'center',
-              alignItems: 'center',
-            },
-          ]}>
-            <Image
-              source={logoHands}
-              style={{
-                width: LOGO_IMG,
-                height: LOGO_IMG,
-                ...(Platform.OS === 'web' && { objectFit: 'contain' as const }),
-              }}
-              resizeMode="contain"
-            />
-          </View>
+          <AnimatedLogo size={LOGO_BOX} duration={9000} style={styles.headerLogoWrapper} />
           <View style={styles.headerSpacer} />
           <View style={styles.headerActions}>
             <SyncStatusIndicator variant="compact" />

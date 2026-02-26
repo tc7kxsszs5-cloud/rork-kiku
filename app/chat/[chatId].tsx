@@ -28,6 +28,7 @@ import { Audio } from 'expo-av';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { logger } from '@/utils/logger';
 import { OnlineStatus } from '@/components/OnlineStatus';
+import { AnimatedLogo } from '@/components/AnimatedLogo';
 
 // Lazy loading для тяжелых компонентов (загружаются только при открытии)
 const EmojiPicker = lazy(() => 
@@ -466,7 +467,14 @@ export default function ChatScreen() {
     <>
       <Stack.Screen
         options={{
-          title: chat.isGroup ? chat.groupName : chat.participantNames.join(' и '),
+          headerTitle: () => (
+            <View style={styles.headerTitleContainer}>
+              <AnimatedLogo size={36} duration={9000} />
+              <Text style={styles.headerTitleText} numberOfLines={1}>
+                {chat.isGroup ? chat.groupName : chat.participantNames.join(' и ')}
+              </Text>
+            </View>
+          ),
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => {
@@ -902,6 +910,18 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.9)',
     marginBottom: 2,
     fontWeight: '500' as const,
+  },
+  headerTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    maxWidth: 200,
+  },
+  headerTitleText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0f172a',
+    flexShrink: 1,
   },
   headerBackTouchable: {
     flexDirection: 'row',

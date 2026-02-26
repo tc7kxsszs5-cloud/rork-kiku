@@ -2,11 +2,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
-import { StyleSheet, Platform, View, Text, TouchableOpacity, Image, SafeAreaView } from "react-native";
+import { StyleSheet, Platform, View, Text, TouchableOpacity, SafeAreaView } from "react-native";
 import { ChevronLeft } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MonitoringProvider } from "@/constants/MonitoringContext";
-import { UserProvider, useUser } from "@/constants/UserContext";
+import { UserProvider } from "@/constants/UserContext";
 import { ParentalControlsProvider } from "@/constants/ParentalControlsContext";
 import { ThemeProvider } from "@/constants/ThemeContext";
 import { NotificationsProvider } from "@/constants/NotificationsContext";
@@ -24,32 +24,22 @@ import { PremiumProvider } from "@/constants/PremiumContext";
 import { ChatBackgroundsProvider } from "@/constants/ChatBackgroundsContext";
 import { AuthProvider, useAuth } from "@/constants/AuthContext";
 import { ActivationTracker } from "@/components/ActivationTracker";
+import { AnimatedLogo } from "@/components/AnimatedLogo";
 import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
 import { applyGlobalCursorStyles } from "@/utils/cursorStyles";
 import { initializeTestCustomEmojis } from "@/utils/initCustomEmojis";
 
-const splashLogo = require("@/assets/images/logo-hands-gold.png");
-
-const LOGO_SIZE = 160;
-const TITLE_GAP = 20;
+const LOGO_SIZE = 180;
 
 function CustomSplashScreen() {
   return (
     <SafeAreaView style={splashStyles.wrapper}>
       <View style={splashStyles.container}>
         <View style={splashStyles.content}>
-          <View style={splashStyles.logoWrap}>
-            <Image
-              source={splashLogo}
-              style={[
-                splashStyles.logo,
-                Platform.OS === 'web' && { objectFit: 'contain' as const },
-              ]}
-              resizeMode="contain"
-            />
-          </View>
+          <AnimatedLogo size={LOGO_SIZE} duration={9000} style={splashStyles.logoWrap} />
           <Text style={splashStyles.title}>Safe Zone</Text>
+          <Text style={splashStyles.subtitle}>Безопасное общение</Text>
         </View>
       </View>
     </SafeAreaView>
@@ -171,15 +161,12 @@ class AppErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundary
 
 function RootLayoutNav() {
   const [isReady, setIsReady] = useState(false);
-  const autoDemoDoneRef = React.useRef(false);
 
   const authData = useAuth();
   const isAuthenticated = authData?.isAuthenticated || false;
   const isAuthLoaded = authData?.isLoaded ?? false;
-  const login = authData?.login;
   const router = useRouter();
   const segments = useSegments();
-  const setUser = useUser()?.setUser;
 
   useEffect(() => {
     const timer = setTimeout(() => setIsReady(true), 100);
@@ -193,30 +180,7 @@ function RootLayoutNav() {
     const authRoutes = ['role-selection', 'register-parent', 'register-child'];
     const inAuthGroup = authRoutes.includes(currentRoute);
 
-    // Тестовый режим: без авторизации сразу войти как демо и открыть чаты
-    if (!isAuthenticated && login && setUser && !autoDemoDoneRef.current) {
-      autoDemoDoneRef.current = true;
-      (async () => {
-        try {
-          await login('demo_parent', 'parent');
-          await setUser({
-            id: 'demo_parent',
-            name: 'Демо-родитель',
-            createdAt: Date.now(),
-            role: 'parent',
-            children: [],
-          });
-          router.replace('/(tabs)/index' as never);
-        } catch (e) {
-          console.error('[RootLayoutNav] Auto-demo login failed:', e);
-          autoDemoDoneRef.current = false;
-          router.replace('/role-selection' as never);
-        }
-      })();
-      return;
-    }
-
-    // Не авторизован: вести на выбор роли (кроме тестового режима, где уже сделали авто-демо)
+    // Не авторизован: вести на выбор роли
     if (!isAuthenticated) {
       if (!inAuthGroup) {
         const timer = setTimeout(() => {
@@ -243,7 +207,7 @@ function RootLayoutNav() {
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [isAuthenticated, isAuthLoaded, segments, router, isReady, login, setUser]);
+  }, [isAuthenticated, isAuthLoaded, segments, router, isReady]);
 
   const securityHeaderLeft = useMemo(() => {
     const HeaderLeftComponent = () => <HeaderBackButton fallbackHref="/(tabs)/index" forceFallback />;
@@ -458,24 +422,21 @@ const splashStyles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   logoWrap: {
-    width: LOGO_SIZE,
-    height: LOGO_SIZE,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: TITLE_GAP,
-    overflow: 'hidden',
-  },
-  logo: {
-    width: LOGO_SIZE,
-    height: LOGO_SIZE,
-    maxWidth: LOGO_SIZE,
-    maxHeight: LOGO_SIZE,
+    marginBottom: 24,
   },
   title: {
-    fontSize: 26,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    letterSpacing: 0.8,
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#0B1220',
+    letterSpacing: 1,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  subtitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#64748b',
+    letterSpacing: 0.5,
     textAlign: 'center',
   },
 });
