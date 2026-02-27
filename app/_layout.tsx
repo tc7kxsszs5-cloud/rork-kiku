@@ -30,19 +30,7 @@ import { applyGlobalCursorStyles } from "@/utils/cursorStyles";
 import { initializeTestCustomEmojis } from "@/utils/initCustomEmojis";
 
 function CustomSplashScreen() {
-  return (
-    <SafeAreaView style={splashStyles.wrapper}>
-      <View style={splashStyles.container}>
-        <View style={splashStyles.content}>
-          <Image
-            source={require('@/assets/images/splash-screen.png')}
-            style={splashStyles.logoWrap}
-            resizeMode="contain"
-          />
-        </View>
-      </View>
-    </SafeAreaView>
-  );
+  return <View style={splashStyles.container} />;
 }
 
 // Применяем пользовательские курсоры для web
