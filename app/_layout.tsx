@@ -35,12 +35,10 @@ function CustomSplashScreen() {
       <View style={splashStyles.container}>
         <View style={splashStyles.content}>
           <Image
-            source={require('@/assets/images/icon.png')}
+            source={require('@/assets/images/splash-screen.png')}
             style={splashStyles.logoWrap}
             resizeMode="contain"
           />
-          <Text style={splashStyles.title}>Safe Zone</Text>
-          <Text style={splashStyles.subtitle}>Безопасное общение</Text>
         </View>
       </View>
     </SafeAreaView>
@@ -423,11 +421,8 @@ const splashStyles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   logoWrap: {
-    width: 180,
-    height: 180,
-    marginBottom: 24,
-    borderRadius: 40,
-    overflow: 'hidden',
+    width: 280,
+    height: 327,
   },
   title: {
     fontSize: 28,
