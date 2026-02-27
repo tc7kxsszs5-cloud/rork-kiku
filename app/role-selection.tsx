@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, Href } from 'expo-router';
@@ -282,15 +282,13 @@ export default function RoleSelectionScreen() {
             </Text>
           </TouchableOpacity>
 
-          {Platform.OS === 'web' && (
-            <TouchableOpacity
-              style={[styles.demoButton]}
-              onPress={handleDemoOpen}
-              testID="role-selection-demo-button"
-            >
-              <Text style={styles.demoButtonText}>Демо: открыть приложение без регистрации</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={[styles.demoButton]}
+            onPress={handleDemoOpen}
+            testID="role-selection-demo-button"
+          >
+            <Text style={styles.demoButtonText}>Демо: открыть приложение без регистрации</Text>
+          </TouchableOpacity>
         </ScrollView>
       </LinearGradient>
     </View>

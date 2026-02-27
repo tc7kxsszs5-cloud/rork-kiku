@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
-import { StyleSheet, Platform, View, Text, TouchableOpacity, SafeAreaView } from "react-native";
+import { StyleSheet, Platform, View, Text, TouchableOpacity, SafeAreaView, Image } from "react-native";
 import { ChevronLeft } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MonitoringProvider } from "@/constants/MonitoringContext";
@@ -24,20 +24,21 @@ import { PremiumProvider } from "@/constants/PremiumContext";
 import { ChatBackgroundsProvider } from "@/constants/ChatBackgroundsContext";
 import { AuthProvider, useAuth } from "@/constants/AuthContext";
 import { ActivationTracker } from "@/components/ActivationTracker";
-import { AnimatedLogo } from "@/components/AnimatedLogo";
 import { trpc, trpcClient } from "@/lib/trpc";
 import "@/constants/i18n";
 import { applyGlobalCursorStyles } from "@/utils/cursorStyles";
 import { initializeTestCustomEmojis } from "@/utils/initCustomEmojis";
-
-const LOGO_SIZE = 180;
 
 function CustomSplashScreen() {
   return (
     <SafeAreaView style={splashStyles.wrapper}>
       <View style={splashStyles.container}>
         <View style={splashStyles.content}>
-          <AnimatedLogo size={LOGO_SIZE} duration={9000} style={splashStyles.logoWrap} />
+          <Image
+            source={require('@/assets/images/icon.png')}
+            style={splashStyles.logoWrap}
+            resizeMode="contain"
+          />
           <Text style={splashStyles.title}>Safe Zone</Text>
           <Text style={splashStyles.subtitle}>Безопасное общение</Text>
         </View>
@@ -408,11 +409,11 @@ export default function RootLayout() {
 const splashStyles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1B2B47',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1B2B47',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -422,12 +423,16 @@ const splashStyles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   logoWrap: {
+    width: 180,
+    height: 180,
     marginBottom: 24,
+    borderRadius: 40,
+    overflow: 'hidden',
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#0B1220',
+    color: '#F8FAFC',
     letterSpacing: 1,
     textAlign: 'center',
     marginBottom: 6,
@@ -435,7 +440,7 @@ const splashStyles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#64748b',
+    color: '#94A3B8',
     letterSpacing: 0.5,
     textAlign: 'center',
   },
