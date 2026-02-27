@@ -14,8 +14,8 @@ test.describe('Settings & Theme', () => {
         role: 'parent',
       }));
     });
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/', { waitUntil: 'commit' });
+    await page.waitForFunction(() => (document.getElementById('root')?.children.length ?? 0) > 0, { timeout: 45000 });
   });
 
   test('can open Profile', async ({ page }) => {

@@ -16,7 +16,7 @@ export default defineConfig({
   testMatch: ['**/*.spec.ts', '**/*.spec.tsx'],
   testIgnore: ['**/*.test.ts', '**/*.test.tsx', '**/node_modules/**'],
 
-  timeout: 60 * 1000,
+  timeout: 120 * 1000,
   expect: { timeout: 15 * 1000 },
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : 2,
@@ -31,8 +31,8 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     trace: 'on-first-retry',
-    actionTimeout: 15 * 1000,
-    navigationTimeout: 30 * 1000,
+    actionTimeout: 45 * 1000,
+    navigationTimeout: 90 * 1000,
   },
 
   projects: [

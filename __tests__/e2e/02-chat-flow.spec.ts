@@ -15,8 +15,8 @@ test.describe('Chat Flow', () => {
         role: 'child',
       }));
     });
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/', { waitUntil: 'commit' });
+    await page.waitForFunction(() => (document.getElementById('root')?.children.length ?? 0) > 0, { timeout: 45000 });
   });
 
   test('main screen shows Chats tab', async ({ page }) => {

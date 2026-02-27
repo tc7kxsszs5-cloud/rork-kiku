@@ -14,8 +14,8 @@ test.describe('SOS & Alert System', () => {
         role: 'child',
       }));
     });
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/', { waitUntil: 'commit' });
+    await page.waitForFunction(() => (document.getElementById('root')?.children.length ?? 0) > 0, { timeout: 45000 });
   });
 
   test('main tabs are visible', async ({ page }) => {

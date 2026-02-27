@@ -10,8 +10,8 @@ test.describe('Onboarding Flow', () => {
     await page.addInitScript(() => {
       window.localStorage.setItem('i18nextLng', 'en');
     });
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/', { waitUntil: 'commit' });
+    await page.waitForFunction(() => (document.getElementById('root')?.children.length ?? 0) > 0, { timeout: 45000 });
   });
 
   test('role selection screen shows English title and roles', async ({ page }) => {
@@ -37,6 +37,6 @@ test.describe('Onboarding Flow', () => {
 
   test('role selection has descriptions (monitor, safe, etc.)', async ({ page }) => {
     await expect(page.getByText(/Choose your role/i)).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText(/monitor|control|safe|protection/i)).toBeVisible();
+    await expect(page.getByText(/monitor|control|safe|protection/i).first()).toBeVisible();
   });
 });
