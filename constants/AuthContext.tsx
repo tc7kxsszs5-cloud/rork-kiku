@@ -32,6 +32,15 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
         if (stored) {
           const state = JSON.parse(stored);
           setAuthState(state);
+        } else {
+          // Авто-вход в демо-режиме при первом запуске
+          const demoState: AuthState = {
+            isAuthenticated: true,
+            userId: 'demo_parent',
+            role: 'parent',
+          };
+          setAuthState(demoState);
+          await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(demoState));
         }
       } catch (error) {
         logger.error('Failed to load auth state', error instanceof Error ? error : new Error(String(error)), { context: 'AuthContext', action: 'loadAuthState' });

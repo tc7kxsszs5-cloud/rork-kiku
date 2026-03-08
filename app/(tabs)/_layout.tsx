@@ -1,14 +1,18 @@
 import { Tabs } from "expo-router";
-import { MessageCircle, User, Settings, Users, Phone } from "lucide-react-native";
+import { MessageCircle, User, Settings, Users, Phone, BookOpen } from "lucide-react-native";
 import React from "react";
 import { StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeMode } from "@/constants/ThemeContext";
 import { ThemeModeToggle } from "@/components/ThemeModeToggle";
+import { useTranslation } from "react-i18next";
 
 // Нижняя панель: Чаты, Контакты, Звонки, Настройки, Профиль.
 // Остальные экраны (Достижения, Уроки, О приложении, Аналитика и т.д.) доступны из Профиля.
 export default function TabLayout() {
   const { theme } = useThemeMode();
+  const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   return (
     <Tabs
       screenOptions={{
@@ -30,6 +34,9 @@ export default function TabLayout() {
           {
             backgroundColor: theme.tabBarBackground,
             borderTopColor: theme.borderSoft,
+            height: 56 + Math.max(insets.bottom, 8),
+            paddingBottom: Math.max(insets.bottom, 8),
+            paddingTop: 6,
           },
         ],
         tabBarLabelStyle: styles.tabBarLabel,
@@ -38,36 +45,43 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Чаты",
+          title: t('tabs.chats'),
           tabBarIcon: ({ color }: { color: string }) => <MessageCircle color={color} size={24} />,
           headerShown: false,
         }}
       />
       <Tabs.Screen
+        name="channels"
+        options={{
+          title: 'Каналы',
+          tabBarIcon: ({ color }: { color: string }) => <BookOpen color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
         name="contacts"
         options={{
-          title: "Контакты",
+          title: t('tabs.contacts'),
           tabBarIcon: ({ color }: { color: string }) => <Users color={color} size={24} />,
         }}
       />
       <Tabs.Screen
         name="calls"
         options={{
-          title: "Звонки",
+          title: t('tabs.calls'),
           tabBarIcon: ({ color }: { color: string }) => <Phone color={color} size={24} />,
         }}
       />
       <Tabs.Screen
         name="messenger-settings"
         options={{
-          title: "Настройки",
+          title: t('tabs.settings'),
           tabBarIcon: ({ color }: { color: string }) => <Settings color={color} size={24} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Профиль",
+          title: t('tabs.profile'),
           tabBarIcon: ({ color }: { color: string }) => <User color={color} size={24} />,
           headerShown: false,
         }}
@@ -85,8 +99,6 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBarBase: {
     borderTopWidth: 2,
-    height: 60,
-    paddingBottom: 8,
     paddingTop: 8,
   },
   tabBarLabel: {

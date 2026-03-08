@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { ReactNode, useEffect, useMemo, useState } from "react";
-import { StyleSheet, Platform, View, Text, TouchableOpacity, SafeAreaView, Image } from "react-native";
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { StyleSheet, Platform, View, Text, TouchableOpacity, SafeAreaView, Image, Animated } from "react-native";
 import { ChevronLeft } from "lucide-react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { MonitoringProvider } from "@/constants/MonitoringContext";
@@ -30,7 +30,29 @@ import { applyGlobalCursorStyles } from "@/utils/cursorStyles";
 import { initializeTestCustomEmojis } from "@/utils/initCustomEmojis";
 
 function CustomSplashScreen() {
-  return <View style={splashStyles.container} />;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.85)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+      Animated.spring(scaleAnim, { toValue: 1, friction: 6, tension: 80, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  return (
+    <View style={splashStyles.container}>
+      <Animated.View style={[splashStyles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
+        <Image
+          source={require('@/assets/images/icon.png')}
+          style={splashStyles.logo}
+          resizeMode="contain"
+        />
+        <Text style={splashStyles.title}>Safe Zone</Text>
+        <Text style={splashStyles.subtitle}>Защита детей онлайн</Text>
+      </Animated.View>
+    </View>
+  );
 }
 
 // Применяем пользовательские курсоры для web
@@ -369,8 +391,14 @@ export default function RootLayout() {
       });
     });
 
-    // Инициализация и переход в приложение
-    initializeApp().then(() => {
+    // Инициализация и переход в приложение (минимум 1.5с для брендинга)
+    const splashStart = Date.now();
+    initializeApp().then(async () => {
+      const elapsed = Date.now() - splashStart;
+      const minSplash = 1500;
+      if (elapsed < minSplash) {
+        await new Promise(resolve => setTimeout(resolve, minSplash - elapsed));
+      }
       if (isMounted) setIsReady(true);
     });
 
@@ -393,10 +421,6 @@ export default function RootLayout() {
 }
 
 const splashStyles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    backgroundColor: '#1B2B47',
-  },
   container: {
     flex: 1,
     backgroundColor: '#1B2B47',
@@ -408,22 +432,27 @@ const splashStyles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 32,
   },
-  logoWrap: {
-    width: 280,
-    height: 327,
+  logo: {
+    width: 200,
+    height: 200,
+    borderRadius: 36,
+    marginBottom: 28,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#F8FAFC',
-    letterSpacing: 1,
+    fontSize: 36,
+    fontWeight: '800',
+    color: '#C9A84C',
+    letterSpacing: 2,
     textAlign: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
+    textShadowColor: 'rgba(201,168,76,0.4)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '500',
-    color: '#94A3B8',
+    color: '#7A9CC0',
     letterSpacing: 0.5,
     textAlign: 'center',
   },

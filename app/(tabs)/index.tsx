@@ -19,13 +19,14 @@ import { ThemeModeToggle } from '@/components/ThemeModeToggle';
 import { SyncStatusIndicator } from '@/components/SyncStatusIndicator';
 import { OnlineStatus } from '@/components/OnlineStatus';
 import { AnimatedLogo } from '@/components/AnimatedLogo';
+import { useTranslation } from 'react-i18next';
 
 // ---------- Логотип в шапке Чатов — ЗАФИКСИРОВАНО (не менять без согласования) ----------
 // Контейнер: 200×200, borderRadius 24. Ночь: иконка icon.png, cover, marginTop контейнера 32, иконки внутри 28.
 // День: иконка logo-hands-gold.png, contain, фон контейнера = theme.backgroundPrimary. Градиент шапки: heroGradient.
 // При смене темы меняются только цвета/картинка, не расположение (кроме ночного сдвига иконки вниз).
 /** Размер логотипа в шапке */
-const LOGO_BOX = 60;
+const LOGO_BOX = 155;
 
 const RISK_COLORS: Record<RiskLevel, string> = {
   safe: '#10b981',
@@ -35,13 +36,7 @@ const RISK_COLORS: Record<RiskLevel, string> = {
   critical: '#991b1b',
 };
 
-const RISK_LABELS: Record<RiskLevel, string> = {
-  safe: 'Безопасно',
-  low: 'Низкий',
-  medium: 'Средний',
-  high: 'Высокий',
-  critical: 'Критический',
-};
+// RISK_LABELS moved inside component to support i18n (see useRiskLabels below)
 
 type DateFilter = 'all' | 'today' | 'week' | 'month';
 
@@ -49,6 +44,14 @@ export default function MonitoringScreen() {
   const router = useRouter();
   const { chats, unresolvedAlerts } = useMonitoring();
   const { theme, themeMode } = useThemeMode();
+  const { t } = useTranslation();
+  const riskLabels: Record<RiskLevel, string> = useMemo(() => ({
+    safe: t('riskLevels.safe'),
+    low: t('riskLevels.low'),
+    medium: t('riskLevels.medium'),
+    high: t('riskLevels.high'),
+    critical: t('riskLevels.critical'),
+  }), [t]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRiskFilter] = useState<RiskLevel | 'all'>('all');
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
@@ -157,12 +160,12 @@ export default function MonitoringScreen() {
       minute: '2-digit',
     });
 
-    const chatTitle = item.isGroup 
-      ? (item.groupName || 'Группа') 
-      : (item.participantNames?.join(' и ') || 'Чат');
-    const chatSubtitle = item.isGroup 
-      ? `${item.participants?.length || 0} участников • ${messageCount} сообщ.`
-      : `${messageCount} ${messageCount === 1 ? 'сообщение' : 'сообщений'}`;
+    const chatTitle = item.isGroup
+      ? (item.groupName || t('home.group'))
+      : (item.participantNames?.join(' и ') || t('home.chat'));
+    const chatSubtitle = item.isGroup
+      ? `${item.participants?.length || 0} ${t('home.participants')} • ${messageCount}`
+      : `${messageCount} ${messageCount === 1 ? t('home.message') : t('home.messages')}`;
 
     const GROUP_TYPE_EMOJI: Record<string, string> = {
       class: '🏫',
@@ -190,7 +193,7 @@ export default function MonitoringScreen() {
               {!item.isGroup && <OnlineStatus size="small" style={styles.chatStatus} />}
             </View>
             <Text style={styles.chatSubtitle}>{chatSubtitle}</Text>
-            <Text style={styles.lastActivity}>Последняя активность: {lastActivityText}</Text>
+            <Text style={styles.lastActivity}>{t('home.lastActivity')}: {lastActivityText}</Text>
           </View>
         </View>
 
@@ -198,14 +201,13 @@ export default function MonitoringScreen() {
           {item.overallRisk && (
             <View style={[styles.riskBadge, { backgroundColor: RISK_COLORS[item.overallRisk] || RISK_COLORS.safe }]}>
               <Shield size={14} color="#fff" />
-              <Text style={styles.riskText}>{RISK_LABELS[item.overallRisk] || RISK_LABELS.safe}</Text>
+              <Text style={styles.riskText}>{riskLabels[item.overallRisk] || riskLabels.safe}</Text>
             </View>
           )}
         </View>
       </TouchableOpacity>
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- styles from theme, omit to avoid extra re-renders
-  }, [router]);
+  }, [router, t, riskLabels, styles]);
 
   return (
     <View style={styles.container} testID="monitoring-screen">
@@ -238,7 +240,7 @@ export default function MonitoringScreen() {
             <Search size={18} color={theme.textSecondary} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Поиск по участникам и содержимому сообщений..."
+              placeholder={t('home.search')}
               value={searchQuery}
               onChangeText={setSearchQuery}
               placeholderTextColor={theme.textSecondary}
@@ -266,7 +268,7 @@ export default function MonitoringScreen() {
             <View style={styles.advancedFiltersSection}>
               <View style={styles.filterSectionHeader}>
                 <Calendar size={16} color={theme.textSecondary} />
-                <Text style={styles.filterSectionTitle}>Период</Text>
+                <Text style={styles.filterSectionTitle}>{t('home.filterPeriod')}</Text>
               </View>
               <View style={styles.filterChipsRow}>
                 {(['all', 'today', 'week', 'month'] as DateFilter[]).map((filter) => (
@@ -279,7 +281,7 @@ export default function MonitoringScreen() {
                     }}
                   >
                     <Text style={[styles.filterChipText, dateFilter === filter && styles.filterChipTextActive]}>
-                      {filter === 'all' ? 'Все' : filter === 'today' ? 'Сегодня' : filter === 'week' ? 'Неделя' : 'Месяц'}
+                      {filter === 'all' ? t('home.filterAll') : filter === 'today' ? t('home.filterToday') : filter === 'week' ? t('home.filterWeek') : t('home.filterMonth')}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -290,7 +292,7 @@ export default function MonitoringScreen() {
               <View style={styles.advancedFiltersSection}>
                 <View style={styles.filterSectionHeader}>
                   <Users size={16} color={theme?.textSecondary || '#666'} />
-                  <Text style={styles.filterSectionTitle}>Участник</Text>
+                  <Text style={styles.filterSectionTitle}>{t('home.filterParticipant')}</Text>
                 </View>
                 <View style={styles.filterChipsRow}>
                   <TouchableOpacity
@@ -300,7 +302,7 @@ export default function MonitoringScreen() {
                       HapticFeedback.selection();
                     }}
                   >
-                    <Text style={[styles.filterChipText, participantFilter === 'all' && styles.filterChipTextActive]}>Все</Text>
+                    <Text style={[styles.filterChipText, participantFilter === 'all' && styles.filterChipTextActive]}>{t('home.filterAll')}</Text>
                   </TouchableOpacity>
                   {allParticipants.slice(0, 5).map((participant) => (
                     <TouchableOpacity
@@ -344,7 +346,7 @@ export default function MonitoringScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <MessageCircle size={48} color={theme?.borderSoft || '#ddd'} />
-            <Text style={styles.emptyText}>Ничего не найдено</Text>
+            <Text style={styles.emptyText}>{t('home.noResults')}</Text>
           </View>
         }
       />

@@ -1,4 +1,4 @@
-import React, { useState, useRef, lazy, Suspense } from 'react';
+import React, { useState, useRef, lazy, Suspense, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,10 +11,14 @@ import {
   Animated,
   ActivityIndicator,
   Alert,
+  Image,
+  Keyboard,
+  KeyboardEvent,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-import { Send, AlertTriangle, Mic, X, AlertOctagon, Smile, Phone, Video, ChevronLeft } from 'lucide-react-native';
+import { Send, AlertTriangle, Mic, X, AlertOctagon, Smile, Phone, Video, ChevronLeft, ImagePlus, ShieldAlert } from 'lucide-react-native';
 import { EmojiRenderer } from '@/components/EmojiRenderer';
 import { replaceTextSmileys } from '@/utils/emojiUtils';
 import { useMonitoring } from '@/constants/MonitoringContext';
@@ -29,6 +33,7 @@ import { useIsMounted } from '@/hooks/useIsMounted';
 import { logger } from '@/utils/logger';
 import { OnlineStatus } from '@/components/OnlineStatus';
 import { AnimatedLogo } from '@/components/AnimatedLogo';
+import { trpcVanillaClient } from '@/lib/trpc';
 
 // Lazy loading для тяжелых компонентов (загружаются только при открытии)
 const EmojiPicker = lazy(() => 
@@ -78,13 +83,105 @@ export default function ChatScreen() {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
+  const [androidKeyboardHeight, setAndroidKeyboardHeight] = useState(0);
   const micScaleAnim = useRef(new Animated.Value(1)).current;
   const sendButtonScaleAnim = useRef(new Animated.Value(1)).current;
   const isMountedRef = useIsMounted();
 
+  // Real-time messaging state
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
+  const [serverMessages, setServerMessages] = useState<Message[]>([]);
+  const isSendingRef = useRef(false);
+
+  // Фикс клавиатуры на Android (KeyboardAvoidingView ненадёжен)
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const showSub = Keyboard.addListener('keyboardDidShow', (e: KeyboardEvent) => {
+      setAndroidKeyboardHeight(e.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      setAndroidKeyboardHeight(0);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  // Merge server messages into the local chat state (by id, deduplicated)
+  const mergeServerMessages = useCallback(
+    (incoming: Message[]) => {
+      if (!chatId || incoming.length === 0) return;
+      setServerMessages((prev) => {
+        const map = new Map<string, Message>();
+        prev.forEach((m) => map.set(m.id, m));
+        incoming.forEach((m) => map.set(m.id, m));
+        return Array.from(map.values()).sort((a, b) => a.timestamp - b.timestamp);
+      });
+    },
+    [chatId]
+  );
+
+  // Poll for new messages every 3 seconds while chat is open
+  useEffect(() => {
+    if (!chatId) return;
+
+    const fetchNewMessages = async () => {
+      try {
+        const result = await trpcVanillaClient.messages.getForChat.query({
+          chatId,
+          since: lastFetchTime > 0 ? lastFetchTime : undefined,
+        });
+        if (result.success && result.messages.length > 0) {
+          const mapped: Message[] = result.messages.map((m) => ({
+            id: m.id,
+            text: m.content ?? m.text ?? '',
+            senderId: m.senderId,
+            senderName: m.senderName,
+            timestamp: m.timestamp,
+            analyzed: m.analyzed ?? false,
+            riskLevel: (m.riskLevel as RiskLevel) ?? 'safe',
+            riskReasons: [],
+            imageUri: undefined,
+            imageAnalyzed: true,
+            imageBlocked: false,
+          }));
+          mergeServerMessages(mapped);
+          setLastFetchTime(Date.now());
+        }
+      } catch (err) {
+        // Polling errors are non-critical — log silently
+        logger.error(
+          'Failed to poll messages',
+          err instanceof Error ? err : new Error(String(err)),
+          { component: 'ChatScreen', action: 'pollMessages', chatId }
+        );
+      }
+    };
+
+    // Initial fetch immediately
+    fetchNewMessages();
+
+    const interval = setInterval(fetchNewMessages, 3000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatId]);
+
   const chat = chatId ? chats.find((c) => c.id === chatId) : undefined;
   const chatBackground = chatId ? getChatBackground(chatId) : null;
   const chatsLoaded = Array.isArray(chats);
+
+  // Merge local chat messages with messages fetched from the server
+  const displayedMessages: Message[] = (() => {
+    const local = Array.isArray(chat?.messages) ? chat!.messages : [];
+    if (serverMessages.length === 0) return local;
+    const map = new Map<string, Message>();
+    serverMessages.forEach((m) => map.set(m.id, m));
+    // Local messages win (they carry AI analysis state)
+    local.forEach((m) => map.set(m.id, m));
+    return Array.from(map.values()).sort((a, b) => a.timestamp - b.timestamp);
+  })();
 
   const goToChatList = () => {
     if (router.canGoBack()) {
@@ -226,6 +323,31 @@ export default function ChatScreen() {
     }
   };
 
+  const handlePickImage = async () => {
+    if (Platform.OS === 'web') {
+      Alert.alert('Выбор фото', 'На веб-версии функция выбора фото ограничена платформой');
+      return;
+    }
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert('Доступ к галерее', 'Разрешите доступ к галерее для отправки фото');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets[0]) {
+        setSelectedImageUri(result.assets[0].uri);
+        HapticFeedback.light();
+      }
+    } catch (err) {
+      logger.error('Failed to pick image', err instanceof Error ? err : new Error(String(err)), { component: 'ChatScreen', action: 'handlePickImage' });
+    }
+  };
+
   const transcribeAudio = async (uri: string) => {
     if (!isMountedRef.current) {
       return;
@@ -295,7 +417,9 @@ export default function ChatScreen() {
   };
 
   const handleSend = async () => {
-    if (!inputText.trim()) return;
+    if (!inputText.trim() || isSendingRef.current) return;
+
+    isSendingRef.current = true;
 
     Animated.sequence([
       Animated.timing(sendButtonScaleAnim, {
@@ -311,16 +435,44 @@ export default function ChatScreen() {
     ]).start();
 
     HapticFeedback.medium();
-    const sender = Math.random() > 0.5 ? chat.participants[0] : chat.participants[1];
-    const senderName = sender === chat.participants[0] ? chat.participantNames[0] : chat.participantNames[1];
+    const sender = user?.id ?? (chat.participants[0] || 'unknown');
+    const senderName = user?.name ?? (chat.participantNames[0] || 'Unknown');
 
     // Заменяем текстовые смайлики на эмодзи перед отправкой
     const processedText = replaceTextSmileys(inputText.trim());
 
-    await addMessage(chatId, processedText, sender, senderName);
+    // 1. Optimistic local update (keeps AI analysis pipeline working)
+    await addMessage(chatId, processedText, sender, senderName, selectedImageUri || undefined);
+
     if (isMountedRef.current) {
       setInputText('');
+      setSelectedImageUri(null);
       setShowEmojiPicker(false);
+    }
+
+    // 2. Persist to backend (best-effort — local message is already visible)
+    try {
+      const recipientUserId = chat.participants.find((p) => p !== sender);
+      await trpcVanillaClient.messages.send.mutate({
+        chatId,
+        content: processedText,
+        recipientUserId: recipientUserId || undefined,
+        senderName,
+        messageType: 'text',
+      });
+      // After successful send, update lastFetchTime so next poll only fetches newer messages
+      if (isMountedRef.current) {
+        setLastFetchTime(Date.now());
+      }
+    } catch (err) {
+      // Non-critical: local message already shown, backend sync will pick it up later
+      logger.error(
+        'Failed to send message to backend',
+        err instanceof Error ? err : new Error(String(err)),
+        { component: 'ChatScreen', action: 'handleSend', chatId }
+      );
+    } finally {
+      isSendingRef.current = false;
     }
   };
 
@@ -388,7 +540,25 @@ export default function ChatScreen() {
             style={[styles.messageBubble, styles.bubbleRight, styles.bubbleGradient]}
           >
             {chat.isGroup && <Text style={styles.senderNameWhite}>{item.senderName}</Text>}
-            <EmojiRenderer text={item.text} emojiSize={22} style={styles.messageTextWhite} />
+            {item.imageUri && (
+              <View style={styles.imageContainer}>
+                {item.imageBlocked ? (
+                  <View style={styles.imageBlocked}>
+                    <ShieldAlert size={28} color="#ef4444" />
+                    <Text style={styles.imageBlockedText}>Изображение заблокировано</Text>
+                  </View>
+                ) : (
+                  <Image source={{ uri: item.imageUri }} style={styles.messageImage} resizeMode="cover" />
+                )}
+                {!item.imageAnalyzed && (
+                  <View style={styles.imageAnalyzingBadge}>
+                    <ActivityIndicator size="small" color="#fff" />
+                    <Text style={styles.imageAnalyzingText}>Анализ...</Text>
+                  </View>
+                )}
+              </View>
+            )}
+            {item.text ? <EmojiRenderer text={item.text} emojiSize={22} style={styles.messageTextWhite} /> : null}
             
             {/* Технические детали для мониторинга (как в оригинале) */}
             {!item.analyzed && (
@@ -425,7 +595,25 @@ export default function ChatScreen() {
           // Сообщения других - светлый фон с рамкой
           <View style={[styles.messageBubble, styles.bubbleLeft]}>
             {chat.isGroup && <Text style={styles.senderName}>{item.senderName}</Text>}
-            <EmojiRenderer text={item.text} emojiSize={22} style={styles.messageText} />
+            {item.imageUri && (
+              <View style={styles.imageContainer}>
+                {item.imageBlocked ? (
+                  <View style={styles.imageBlocked}>
+                    <ShieldAlert size={28} color="#ef4444" />
+                    <Text style={styles.imageBlockedText}>Изображение заблокировано</Text>
+                  </View>
+                ) : (
+                  <Image source={{ uri: item.imageUri }} style={styles.messageImage} resizeMode="cover" />
+                )}
+                {!item.imageAnalyzed && (
+                  <View style={styles.imageAnalyzingBadge}>
+                    <ActivityIndicator size="small" color="#666" />
+                    <Text style={[styles.imageAnalyzingText, { color: '#666' }]}>Анализ...</Text>
+                  </View>
+                )}
+              </View>
+            )}
+            {item.text ? <EmojiRenderer text={item.text} emojiSize={22} style={styles.messageText} /> : null}
             
             {/* Технические детали для мониторинга (как в оригинале) */}
             {!item.analyzed && (
@@ -469,10 +657,13 @@ export default function ChatScreen() {
         options={{
           headerTitle: () => (
             <View style={styles.headerTitleContainer}>
-              <AnimatedLogo size={36} duration={9000} />
-              <Text style={styles.headerTitleText} numberOfLines={1}>
-                {chat.isGroup ? chat.groupName : chat.participantNames.join(' и ')}
-              </Text>
+              <AnimatedLogo size={44} static />
+              <View>
+                <Text style={styles.headerTitleText} numberOfLines={1}>
+                  {chat.isGroup ? chat.groupName : chat.participantNames.join(' и ')}
+                </Text>
+                <Text style={styles.headerSubtitleText}>Safe Zone</Text>
+              </View>
             </View>
           ),
           headerLeft: () => (
@@ -558,8 +749,11 @@ export default function ChatScreen() {
           chatBackground?.type === 'solid' && chatBackground.color
             ? { backgroundColor: chatBackground.color }
             : {},
+          Platform.OS === 'android' && androidKeyboardHeight > 0
+            ? { paddingBottom: androidKeyboardHeight }
+            : {},
         ]}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={100}
       >
         {chatBackground && chatBackground.type === 'gradient' && chatBackground.gradient ? (
@@ -573,10 +767,10 @@ export default function ChatScreen() {
         ) : null}
         <FlatList
           style={styles.messagesListContainer}
-          data={Array.isArray(chat.messages) ? chat.messages : []}
+          data={displayedMessages}
           renderItem={renderMessage}
           keyExtractor={(item) => item.id}
-          extraData={chat.messages?.length ?? 0}
+          extraData={displayedMessages.length}
           contentContainerStyle={styles.messagesList}
           inverted={false}
           initialNumToRender={15}
@@ -584,6 +778,13 @@ export default function ChatScreen() {
           windowSize={10}
           removeClippedSubviews={Platform.OS !== 'web'}
           updateCellsBatchingPeriod={50}
+          ListEmptyComponent={
+            <View style={styles.emptyChat}>
+              <AnimatedLogo size={100} static style={styles.emptyChatLogo} />
+              <Text style={styles.emptyChatTitle}>Safe Zone</Text>
+              <Text style={styles.emptyChatSubtitle}>Начни общение{'\n'}Все сообщения защищены</Text>
+            </View>
+          }
         />
 
         {isAnalyzing && (
@@ -597,6 +798,15 @@ export default function ChatScreen() {
             <Text style={styles.aiTestHintText}>
               Тест ИИ: отправьте сообщение — под ним появится оценка риска (безопасно / низкий / средний / высокий).
             </Text>
+          </View>
+        )}
+
+        {selectedImageUri && (
+          <View style={styles.imagePreviewContainer}>
+            <Image source={{ uri: selectedImageUri }} style={styles.imagePreview} resizeMode="cover" />
+            <TouchableOpacity style={styles.imagePreviewRemove} onPress={() => setSelectedImageUri(null)}>
+              <X size={16} color="#fff" />
+            </TouchableOpacity>
           </View>
         )}
 
@@ -633,6 +843,9 @@ export default function ChatScreen() {
               >
                 <Smile size={22} color="#C9A84C" />
               </TouchableOpacity>
+              <TouchableOpacity style={styles.imageButton} onPress={handlePickImage}>
+                <ImagePlus size={22} color="#C9A84C" />
+              </TouchableOpacity>
               <TextInput
                 style={styles.input}
                 value={inputText}
@@ -659,11 +872,11 @@ export default function ChatScreen() {
               <Animated.View style={{ transform: [{ scale: sendButtonScaleAnim }] }}>
                 <TouchableOpacity
                   testID="send-button"
-                  style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+                  style={[styles.sendButton, (!inputText.trim() && !selectedImageUri) && styles.sendButtonDisabled]}
                   onPress={handleSend}
-                  disabled={!inputText.trim()}
+                  disabled={!inputText.trim() && !selectedImageUri}
                 >
-                  <Send size={20} color={inputText.trim() ? '#fff' : '#999'} />
+                  <Send size={20} color={(inputText.trim() || selectedImageUri) ? '#fff' : '#999'} />
                 </TouchableOpacity>
               </Animated.View>
             </>
@@ -914,14 +1127,49 @@ const styles = StyleSheet.create({
   headerTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    maxWidth: 200,
+    gap: 10,
+    maxWidth: 210,
   },
   headerTitleText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
     color: '#0f172a',
     flexShrink: 1,
+  },
+  headerSubtitleText: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#C9A84C',
+    letterSpacing: 0.5,
+  },
+  emptyChat: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 80,
+    gap: 16,
+  },
+  emptyChatLogo: {
+    shadowColor: '#C9A84C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  emptyChatTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#C9A84C',
+    letterSpacing: 1.5,
+    textShadowColor: 'rgba(201,168,76,0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
+  },
+  emptyChatSubtitle: {
+    fontSize: 14,
+    color: '#7A9CC0',
+    textAlign: 'center',
+    lineHeight: 20,
   },
   headerBackTouchable: {
     flexDirection: 'row',
@@ -1143,6 +1391,90 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
+  },
+  imageButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+    backgroundColor: '#FFF9C4',
+    borderWidth: 2,
+    borderColor: '#C9A84C',
+    shadowColor: '#C9A84C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  imagePreviewContainer: {
+    marginHorizontal: 12,
+    marginBottom: 8,
+    position: 'relative',
+    alignSelf: 'flex-start',
+  },
+  imagePreview: {
+    width: 80,
+    height: 80,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#C9A84C',
+  },
+  imagePreviewRemove: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#ef4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageContainer: {
+    marginBottom: 8,
+    borderRadius: 12,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  messageImage: {
+    width: 220,
+    height: 180,
+    borderRadius: 12,
+  },
+  imageBlocked: {
+    width: 220,
+    height: 100,
+    backgroundColor: '#fee2e2',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#ef4444',
+  },
+  imageBlockedText: {
+    fontSize: 13,
+    color: '#ef4444',
+    fontWeight: '600',
+  },
+  imageAnalyzingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 8,
+    position: 'absolute',
+    bottom: 6,
+    left: 6,
+  },
+  imageAnalyzingText: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: '500',
   },
   loadingContainer: {
     position: 'absolute',

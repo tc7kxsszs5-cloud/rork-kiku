@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Image as RNImage, Pressable, Linkin
 import { AlertOctagon, Image as ImageIcon, Clock, Users, Lock, FileText, Eye } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import appIcon from '@/assets/images/icon.png';
-import appIconLight from '@/assets/images/logo-hands-gold.png';
+const appIconLight = appIcon; // logo-hands-gold.png was JPEG disguised as PNG — use icon.png instead
 import { useThemeMode } from '@/constants/ThemeContext';
 import { PayPalButton, QuickDonateButton } from '@/components/PayPalButton';
 import { logger } from '@/utils/logger';

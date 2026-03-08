@@ -12,6 +12,9 @@ import { registerParentProcedure } from "./routes/auth/register-parent.js";
 import { registerChildProcedure } from "./routes/auth/register-child.js";
 import { validateParentCodeProcedure } from "./routes/auth/validate-code.js";
 import { analyzeMessageProcedure } from "./routes/ai/analyze-message.js";
+import { analyzeImageProcedure } from "./routes/ai/analyze-image.js";
+import { sendMessageProcedure } from "./routes/messages/send.js";
+import { getMessagesForChatProcedure } from "./routes/messages/get.js";
 
 export const appRouter = createTRPCRouter({
   example: createTRPCRouter({
@@ -40,6 +43,11 @@ export const appRouter = createTRPCRouter({
   }),
   ai: createTRPCRouter({
     analyzeMessage: analyzeMessageProcedure,
+    analyzeImage: analyzeImageProcedure,
+  }),
+  messages: createTRPCRouter({
+    send: sendMessageProcedure,
+    getForChat: getMessagesForChatProcedure,
   }),
 });
 
