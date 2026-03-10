@@ -41,3 +41,4 @@ local/command-logs/
 local/session-logs/
 local/chat-exports/
 local/terminal-logs/
+.worktrees
