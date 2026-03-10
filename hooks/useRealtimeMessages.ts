@@ -33,7 +33,7 @@ export function useRealtimeMessages(
       .subscribe();
 
     return () => {
-      supabaseClient.removeChannel(channel);
+      supabaseClient?.removeChannel(channel);
     };
   }, [chatId]);
 }

@@ -30,6 +30,7 @@ import { Message, RiskLevel } from '@/constants/types';
 import { HapticFeedback } from '@/constants/haptics';
 import { Audio } from 'expo-av';
 import { useIsMounted } from '@/hooks/useIsMounted';
+import { useRealtimeMessages } from '@/hooks/useRealtimeMessages';
 import { logger } from '@/utils/logger';
 import { OnlineStatus } from '@/components/OnlineStatus';
 import { AnimatedLogo } from '@/components/AnimatedLogo';
@@ -123,50 +124,53 @@ export default function ChatScreen() {
     [chatId]
   );
 
-  // Poll for new messages every 3 seconds while chat is open
-  useEffect(() => {
+  // Fetch messages from server — used on mount and on Realtime broadcast event
+  const fetchNewMessages = useCallback(async () => {
     if (!chatId) return;
-
-    const fetchNewMessages = async () => {
-      try {
-        const result = await trpcVanillaClient.messages.getForChat.query({
-          chatId,
-          since: lastFetchTime > 0 ? lastFetchTime : undefined,
-        });
-        if (result.success && result.messages.length > 0) {
-          const mapped: Message[] = result.messages.map((m) => ({
-            id: m.id,
-            text: m.content ?? m.text ?? '',
-            senderId: m.senderId,
-            senderName: m.senderName,
-            timestamp: m.timestamp,
-            analyzed: m.analyzed ?? false,
-            riskLevel: (m.riskLevel as RiskLevel) ?? 'safe',
-            riskReasons: [],
-            imageUri: undefined,
-            imageAnalyzed: true,
-            imageBlocked: false,
-          }));
-          mergeServerMessages(mapped);
-          setLastFetchTime(Date.now());
-        }
-      } catch (err) {
-        // Polling errors are non-critical — log silently
-        logger.error(
-          'Failed to poll messages',
-          err instanceof Error ? err : new Error(String(err)),
-          { component: 'ChatScreen', action: 'pollMessages', chatId }
-        );
+    try {
+      const result = await trpcVanillaClient.messages.getForChat.query({
+        chatId,
+        since: lastFetchTime > 0 ? lastFetchTime : undefined,
+      });
+      if (result.success && result.messages.length > 0) {
+        const mapped: Message[] = result.messages.map((m) => ({
+          id: m.id,
+          text: m.content ?? m.text ?? '',
+          senderId: m.senderId,
+          senderName: m.senderName,
+          timestamp: m.timestamp,
+          analyzed: m.analyzed ?? false,
+          riskLevel: (m.riskLevel as RiskLevel) ?? 'safe',
+          riskReasons: [],
+          imageUri: undefined,
+          imageAnalyzed: true,
+          imageBlocked: false,
+        }));
+        mergeServerMessages(mapped);
+        setLastFetchTime(Date.now());
       }
-    };
+    } catch (err) {
+      logger.error(
+        'Failed to fetch messages',
+        err instanceof Error ? err : new Error(String(err)),
+        { component: 'ChatScreen', action: 'fetchMessages', chatId }
+      );
+    }
+  }, [chatId, lastFetchTime, mergeServerMessages]);
 
-    // Initial fetch immediately
+  // Initial fetch on mount / chatId change
+  useEffect(() => {
     fetchNewMessages();
-
-    const interval = setInterval(fetchNewMessages, 3000);
-    return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatId]);
+
+  // Realtime: fetch on broadcast event.
+  // Passing an inline arrow is intentional — useRealtimeMessages stores onNewMessage
+  // in a ref, so the latest fetchNewMessages (with current lastFetchTime) is always
+  // called. Do NOT remove the ref pattern from useRealtimeMessages.
+  useRealtimeMessages(chatId ?? null, () => {
+    fetchNewMessages();
+  });
 
   const chat = chatId ? chats.find((c) => c.id === chatId) : undefined;
   const chatBackground = chatId ? getChatBackground(chatId) : null;
