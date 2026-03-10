@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { protectedProcedure } from '../../create-context.js';
 import { supabase } from '../../../utils/supabase.js';
 import { listDeviceRecords } from '../notifications/store.js';
+import { broadcastNewMessage } from '../../utils/realtime-broadcast.js';
 import { TRPCError } from '@trpc/server';
 import { randomUUID } from 'crypto';
 
@@ -95,6 +96,9 @@ export const sendMessageProcedure = protectedProcedure
         message: 'Failed to save message',
       });
     }
+
+    // Notify frontend subscribers via Realtime broadcast (HTTP REST, serverless-safe)
+    await broadcastNewMessage(chatId, messageId);
 
     // Update chats table with last message info
     const { error: chatError } = await supabase
