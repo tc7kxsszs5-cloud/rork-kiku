@@ -24,6 +24,7 @@ module.exports = {
     '!**/node_modules/**',
     '!**/.expo/**',
   ],
+  resolver: '<rootDir>/jest.resolver.js',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
     // Мок react-native, чтобы не загружать node_modules/react-native (Flow "import typeof" ломает парсер)
