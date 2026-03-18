@@ -25,7 +25,25 @@ A cross-platform (iOS, Android, Web) car wrap and tuning visualization app for t
 ### Backend
 - **Hono + tRPC** (same stack as Safe Zone)
 - **Supabase** — PostgreSQL database, Auth, Storage for thumbnails
-- **Cloudflare R2** — CDN for heavy GLB files (3D models, 5–20 MB each)
+- **Cloudflare R2** — CDN for heavy GLB files; public bucket with long `Cache-Control` headers (no signed URLs — GLBs change infrequently, caching is critical for mobile performance)
+
+### WebView ↔ React Native Bridge Contract
+Three.js runs in a bundled HTML/JS file loaded inside `react-native-webview`. All state is owned by Zustand in RN; WebView is a pure renderer.
+
+**RN → WebView (postMessage):**
+```json
+{ "type": "apply_material", "meshName": "hood", "colorHex": "#1a1a1a", "finish": "matte" }
+{ "type": "apply_tint",     "meshName": "glass_windshield", "tintPercent": 35 }
+{ "type": "reset_all" }
+{ "type": "load_model",     "glbUrl": "https://..." }
+```
+
+**WebView → RN (postMessage):**
+```json
+{ "type": "mesh_tapped", "meshName": "hood" }
+{ "type": "model_loaded" }
+{ "type": "render_ready" }
+```
 
 ---
 
@@ -48,7 +66,6 @@ A cross-platform (iOS, Android, Web) car wrap and tuning visualization app for t
 - A, C, E, S Class
 - CLA, CLE, G-Class
 - GLA, GLB, GLC, GLE, GLS
-- V-Class (minivan)
 - EQA, EQE, EQS (electric)
 
 **Audi**
@@ -78,8 +95,44 @@ One GLB per generation (same body = same file, multiple years point to it).
 
 ### 3D Model Sources
 - Sketchfab, CGTrader, TurboSquid
-- GLB files must have named, separated meshes per body part
+- **Licensing requirement:** every model must carry a **commercial license** permitting redistribution inside a mobile application. Standard/editorial licenses are not sufficient.
+- GLB files must have named, separated meshes matching the naming convention below
 - Budget estimate: ~$20–80/model → ~$1,500–2,000 for initial 40–50 models
+- **Note:** most stock models require Blender cleanup to rename/separate meshes. Budget ~1–2 hours of 3D artist time per model on top of purchase cost.
+- **GLB optimization:** apply Draco geometry compression + KTX2/WebP texture compression to bring files from 5–20 MB down to 2–5 MB before uploading to R2.
+
+### GLB Mesh Naming Convention
+All purchased models must be normalized to this naming standard before upload:
+
+| Mesh name | Part |
+|-----------|------|
+| `hood` | Hood / bonnet |
+| `roof` | Roof panel |
+| `trunk` | Boot / trunk lid |
+| `door_fl` | Front-left door |
+| `door_fr` | Front-right door |
+| `door_rl` | Rear-left door |
+| `door_rr` | Rear-right door |
+| `bumper_f` | Front bumper assembly |
+| `bumper_r` | Rear bumper assembly |
+| `grille` | Front grille |
+| `splitter_f` | Front splitter |
+| `sill_l` | Left rocker/sill panel |
+| `sill_r` | Right rocker/sill panel |
+| `arch_fl` | Front-left wheel arch |
+| `arch_fr` | Front-right wheel arch |
+| `arch_rl` | Rear-left wheel arch |
+| `arch_rr` | Rear-right wheel arch |
+| `mirror_l` | Left mirror housing |
+| `mirror_r` | Right mirror housing |
+| `glass_windshield` | Windshield |
+| `glass_rear` | Rear window |
+| `glass_side_fl` | Front-left side window |
+| `glass_side_fr` | Front-right side window |
+| `glass_side_rl` | Rear-left side window |
+| `glass_side_rr` | Rear-right side window |
+
+`car_parts.mesh_name` values must exactly match this list.
 
 ---
 
@@ -87,7 +140,7 @@ One GLB per generation (same body = same file, multiple years point to it).
 
 ### Client Flow
 ```
-Register/Login
+Register/Login (role: client)
   → Home: "Start Configuration" button
   → Select car: Brand → Model → Year/Generation
   → 3D Editor (main screen)
@@ -96,10 +149,10 @@ Register/Login
 
 ### Studio Flow
 ```
-Login (studio role)
+Register/Login (role: studio_owner)
   → Dashboard: incoming orders, statuses
   → View client configuration in 3D
-  → Add price → Confirm order
+  → Add price + notes → Confirm order
   → Studio profile: name, city, services, portfolio
 ```
 
@@ -118,9 +171,10 @@ Login (studio role)
 
 ### Interaction
 1. User taps a part on the 3D model
-2. Three.js Raycaster identifies the mesh (e.g., "hood")
-3. Bottom sheet opens with material options
-4. Material/color applied to mesh in real time
+2. Three.js Raycaster identifies the mesh → sends `mesh_tapped` to RN
+3. RN opens bottom sheet with material options
+4. User selects material → RN updates Zustand → sends `apply_material` to WebView
+5. Three.js updates mesh material in real time
 
 ### Body Parts (meshes)
 
@@ -153,6 +207,10 @@ Login (studio role)
 ## Data Model
 
 ```sql
+-- User profiles (extends Supabase auth.users)
+profiles: id (= auth.users.id), role (enum: client | studio_owner),
+          display_name, avatar_url, created_at
+
 -- Cars
 cars: id, make, model, year_from, year_to, generation_name, glb_url, thumbnail_url
 
@@ -161,45 +219,64 @@ car_parts: id, car_id, mesh_name, label_ru, group (body/bumper/glass/mirror/mold
 
 -- Wrap materials
 materials: id, name, brand, finish (gloss/matte/carbon/chrome/satin),
-           color_hex, texture_url, price_per_m2
+           color_hex, texture_url, price_per_m2,
+           requires_premium boolean default false  -- gating for Phase 1+ monetization
 
 -- Client configurations
+-- parts_config: [{part_id, material_id, color_hex}]
+--   color_hex here is a CUSTOM OVERRIDE on the selected material finish.
+--   If the user picks a preset from materials.color_hex, it is copied here.
+--   If the user uses the custom color picker, it overrides materials.color_hex.
+--   material_id determines the finish/texture; color_hex determines the actual color.
 configs: id, user_id, car_id, created_at,
-         parts_config: jsonb,   -- [{part_id, material_id, color_hex}]
-         windows_config: jsonb  -- [{window_id, tint_percent}]
+         parts_config: jsonb,
+         windows_config: jsonb  -- [{window_mesh_name, tint_percent}]
 
 -- Studios
-studios: id, owner_id, name, city, logo_url, services: jsonb, rating
+studios: id, owner_id, name, city, logo_url, services: jsonb, rating,
+         status (enum: pending | active | suspended) default pending
 
 -- Orders
-orders: id, config_id, client_id, studio_id, status, price, created_at
+orders: id, config_id, client_id, studio_id,
+        status (enum: pending | viewed | quoted | confirmed | cancelled),
+        price, studio_notes text,
+        created_at, updated_at
 ```
 
 ---
 
 ## API (tRPC routes)
 
+Role enforcement via tRPC middleware: `clientProcedure` requires `role = client`, `studioProcedure` requires `role = studio_owner`.
+
 ```
-cars.list(make?, model?, yearFrom?, yearTo?)   → car catalog
-cars.get(id)                                   → car + all its parts
+-- Public / authenticated
+cars.list(make?, model?, yearFrom?, yearTo?)    → car catalog
+cars.get(id)                                    → car + all its parts
+materials.list(finish?, brand?)                 → materials catalog
 
-materials.list(finish?, brand?)                → materials catalog
-
+-- Client only
 configs.save(carId, partsConfig, windowsConfig) → save configuration
 configs.get(id)                                 → get config by id (for sharing)
-
-studios.list(city?)                             → nearby studios
 orders.create(configId, studioId)               → send request to studio
-orders.list()                                   → my orders (client or studio)
+orders.list()                                   → my sent orders
+
+-- Studio only
+studios.list(city?)                             → active studios only
+orders.listForStudio()                          → incoming orders
+orders.quote(orderId, price, notes)             → add quote
+orders.updateStatus(orderId, status)            → confirm / cancel
 ```
 
 ---
 
 ## Monetization
 
+> **Note:** PDF export, premium material gating, and analytics are **not in Phase 1 scope**. The `requires_premium` column on `materials` and `profiles.role` are scaffolded now so monetization can be added in Phase 2 without migrations.
+
 ### Clients (B2C)
 - **Free:** basic configurator, save & share
-- **Premium (~$4.99/mo):** all materials & textures, unlimited saves, PDF export
+- **Premium (~$4.99/mo):** all materials & textures (requires_premium), unlimited saves, PDF export
 
 ### Studios (B2B)
 - **Free plan:** 1 profile, up to 5 orders/month
@@ -216,12 +293,13 @@ orders.list()                                   → my orders (client or studio)
 - Wrap customization per part (color, finish, texture)
 - Window tinting
 - Save / Share / Send to Studio
-- Client + Studio accounts
+- Client + Studio accounts (with role-based access)
 
-### Phase 2 — Risk Zones
+### Phase 2 — Risk Zones + Monetization
 - PPF zone map overlay (bumper, hood, sills, mirrors, arches)
 - Protection package selection (full / partial / critical only)
 - Area calculation → PDF quote
+- Premium tier activation (material gating, PDF export)
 
 ### Phase 3 — Tuning + AI Photo
 - Photo upload → AI identifies car make/model → loads 3D model
