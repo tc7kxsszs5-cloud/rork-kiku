@@ -40,6 +40,7 @@ import {
   Info,
   BarChart3,
   Smile,
+  Car,
 } from 'lucide-react-native';
 import { useUser } from '@/constants/UserContext';
 import { useAuth } from '@/constants/AuthContext';
@@ -112,6 +113,7 @@ const PROFILE_NAV_LINKS: ProfileNavLink[] = [
   { key: 'analytics', title: 'Аналитика', description: 'KPI и отчёты', accent: '#0ea5e9', target: '/(tabs)/analytics' as Href, Icon: BarChart3 },
   { key: 'custom-emojis', title: 'Кастомные эмодзи', description: 'Создание и управление', accent: '#ec4899', target: '/(tabs)/custom-emojis' as Href, Icon: Smile },
   { key: 'about', title: 'О приложении', description: 'Версия, этапы и контент', accent: '#64748b', target: '/(tabs)/about' as Href, Icon: Info },
+  { key: 'car-trip', title: 'CarWrap', description: 'Мониторинг поездок на автомобиле', accent: '#f97316', target: '/(tabs)/car-trip' as Href, Icon: Car },
 ];
 
 const PERMISSION_STATUS_META: Record<PushPermissionState, { label: string; description: string; color: string; textColor: string }> = {

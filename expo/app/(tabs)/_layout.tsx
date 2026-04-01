@@ -78,6 +78,7 @@ export default function TabLayout() {
       <Tabs.Screen name="custom-emojis" options={{ href: null }} />
       <Tabs.Screen name="alerts" options={{ href: null }} />
       <Tabs.Screen name="about" options={{ href: null }} />
+      <Tabs.Screen name="car-trip" options={{ href: null }} />
     </Tabs>
   );
 }
