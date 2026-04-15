@@ -97,7 +97,7 @@ What already works:
   - Python typecheck regression
   - parser-targeted multi-line typecheck regression
   - Swift typecheck regression with local module-cache isolation
-- self-hosted real-workspace smoke validation now runs successfully in lightweight mode
+- self-hosted real-workspace trust validation now runs successfully in lightweight mode
 - subproject packaging boundary now includes:
   - [regressproof/AGENTS.md](/Users/mac/Desktop/rork-kiku/regressproof/AGENTS.md)
   - [regressproof/.gitignore](/Users/mac/Desktop/rork-kiku/regressproof/.gitignore)
@@ -200,9 +200,9 @@ The first release is successful if it can:
 
 Current real-repository validation is best described as:
 
-- `self-hosted real-workspace smoke validation`
+- `self-hosted real-workspace trust validation`
 
-This means RegressProof can now run inside the real workspace and execute a nested RegressProof smoke check successfully.
+This means RegressProof can now run inside the real workspace and execute a nested RegressProof trust check successfully against a small but meaningful fixture subset.
 
 It does **not** yet mean:
 

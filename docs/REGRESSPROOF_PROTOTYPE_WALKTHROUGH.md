@@ -23,7 +23,7 @@ The current `RegressProof` prototype can:
 - expose GitHub-compatible outputs
 - generate a PR-oriented compact markdown summary
 - track estimated or exact usage cost in reports
-- run self-hosted lightweight smoke validation inside a real repository workspace
+- run self-hosted lightweight trust validation inside a real repository workspace
 - generate a PR comment body artifact
 - compute a first internal credit recommendation
 - append persistent JSONL ledger entries
@@ -74,7 +74,7 @@ It can already:
 - generate human-readable summaries for review workflows
 - support CI failure policy based on verdict class
 - run in a practical lightweight mode on a large repository
-- run a self-hosted real-workspace smoke check as an early integration proof
+- run a self-hosted real-workspace trust check as an early integration proof
 - expose a first credit-accountability model in reports
 - validate regression scenarios beyond one language/runtime
 
@@ -95,7 +95,7 @@ The prototype does not yet:
 Today, the real-repo path proves:
 
 - RegressProof can run from within the real workspace
-- RegressProof can execute a committed-boundary self-check successfully in that workspace
+- RegressProof can execute a committed-boundary trust check successfully in that workspace
 
 Today, it does not yet prove:
 

@@ -29,12 +29,12 @@
     "docs/REGRESSPROOF_SESSION_TEMPLATE.md"
   ],
   "checks": {
-    "commandTimeoutMs": 10000,
+    "commandTimeoutMs": 45000,
     "quick": [
-      "node regressproof/scripts/self-check.js >/dev/null"
+      "node regressproof/scripts/real-repo-trust-check.js >/dev/null"
     ],
     "full": [
-      "node regressproof/scripts/self-check.js >/dev/null"
+      "node regressproof/scripts/real-repo-trust-check.js >/dev/null"
     ]
   },
   "reports": {

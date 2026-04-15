@@ -196,13 +196,13 @@ Lightweight mode uses a skipped baseline for large repositories and is intended 
 
 Current real-repo behavior is best understood as:
 
-- a `self-hosted real-workspace smoke validation` path
+- a `self-hosted real-workspace trust validation` path
 
-This confirms that RegressProof can execute from inside the main workspace and complete a nested smoke check. It does not yet replace deeper committed-change validation for real repository edits.
+This confirms that RegressProof can execute from inside the main workspace and complete a nested trust check that exercises tracked fixture materialization plus expected verdict handling. It does not yet replace deeper committed-change validation for real repository edits.
 
-The real-repo smoke path now uses a committed-boundary self-check:
+The real-repo path now uses a committed-boundary trust-check:
 
-- `node regressproof/scripts/self-check.js`
+- `node regressproof/scripts/real-repo-trust-check.js`
 
 This keeps committed validation runnable while the main repository history is still being deepened.
 

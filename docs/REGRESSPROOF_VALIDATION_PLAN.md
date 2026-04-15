@@ -167,6 +167,12 @@ Before trusting the first release broadly:
 - compare system verdict to human engineering judgment
 - tune confidence thresholds only after review
 
+## Current Real-Repo Trust Layer
+
+- the current real-repo validation path now runs a small trusted fixture subset from within the main workspace
+- this checks both introduced-failure handling and preexisting-failure handling through the tracked-pack materialization path
+- it is still lighter than full deep real-repo attribution, but materially stronger than a file-existence self-check
+
 ## Validation Exit Rule
 
 RegressProof is validated for MVP when:
