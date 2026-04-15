@@ -7,29 +7,44 @@ const { execFileSync } = require("node:child_process");
 
 const repoRoot = process.cwd();
 const regressproofRoot = path.join(repoRoot, "regressproof");
-
-const EXPECTED_VERDICTS = new Map([
-  ["lint-js", "confirmed_agent_fault"],
-  ["preexisting-js", "preexisting_failure"],
-]);
+const DEFAULT_PROFILE = "shallow";
 const EXPECTED_MATERIALIZATION = "tracked_scenario_pack";
 
+const PROFILES = {
+  shallow: new Map([
+    ["lint-js", "confirmed_agent_fault"],
+    ["preexisting-js", "preexisting_failure"],
+  ]),
+  deep: new Map([
+    ["lint-js", "confirmed_agent_fault"],
+    ["preexisting-js", "preexisting_failure"],
+    ["parser-js", "confirmed_agent_fault"],
+    ["python-js", "confirmed_agent_fault"],
+  ]),
+};
+
 function main() {
-  ensureRequiredFiles();
+  const args = process.argv.slice(2);
+  const profile = readArg(args, "--profile") || DEFAULT_PROFILE;
+  const expectedFixtures = PROFILES[profile];
+  if (!expectedFixtures) {
+    throw new Error(`Unknown trust-check profile: ${profile}`);
+  }
+
+  ensureRequiredFiles(expectedFixtures);
 
   const outDir = path.join(os.tmpdir(), `regressproof-trust-check-${Date.now()}`);
   const runnerPath = path.join(regressproofRoot, "scripts", "run-all-fixtures.js");
-  const args = [
+  const runnerArgs = [
     runnerPath,
-    "--fixture",
-    "lint-js",
-    "--fixture",
-    "preexisting-js",
     "--out-dir",
     outDir,
   ];
+  for (const fixture of expectedFixtures.keys()) {
+    runnerArgs.push("--fixture", fixture);
+  }
 
-  execFileSync("node", args, {
+  execFileSync("node", runnerArgs, {
     cwd: repoRoot,
     stdio: ["ignore", "ignore", "pipe"],
     maxBuffer: 1024 * 1024 * 10,
@@ -42,7 +57,7 @@ function main() {
     throw new Error("Trust check fixture subset must complete without failed runs.");
   }
 
-  for (const [fixture, expectedVerdict] of EXPECTED_VERDICTS.entries()) {
+  for (const [fixture, expectedVerdict] of expectedFixtures.entries()) {
     const result = summary.fixtures.find((entry) => entry.fixture === fixture);
     if (!result) {
       throw new Error(`Missing trust-check result for fixture: ${fixture}`);
@@ -59,23 +74,33 @@ function main() {
     }
   }
 
-  process.stdout.write("RegressProof real-repo trust-check passed\n");
+  process.stdout.write(`RegressProof real-repo trust-check passed [profile=${profile}]\n`);
 }
 
-function ensureRequiredFiles() {
+function ensureRequiredFiles(expectedFixtures) {
   const required = [
     "regressproof/package.json",
     "regressproof/scripts/run-all-fixtures.js",
     "regressproof/scripts/materialize-fixture.js",
-    "regressproof/fixtures/lint-js/fixture.materializer.json",
-    "regressproof/fixtures/preexisting-js/fixture.materializer.json",
   ];
+  for (const fixture of expectedFixtures.keys()) {
+    required.push(`regressproof/fixtures/${fixture}/fixture.materializer.json`);
+  }
 
   for (const relativePath of required) {
     if (!fs.existsSync(path.join(repoRoot, relativePath))) {
       throw new Error(`Missing required trust-check file: ${relativePath}`);
     }
   }
+}
+
+function readArg(args, name) {
+  const index = args.indexOf(name);
+  if (index === -1) {
+    return "";
+  }
+
+  return args[index + 1] || "";
 }
 
 main();

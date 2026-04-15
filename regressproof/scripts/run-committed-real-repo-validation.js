@@ -14,12 +14,15 @@ function main() {
   const baseBranch = readArg(args, "--base-branch") || process.env.REGRESSPROOF_BASE_BRANCH || "main";
   const compareRef = readArg(args, "--head-ref") || "HEAD";
   const baselineOverride = readArg(args, "--baseline-ref");
+  const configOverride = readArg(args, "--config");
   const format = readArg(args, "--format") || "json";
   const artifactDir =
     readArg(args, "--artifact-dir") || path.join(os.tmpdir(), "regressproof-committed-real-repo");
   const ciMode = args.includes("--ci");
 
-  const baseConfigPath = path.join(regressproofRoot, "regressproof.real-repo.config.json");
+  const baseConfigPath = configOverride
+    ? path.resolve(repo, configOverride)
+    : path.join(regressproofRoot, "regressproof.real-repo.config.json");
   const baseConfig = JSON.parse(fs.readFileSync(baseConfigPath, "utf8"));
   const compareCommit = git(repo, ["rev-parse", compareRef]);
   const baselineRef = baselineOverride || resolveBaselineRef(repo, baseBranch, compareRef, compareCommit);

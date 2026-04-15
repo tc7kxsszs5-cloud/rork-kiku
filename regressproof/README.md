@@ -250,6 +250,20 @@ This runs the current committed trust scenario end-to-end and asserts the expect
 - committed verdict is `successful_change`
 - confidence is `high`
 
+Committed deep trust-scenario helper:
+
+```bash
+cd regressproof
+npm run real:scenario:deep -- --repo /Users/mac/Desktop/rork-kiku
+```
+
+This uses the `deep` trust-check profile so the committed path exercises a broader nested fixture subset:
+
+- `lint-js`
+- `preexisting-js`
+- `parser-js`
+- `python-js`
+
 For materialized fixtures or other custom configs:
 
 ```bash
