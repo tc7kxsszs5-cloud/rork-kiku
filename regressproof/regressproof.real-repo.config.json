@@ -1,0 +1,39 @@
+{
+  "projectName": "RegressProof Real Repo Validation",
+  "baselineRef": "HEAD~1",
+  "baseline": {
+    "mode": "path_snapshot"
+  },
+  "targetPaths": [
+    "regressproof",
+    "docs/REGRESSPROOF_INDEX.md",
+    "docs/REGRESSPROOF_DECISION_LOG.md",
+    "docs/REGRESSPROOF_PROTOTYPE_WALKTHROUGH.md"
+  ],
+  "checks": {
+    "commandTimeoutMs": 10000,
+    "quick": [
+      "node regressproof/src/cli.js run --repo regressproof/fixtures/simple-js --format json --artifact-dir .regressproof-self-smoke >/dev/null"
+    ],
+    "full": [
+      "node regressproof/src/cli.js run --repo regressproof/fixtures/parser-js --format json --artifact-dir .regressproof-self-parser-smoke >/dev/null"
+    ]
+  },
+  "reports": {
+    "defaultFormat": "json",
+    "ciFailOn": [
+      "confirmed_agent_fault"
+    ]
+  },
+  "usage": {
+    "mode": "estimated",
+    "estimatedCostUsd": 0.02
+  },
+  "credits": {
+    "enabled": true,
+    "policy": "refund_estimated_cost_on_confirmed_agent_fault"
+  },
+  "ledger": {
+    "enabled": true
+  }
+}

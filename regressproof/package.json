@@ -1,0 +1,19 @@
+{
+  "name": "regressproof",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Proof, not guesses, for agent-caused regressions.",
+  "bin": {
+    "regressproof": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "run": "node dist/cli.js run",
+    "dev": "node src/cli.js run",
+    "print:bootstrap-scope": "node scripts/print-bootstrap-commit-scope.js",
+    "real:committed": "node scripts/run-committed-real-repo-validation.js",
+    "real:readiness": "node scripts/check-committed-range-readiness.js",
+    "real:workspace": "node scripts/run-workspace-real-repo-validation.js",
+    "export:standalone": "node scripts/export-standalone.js"
+  }
+}
