@@ -12,6 +12,7 @@ const EXPECTED_VERDICTS = new Map([
   ["lint-js", "confirmed_agent_fault"],
   ["preexisting-js", "preexisting_failure"],
 ]);
+const EXPECTED_MATERIALIZATION = "tracked_scenario_pack";
 
 function main() {
   ensureRequiredFiles();
@@ -45,6 +46,11 @@ function main() {
     const result = summary.fixtures.find((entry) => entry.fixture === fixture);
     if (!result) {
       throw new Error(`Missing trust-check result for fixture: ${fixture}`);
+    }
+    if (result.materialization !== EXPECTED_MATERIALIZATION) {
+      throw new Error(
+        `Unexpected materialization for ${fixture}: expected ${EXPECTED_MATERIALIZATION}, received ${result.materialization}`,
+      );
     }
     if (result.verdict !== expectedVerdict) {
       throw new Error(

@@ -202,7 +202,7 @@ Current real-repository validation is best described as:
 
 - `self-hosted real-workspace trust validation`
 
-This means RegressProof can now run inside the real workspace and execute a nested RegressProof trust check successfully against a small but meaningful fixture subset through the existing suite runner.
+This means RegressProof can now run inside the real workspace and execute a nested RegressProof trust check successfully against a small but meaningful fixture subset, while also asserting tracked-pack materialization as part of the proof path.
 
 It does **not** yet mean:
 

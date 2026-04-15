@@ -31,10 +31,10 @@
   "checks": {
     "commandTimeoutMs": 45000,
     "quick": [
-      "node regressproof/scripts/run-all-fixtures.js --fixture lint-js --fixture preexisting-js --out-dir /tmp/regressproof-workspace-trust-check >/dev/null"
+      "node regressproof/scripts/real-repo-trust-check.js >/dev/null"
     ],
     "full": [
-      "node regressproof/scripts/run-all-fixtures.js --fixture lint-js --fixture preexisting-js --out-dir /tmp/regressproof-workspace-trust-check >/dev/null"
+      "node regressproof/scripts/real-repo-trust-check.js >/dev/null"
     ]
   },
   "reports": {
