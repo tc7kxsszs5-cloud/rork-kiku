@@ -7,6 +7,7 @@ async function createRunReport(config, git, verification, repoPath) {
   const usage = await summarizeUsage(config, verification, repoPath);
   const creditLedger = summarizeCredits(config, verdict, usage);
   const proofSignals = summarizeProofSignals(git, verification);
+  const nextStep = recommendNextStep(verification, verdict, proofSignals);
 
   return {
     product: "RegressProof",
@@ -25,10 +26,7 @@ async function createRunReport(config, git, verification, repoPath) {
     failureSummary,
     verdict,
     status: verification.completed ? "verification_complete" : "verification_pending",
-    nextStep:
-      verification.completed
-        ? "Expand fixture coverage and provider-specific usage adapters."
-        : "Implement baseline execution and quick-check verification on top of this scaffold.",
+    nextStep,
   };
 }
 
@@ -217,6 +215,51 @@ function summarizeProofSignals(git, verification) {
     usesPathScopedBaseline: verification.baselineMode === "path_snapshot",
     usesSnapshotCurrent: verification.currentMode === "snapshot",
   };
+}
+
+function recommendNextStep(verification, verdict, proofSignals) {
+  if (!verification.completed) {
+    return "Implement baseline execution and quick-check verification on top of this scaffold.";
+  }
+
+  if (verdict.classification === "environment_failure") {
+    return "Retry the run and stabilize the environment before attempting fault attribution.";
+  }
+
+  if (verdict.classification === "insufficient_evidence") {
+    return verification.baselineMode === "skip"
+      ? "Strengthen baseline coverage for this path so current failures can be attributed with more confidence."
+      : "Collect a narrower committed diff or stronger verification evidence before escalating attribution.";
+  }
+
+  if (verdict.classification === "confirmed_agent_fault") {
+    return verdict.changedFileEvidence
+      ? "Review the introduced failures against the changed files and decide whether to fail CI or trigger internal credit policy."
+      : "Review the introduced failures and look for stronger changed-file evidence before escalating confidence.";
+  }
+
+  if (verdict.classification === "preexisting_failure") {
+    return "Treat the current failures as inherited baseline debt unless new failure fingerprints appear in a later diff.";
+  }
+
+  if (verdict.classification === "successful_change") {
+    if (
+      proofSignals.hasCommittedDiff &&
+      proofSignals.hasChangedFiles &&
+      proofSignals.usesPathScopedBaseline &&
+      proofSignals.usesSnapshotCurrent
+    ) {
+      return "Promote this committed trust path into a deeper real-repo scenario or broaden the verification scope beyond the current fixture subset.";
+    }
+
+    if (!proofSignals.hasCommittedDiff) {
+      return "Run the same check on a committed range so the trust path includes explicit diff-aware evidence.";
+    }
+
+    return "Broaden the verification scope or add a more demanding scenario now that the current path passes cleanly.";
+  }
+
+  return "Expand fixture coverage and provider-specific usage adapters.";
 }
 
 module.exports = {
