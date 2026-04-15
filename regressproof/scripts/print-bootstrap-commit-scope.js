@@ -23,7 +23,8 @@ const scope = [
 const excluded = [
   "regressproof/artifacts/",
   "regressproof/dist/",
-  "regressproof/fixtures/*/.git/",
+  "regressproof/fixtures/*/.git/ if legacy import metadata is still present locally",
+  "regressproof/fixtures/*/.swift-module-cache/",
   "docs/sessions/* if you do not want session history in the first bootstrap commit",
 ];
 

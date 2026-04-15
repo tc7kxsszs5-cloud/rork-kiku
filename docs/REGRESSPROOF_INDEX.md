@@ -53,7 +53,7 @@ What already works:
 - baseline snapshot execution
 - current quick-check execution
 - first conservative verdicts
-- fixture repos for introduced and preexisting failures
+- fixture scenario packs for introduced and preexisting failures
 - explicit `preexistingFailures`, `introducedFailures`, `unchangedFailures`, and `fixedFailures`
 - fingerprint-based failure comparison, so one failing command can still be split into preexisting and newly introduced failures
 - timeout-aware environment classification
@@ -107,6 +107,12 @@ What already works:
   - snapshot execution of the compared committed ref
   - richer git context in reports for commit-vs-commit reasoning
   - readiness checking before running committed validation on the main repository
+- fixture validation now runs through tracked scenario packs:
+  - `tracked/baseline`
+  - `tracked/current`
+  - `fixture.materializer.json`
+  - temporary git materialization before verification
+- all current fixtures now have tracked scenario packs, and the full suite passes in tracked-pack mode
 
 What is next:
 
@@ -163,7 +169,7 @@ The first release is successful if it can:
 ## Recommended Working Order
 
 1. Finalize scope and assumptions in the documents already created.
-2. Build proof-of-function on a small fixture repository.
+2. Build proof-of-function on a small fixture scenario pack.
 3. Implement local CLI MVP.
 4. Add GitHub Action integration.
 5. Add internal credit ledger.
@@ -186,6 +192,9 @@ The first release is successful if it can:
 - validate on a deeper real-repository scenario now that JS, Python, parser-targeted, and Swift fixtures exist
 - keep tightening the `regressproof/` package boundary so future repo separation is mechanical instead of manual
 - use the new committed compare-ref path to validate RegressProof on a meaningful historical range inside the main repository
+- keep fixture packs self-contained and reproducible through the materialization layer
+- remove remaining legacy wording that treats embedded fixture repos as the working model
+- deepen release/demo guidance around the full tracked-pack suite
 
 ## Current Real-Repo Validation Level
 

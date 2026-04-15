@@ -37,7 +37,7 @@ RegressProof should not:
 The best execution order for the project is:
 
 1. maintain docs
-2. prove detection on fixture repositories
+2. keep the tracked fixture-pack suite reproducible through the materialization layer
 3. implement local CLI
 4. integrate with GitHub Action
 5. add cost and credit accounting

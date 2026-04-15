@@ -140,3 +140,9 @@
 **Decision:** Committed real-repo attribution should support explicit `baselineRef..compareRef` ranges and run the compared ref from a snapshot instead of assuming the live checkout represents the current side of the comparison.
 
 **Reason:** Real repository debugging often needs to inspect historical commit ranges that are not identical to the current checkout state. Snapshot-based current execution keeps commit-vs-commit attribution reproducible and diff-aware.
+
+## Decision 24
+
+**Decision:** Tracked fixture scenario packs are now the primary validation model, and fixture materialization into temporary git repos is the standard execution path for controlled validation.
+
+**Reason:** Tracked packs keep fixture state versionable inside the main repository while preserving baseline/current semantics. Materialization retains git-aware validation behavior without making embedded fixture repositories part of the long-term working model.

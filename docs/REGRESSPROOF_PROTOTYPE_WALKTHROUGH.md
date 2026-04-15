@@ -32,7 +32,7 @@ The current `RegressProof` prototype can:
 
 ## Demonstrated Scenarios
 
-The prototype includes validated fixture repositories for multiple regression classes:
+The prototype includes validated fixture scenario packs for multiple regression classes:
 
 - `regressproof/fixtures/simple-js`
   - demonstrates a newly introduced failure
@@ -54,6 +54,12 @@ The prototype includes validated fixture repositories for multiple regression cl
   - demonstrates a Python typecheck-style regression
 - `regressproof/fixtures/swift-js`
   - demonstrates a Swift typecheck-style regression using a local module-cache path to avoid sandbox-only cache failures
+
+Current fixture execution model:
+
+- tracked `baseline/current` scenario packs are the new primary fixture shape
+- the materializer reconstructs temporary git history from those packs
+- the full fixture suite now runs end-to-end through that tracked-pack path
 
 ## Why This Matters
 
@@ -89,7 +95,7 @@ The prototype does not yet:
 Today, the real-repo path proves:
 
 - RegressProof can run from within the real workspace
-- RegressProof can execute a nested fixture-based self-check successfully in that workspace
+- RegressProof can execute a committed-boundary self-check successfully in that workspace
 
 Today, it does not yet prove:
 
@@ -108,8 +114,5 @@ Today, it does not yet prove:
 
 ```bash
 cd regressproof
-node src/cli.js run \
-  --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/simple-js \
-  --format json \
-  --artifact-dir /Users/mac/Desktop/rork-kiku/regressproof-artifacts
+node scripts/run-all-fixtures.js --out-dir /tmp/regressproof-fixture-suite
 ```

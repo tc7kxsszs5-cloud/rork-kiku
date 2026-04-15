@@ -36,11 +36,13 @@ Validated fixture coverage currently includes:
 - `python-js`
 - `swift-js`
 
-Fixture repository note:
+Primary fixture model:
 
-- the fixture directories currently preserve their own local git histories for controlled baseline/current validation
-- because of that, they are not yet part of the first bootstrap commit in the main repository history
-- they should be flattened or exported into plain tracked fixture directories before being imported into the main repository as normal files
+- tracked scenario packs under each fixture directory
+- `tracked/baseline`
+- `tracked/current`
+- `fixture.materializer.json`
+- the tracked-pack suite now passes `10/10`
 
 ## Commands
 
@@ -65,28 +67,99 @@ cd regressproof
 node dist/cli.js run --format json
 ```
 
-Run against fixtures:
+Direct fixture path:
 
 ```bash
 cd regressproof
 node src/cli.js run --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/simple-js --format json
-node src/cli.js run --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/preexisting-js --format json
-node src/cli.js run --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/mixed-js --format json
-node src/cli.js run --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/build-js --format json
-node src/cli.js run --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/lint-js --format json
-node src/cli.js run --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/test-js --format json
-node src/cli.js run --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/timeout-js --format json
-node src/cli.js run --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/parser-js --format json
-node src/cli.js run --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/python-js --format json
-node src/cli.js run --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/swift-js --format json
 ```
 
-Write artifacts explicitly:
+The preferred path is now:
+
+- tracked scenario pack
+- materialized temp git repo
+- or the full `run-all-fixtures` suite
+
+Preferred fixture flow:
+
+1. materialize the fixture into a temp git repo
+2. run RegressProof against that temp repo
+
+Example:
 
 ```bash
 cd regressproof
+node scripts/materialize-fixture.js \
+  --fixture /Users/mac/Desktop/rork-kiku/regressproof/fixtures/lint-js \
+  --out-dir /tmp/regressproof-materialized-lint
+
 node src/cli.js run \
-  --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/simple-js \
+  --repo /tmp/regressproof-materialized-lint/repo \
+  --config /tmp/regressproof-materialized-lint/repo/regressproof.config.json \
+  --format json
+```
+
+Fixture materialization helper:
+
+```bash
+cd regressproof
+npm run fixture:materialize -- --fixture /Users/mac/Desktop/rork-kiku/regressproof/fixtures/lint-js
+```
+
+Current materializer behavior:
+
+- tracked scenario packs are materialized into temporary git repos first
+- embedded fixture repos are treated only as import sources when exporting packs
+- baseline and current snapshots are exported alongside the temp repo
+
+Fixture scenario-pack export helper:
+
+```bash
+cd regressproof
+npm run fixture:export-pack -- --fixture /Users/mac/Desktop/rork-kiku/regressproof/fixtures/lint-js
+```
+
+This exports `baseline` and `current` trees under `tracked/` and writes `fixture.materializer.json`, which makes the tracked scenario-pack path self-contained.
+
+Bulk scenario-pack export:
+
+```bash
+cd regressproof
+node scripts/export-all-fixture-packs.js
+```
+
+This walks every fixture source and refreshes tracked `baseline/current` packs.
+
+Fixture suite runner:
+
+```bash
+cd regressproof
+node scripts/run-all-fixtures.js
+```
+
+This runner:
+
+- materializes each fixture
+- runs RegressProof against the materialized repo
+- continues through the whole suite without stopping on the first failure
+- writes a JSON summary plus per-fixture artifacts under a temporary output directory
+
+Current tracked-pack suite result:
+
+- `10/10 passed`
+- summary example: `/tmp/regressproof-fixture-suite-tracked-2/fixture-suite-summary.json`
+
+Write artifacts explicitly from a materialized fixture:
+
+```bash
+cd regressproof
+node scripts/materialize-fixture.js \
+  --fixture /Users/mac/Desktop/rork-kiku/regressproof/fixtures/simple-js \
+  --out-dir /tmp/regressproof-materialized-simple
+
+node src/cli.js run \
+  --repo /tmp/regressproof-materialized-simple/repo \
+  --config /tmp/regressproof-materialized-simple/repo/regressproof.config.json \
   --format json \
   --artifact-dir /Users/mac/Desktop/rork-kiku/regressproof-artifacts
 ```
@@ -95,8 +168,13 @@ Run in CI mode:
 
 ```bash
 cd regressproof
+node scripts/materialize-fixture.js \
+  --fixture /Users/mac/Desktop/rork-kiku/regressproof/fixtures/simple-js \
+  --out-dir /tmp/regressproof-materialized-simple
+
 node src/cli.js run \
-  --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/simple-js \
+  --repo /tmp/regressproof-materialized-simple/repo \
+  --config /tmp/regressproof-materialized-simple/repo/regressproof.config.json \
   --format json \
   --artifact-dir /Users/mac/Desktop/rork-kiku/regressproof-artifacts \
   --ci
@@ -126,7 +204,7 @@ The real-repo smoke path now uses a committed-boundary self-check:
 
 - `node regressproof/scripts/self-check.js`
 
-This keeps committed validation runnable even before fixture repositories are imported into the main repository history.
+This keeps committed validation runnable while the main repository history is still being deepened.
 
 Committed validation helper:
 
@@ -156,12 +234,12 @@ npm run real:readiness -- --repo /Users/mac/Desktop/rork-kiku
 
 Use this before committed validation when you are unsure whether the selected git range actually contains the RegressProof boundary in committed history.
 
-For fixture repositories or other custom configs:
+For materialized fixtures or other custom configs:
 
 ```bash
 cd regressproof
 node scripts/check-committed-range-readiness.js \
-  --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/lint-js \
+  --repo /tmp/regressproof-materialized-lint/repo \
   --config regressproof.config.json \
   --baseline-ref HEAD~1 \
   --head-ref HEAD

@@ -9,7 +9,7 @@ Prove that RegressProof detects real regressions using evidence and does not inv
 
 ## Validation Principles
 
-- test against controlled fixture repositories
+- test against controlled fixture scenario packs that materialize into temporary git repos
 - compare baseline and post-change states
 - measure false positives and false negatives
 - separate code regressions from environment failures
@@ -26,7 +26,7 @@ The system should prove that it can:
 - ignore pre-existing failures
 - avoid false blame during environment issues
 
-## Fixture Repository Set
+## Fixture Scenario Set
 
 ### Current JS Fixtures
 
@@ -58,6 +58,16 @@ Validated today:
 - `swift-js`
   - green baseline to broken Swift typecheck-style check
   - uses a local Swift module cache path so the scenario reflects product behavior instead of sandbox cache-write failures
+
+Current fixture architecture:
+
+- each fixture now has a tracked scenario-pack path
+- primary layout:
+  - `tracked/baseline`
+  - `tracked/current`
+  - `fixture.materializer.json`
+- the materializer reconstructs a temporary git repo before verification
+- the full suite now runs reproducibly through tracked packs as the primary validation path
 
 ### Future Fixture Sets
 
@@ -145,8 +155,8 @@ Expected:
 
 ## Initial Quality Targets
 
-- high-confidence regression detection: `85%+` on controlled fixtures
-- false positive rate: `<10%` on controlled fixtures
+- high-confidence regression detection: `85%+` on controlled fixture scenarios
+- false positive rate: `<10%` on controlled fixture scenarios
 - classification reproducibility: `95%+` on repeated controlled runs
 
 ## Human Review Layer
@@ -166,3 +176,4 @@ RegressProof is validated for MVP when:
 - it avoids misclassifying environment failures as agent faults
 - its reports are judged trustworthy by human reviewers
 - it demonstrates credible validation coverage beyond one language/runtime
+- the full fixture suite runs reproducibly through the materialization layer

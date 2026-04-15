@@ -1,0 +1,16 @@
+{
+  "projectName": "RegressProof Fixture Simple JS",
+  "baselineRef": "HEAD~1",
+  "checks": {
+    "quick": [
+      "node scripts/lint.js",
+      "node scripts/typecheck.js"
+    ],
+    "full": [
+      "node scripts/test.js"
+    ]
+  },
+  "reports": {
+    "defaultFormat": "json"
+  }
+}
