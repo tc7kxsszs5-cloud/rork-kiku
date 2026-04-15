@@ -146,3 +146,9 @@
 **Decision:** Tracked fixture scenario packs are now the primary validation model, and fixture materialization into temporary git repos is the standard execution path for controlled validation.
 
 **Reason:** Tracked packs keep fixture state versionable inside the main repository while preserving baseline/current semantics. Materialization retains git-aware validation behavior without making embedded fixture repositories part of the long-term working model.
+
+## Decision 25
+
+**Decision:** Default committed real-repo attribution should prefer the nearest parent range (`HEAD~1..HEAD`) before falling back to a wider merge-base range.
+
+**Reason:** For RegressProof, trust grows faster when committed validation stays close to the actual change under review. Preferring the nearest parent keeps changed-file evidence narrower, makes readiness more meaningful, and avoids unnecessary baseline skips caused by selecting ranges that predate the RegressProof project boundary.

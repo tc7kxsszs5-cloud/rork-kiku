@@ -202,7 +202,7 @@ This confirms that RegressProof can execute from inside the main workspace and c
 
 The real-repo path now uses a committed-boundary trust-check:
 
-- `node regressproof/scripts/real-repo-trust-check.js`
+- `node regressproof/scripts/run-all-fixtures.js --fixture lint-js --fixture preexisting-js --out-dir /tmp/regressproof-real-trust-check`
 
 This keeps committed validation runnable while the main repository history is still being deepened.
 

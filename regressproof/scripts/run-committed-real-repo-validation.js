@@ -81,14 +81,14 @@ function readArg(args, name) {
 }
 
 function resolveBaselineRef(repo, baseBranch, compareRef, compareCommit) {
-  const mergeBase = gitOptional(repo, ["merge-base", compareRef, baseBranch]);
-  if (mergeBase && mergeBase !== compareCommit) {
-    return mergeBase;
-  }
-
   const parent = gitOptional(repo, ["rev-parse", `${compareRef}~1`]);
   if (parent && parent !== compareCommit) {
     return `${compareRef}~1`;
+  }
+
+  const mergeBase = gitOptional(repo, ["merge-base", compareRef, baseBranch]);
+  if (mergeBase && mergeBase !== compareCommit) {
+    return mergeBase;
   }
 
   return compareCommit;
