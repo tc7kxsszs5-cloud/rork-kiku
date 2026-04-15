@@ -6,6 +6,7 @@ async function createRunReport(config, git, verification, repoPath) {
   const verdict = classifyVerification(verification, git, failureSummary);
   const usage = await summarizeUsage(config, verification, repoPath);
   const creditLedger = summarizeCredits(config, verdict, usage);
+  const proofSignals = summarizeProofSignals(git, verification);
 
   return {
     product: "RegressProof",
@@ -19,6 +20,7 @@ async function createRunReport(config, git, verification, repoPath) {
     },
     usage,
     creditLedger,
+    proofSignals,
     verification,
     failureSummary,
     verdict,
@@ -200,6 +202,20 @@ function classifyVerification(verification, git, failureSummary) {
     summary:
       "Current quick checks improved or changed compared with baseline, but there is not enough evidence yet for fault attribution.",
     changedFileEvidence: false,
+  };
+}
+
+function summarizeProofSignals(git, verification) {
+  const changedFilesCount = Array.isArray(git.changedFiles) ? git.changedFiles.length : 0;
+  const targetPathCount = Array.isArray(git.targetPaths) ? git.targetPaths.length : 0;
+
+  return {
+    changedFilesCount,
+    targetPathCount,
+    hasCommittedDiff: git.compareRef !== "HEAD" || git.baselineRef !== "HEAD",
+    hasChangedFiles: changedFilesCount > 0,
+    usesPathScopedBaseline: verification.baselineMode === "path_snapshot",
+    usesSnapshotCurrent: verification.currentMode === "snapshot",
   };
 }
 

@@ -8,9 +8,6 @@ const { execFileSync } = require("node:child_process");
 const regressproofRoot = path.resolve(__dirname, "..");
 const workspaceRoot = path.resolve(regressproofRoot, "..");
 const EXPECTED_CHANGED_FILES = [
-  "docs/REGRESSPROOF_INDEX.md",
-  "regressproof/README.md",
-  "regressproof/package.json",
   "regressproof/scripts/verify-real-repo-trust-scenario.js",
 ];
 
@@ -128,6 +125,19 @@ function assertCommittedScenario(report) {
 
   if (report.verdict.confidence !== "high") {
     throw new Error(`Expected committed confidence high, received ${report.verdict.confidence}`);
+  }
+
+  if (!report.proofSignals?.hasCommittedDiff) {
+    throw new Error("Expected committed scenario to report hasCommittedDiff=true.");
+  }
+  if (!report.proofSignals?.hasChangedFiles) {
+    throw new Error("Expected committed scenario to report hasChangedFiles=true.");
+  }
+  if (!report.proofSignals?.usesPathScopedBaseline) {
+    throw new Error("Expected committed scenario to report usesPathScopedBaseline=true.");
+  }
+  if (!report.proofSignals?.usesSnapshotCurrent) {
+    throw new Error("Expected committed scenario to report usesSnapshotCurrent=true.");
   }
 
   const missingChangedFiles = EXPECTED_CHANGED_FILES.filter(

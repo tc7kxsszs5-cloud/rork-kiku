@@ -108,6 +108,7 @@ What already works:
   - snapshot execution of the compared committed ref
   - richer git context in reports for commit-vs-commit reasoning
   - readiness checking before running committed validation on the main repository
+  - explicit proof signals in reports for committed diff, changed files, path-scoped baseline, and snapshot current mode
 - fixture validation now runs through tracked scenario packs:
   - `tracked/baseline`
   - `tracked/current`
