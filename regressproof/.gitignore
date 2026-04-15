@@ -8,5 +8,6 @@ tmp/
 *.log
 fixtures/*/.git/
 fixtures/*/.module-cache/
+fixtures/*/.swift-module-cache/
 fixtures/*/.build/
 fixtures/*/.swiftpm/

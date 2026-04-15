@@ -122,6 +122,12 @@ Current real-repo behavior is best understood as:
 
 This confirms that RegressProof can execute from inside the main workspace and complete a nested smoke check. It does not yet replace deeper committed-change validation for real repository edits.
 
+The real-repo smoke path now uses a committed-boundary self-check:
+
+- `node regressproof/scripts/self-check.js`
+
+This keeps committed validation runnable even before fixture repositories are imported into the main repository history.
+
 Committed validation helper:
 
 ```bash

@@ -13,10 +13,10 @@
   "checks": {
     "commandTimeoutMs": 10000,
     "quick": [
-      "node regressproof/src/cli.js run --repo regressproof/fixtures/simple-js --format json --artifact-dir .regressproof-self-smoke >/dev/null"
+      "node regressproof/scripts/self-check.js >/dev/null"
     ],
     "full": [
-      "node regressproof/src/cli.js run --repo regressproof/fixtures/parser-js --format json --artifact-dir .regressproof-self-parser-smoke >/dev/null"
+      "node regressproof/scripts/self-check.js >/dev/null"
     ]
   },
   "reports": {
