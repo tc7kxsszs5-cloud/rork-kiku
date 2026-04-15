@@ -7,6 +7,12 @@ const { execFileSync } = require("node:child_process");
 
 const regressproofRoot = path.resolve(__dirname, "..");
 const workspaceRoot = path.resolve(regressproofRoot, "..");
+const EXPECTED_CHANGED_FILES = [
+  "docs/REGRESSPROOF_INDEX.md",
+  "regressproof/README.md",
+  "regressproof/package.json",
+  "regressproof/scripts/verify-real-repo-trust-scenario.js",
+];
 
 function main() {
   const args = process.argv.slice(2);
@@ -122,6 +128,24 @@ function assertCommittedScenario(report) {
 
   if (report.verdict.confidence !== "high") {
     throw new Error(`Expected committed confidence high, received ${report.verdict.confidence}`);
+  }
+
+  const missingChangedFiles = EXPECTED_CHANGED_FILES.filter(
+    (filePath) => !report.git.changedFiles.includes(filePath),
+  );
+  if (missingChangedFiles.length > 0) {
+    throw new Error(
+      `Committed scenario is missing expected changed files: ${missingChangedFiles.join(", ")}`,
+    );
+  }
+
+  const baselineCommand = report.verification.baseline[0]?.command || "";
+  const currentCommand = report.verification.current[0]?.command || "";
+  if (!baselineCommand.includes("real-repo-trust-check.js")) {
+    throw new Error("Expected baseline verification to run the real-repo trust-check entrypoint.");
+  }
+  if (!currentCommand.includes("real-repo-trust-check.js")) {
+    throw new Error("Expected current verification to run the real-repo trust-check entrypoint.");
   }
 }
 
