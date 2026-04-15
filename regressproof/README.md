@@ -36,6 +36,12 @@ Validated fixture coverage currently includes:
 - `python-js`
 - `swift-js`
 
+Fixture repository note:
+
+- the fixture directories currently preserve their own local git histories for controlled baseline/current validation
+- because of that, they are not yet part of the first bootstrap commit in the main repository history
+- they should be flattened or exported into plain tracked fixture directories before being imported into the main repository as normal files
+
 ## Commands
 
 Build:
