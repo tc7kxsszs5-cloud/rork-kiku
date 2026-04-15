@@ -98,6 +98,7 @@ What already works:
   - parser-targeted multi-line typecheck regression
   - Swift typecheck regression with local module-cache isolation
 - self-hosted real-workspace trust validation now runs successfully in lightweight mode
+- a committed real-repo trust scenario can now be checked end-to-end through a single helper script
 - subproject packaging boundary now includes:
   - [regressproof/AGENTS.md](/Users/mac/Desktop/rork-kiku/regressproof/AGENTS.md)
   - [regressproof/.gitignore](/Users/mac/Desktop/rork-kiku/regressproof/.gitignore)

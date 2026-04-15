@@ -234,6 +234,22 @@ npm run real:readiness -- --repo /Users/mac/Desktop/rork-kiku
 
 Use this before committed validation when you are unsure whether the selected git range actually contains the RegressProof boundary in committed history.
 
+Committed trust-scenario helper:
+
+```bash
+cd regressproof
+npm run real:scenario -- --repo /Users/mac/Desktop/rork-kiku
+```
+
+This runs the current committed trust scenario end-to-end and asserts the expected invariants:
+
+- readiness is `ready`
+- `diffRange` is `HEAD~1..HEAD`
+- baseline mode is `path_snapshot`
+- current mode is `snapshot`
+- committed verdict is `successful_change`
+- confidence is `high`
+
 For materialized fixtures or other custom configs:
 
 ```bash
