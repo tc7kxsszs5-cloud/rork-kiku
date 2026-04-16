@@ -41,6 +41,39 @@ The best execution order for the project is:
 3. implement local CLI
 4. integrate with GitHub Action
 5. add cost and credit accounting
+6. validate on external public repositories, not only self-hosted RegressProof flows
+
+## Current Proven Validation Surface
+
+RegressProof is no longer validated only against internal fixtures and self-hosted trust scenarios.
+
+It has now been exercised successfully on external public repositories in three modes:
+
+1. doc/plugin repository:
+   - `forrestchang/andrej-karpathy-skills`
+   - committed range `HEAD~1..HEAD`
+   - result: `successful_change / high`
+2. larger documentation and configuration repository:
+   - `shanraisshan/claude-code-best-practice`
+   - committed range `HEAD~1..HEAD`
+   - changed file: `tutorial/day1/README.md`
+   - result: `successful_change / high`
+   - notable signal: current run resolved baseline-side structural/content failures for the new tutorial path
+3. code and test repository:
+   - `NousResearch/hermes-agent`
+   - committed range `HEAD~1..HEAD`
+   - changed files:
+     - `gateway/platforms/telegram.py`
+     - `tests/gateway/test_telegram_thread_fallback.py`
+   - result: `successful_change / high`
+
+This means the project now has evidence across:
+
+- tracked internal fixtures
+- self-hosted real-repo trust scenarios
+- external doc/plugin repositories
+- external documentation/configuration repositories
+- external code-plus-test repositories
 
 ## If A Future Agent Is Unsure
 
@@ -50,6 +83,7 @@ If a future agent is unsure what to do next, it should:
 - use `docs/REGRESSPROOF_MVP_TASK_BREAKDOWN.md` as the execution plan
 - record new major decisions in `docs/REGRESSPROOF_DECISION_LOG.md`
 - check the latest note in `docs/sessions/`
+- prefer extending external validation coverage before adding new architecture layers
 
 ## Session Memory Rule
 

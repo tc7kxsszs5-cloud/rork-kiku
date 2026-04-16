@@ -191,10 +191,26 @@ The first release is successful if it can:
 
 ## Immediate Next Steps
 
-- validate RegressProof on a non-self-hosted external repository range
+- expand external validation coverage with more code-heavy public repositories
 - add provider-native usage adapters beyond env/file inputs
 - improve PR comment presentation for longer review threads
 - tighten release/demo guidance around the MVP verification entrypoint
+
+## External Validation Status
+
+RegressProof has now been validated outside its own repository on public GitHub repositories in three increasingly strong categories:
+
+1. doc/plugin repository
+   - `forrestchang/andrej-karpathy-skills`
+   - result: `successful_change / high`
+2. larger docs/configuration repository
+   - `shanraisshan/claude-code-best-practice`
+   - result: `successful_change / high`
+3. code-plus-test repository
+   - `NousResearch/hermes-agent`
+   - result: `successful_change / high`
+
+This does not yet replace broader real-world validation, but it means RegressProof is no longer proven only on fixtures and self-hosted scenarios.
 
 ## Current Real-Repo Validation Level
 

@@ -158,3 +158,9 @@
 **Decision:** The usable MVP verification surface should be anchored on one repository-level entrypoint, `node regressproof/scripts/verify-mvp.js`, and the GitHub Action should execute that flow instead of an older single-fixture path.
 
 **Reason:** The project had already accumulated strong pieces of validation, but usability was still fragmented across many helper commands and a stale workflow. A single MVP verification entrypoint makes local checks, CI, and future handoff much clearer without changing the core proof model.
+
+## Decision 27
+
+**Decision:** External validation should expand across repository categories before adding another major architecture layer.
+
+**Reason:** RegressProof now has a usable MVP, internal fixtures, self-hosted real-repo trust scenarios, and an MVP verification entrypoint. The highest-value next evidence comes from more external repository runs across doc/plugin, docs/configuration, and code-plus-test repositories, not from adding more internal machinery first.
