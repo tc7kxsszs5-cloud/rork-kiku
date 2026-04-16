@@ -85,6 +85,38 @@ cd /Users/mac/Desktop/rork-kiku/regressproof
 npm run verify:mvp
 ```
 
+## External Repository Example
+
+RegressProof can also validate a lightweight external repository that has docs and plugin metadata instead of a normal test suite.
+
+Example config:
+
+- [/Users/mac/Desktop/rork-kiku/regressproof/examples/external-doc-plugin.config.json](/Users/mac/Desktop/rork-kiku/regressproof/examples/external-doc-plugin.config.json:1)
+
+Example command against a cloned external repo:
+
+```bash
+cd /Users/mac/Desktop/rork-kiku
+node regressproof/scripts/run-committed-real-repo-validation.js \
+  --repo /tmp/andrej-karpathy-skills \
+  --config /Users/mac/Desktop/rork-kiku/regressproof/examples/external-doc-plugin.config.json \
+  --head-ref HEAD \
+  --artifact-dir /tmp/regressproof-external-doc-plugin
+```
+
+That config assumes the target repo has:
+
+- `README.md`
+- `CLAUDE.md`
+- `.claude-plugin/plugin.json`
+- `.claude-plugin/marketplace.json`
+
+and validates:
+
+- required file presence
+- basic plugin and marketplace JSON structure
+- README mentions the CLAUDE/plugin install flow
+
 ## CLI Usage
 
 Direct local run:

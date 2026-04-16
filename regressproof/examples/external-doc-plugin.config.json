@@ -1,0 +1,39 @@
+{
+  "projectName": "External Doc/Plugin Repository Validation",
+  "baselineRef": "HEAD~1",
+  "baseline": {
+    "mode": "path_snapshot"
+  },
+  "targetPaths": [
+    "README.md",
+    "CLAUDE.md",
+    ".claude-plugin"
+  ],
+  "checks": {
+    "commandTimeoutMs": 15000,
+    "quick": [
+      "node -e \"const fs=require('fs'); const required=['README.md','CLAUDE.md','.claude-plugin/plugin.json','.claude-plugin/marketplace.json']; for (const file of required) { if (!fs.existsSync(file)) throw new Error('Missing required file: ' + file); }\"",
+      "node -e \"const fs=require('fs'); const plugin=JSON.parse(fs.readFileSync('.claude-plugin/plugin.json','utf8')); const marketplace=JSON.parse(fs.readFileSync('.claude-plugin/marketplace.json','utf8')); if (!plugin.name || !String(plugin.name).trim()) throw new Error('Plugin name missing'); if (!Array.isArray(plugin.skills) || plugin.skills.length === 0) throw new Error('Plugin skills missing'); if (!marketplace.id || !String(marketplace.id).trim()) throw new Error('Marketplace id missing'); if (!Array.isArray(marketplace.plugins) || marketplace.plugins.length === 0) throw new Error('Marketplace plugins missing');\""
+    ],
+    "full": [
+      "node -e \"const fs=require('fs'); const readme=fs.readFileSync('README.md','utf8'); if (!readme.includes('CLAUDE.md')) throw new Error('README must mention CLAUDE.md'); if (!readme.includes('/plugin install')) throw new Error('README must mention plugin install flow');\""
+    ]
+  },
+  "reports": {
+    "defaultFormat": "json",
+    "ciFailOn": [
+      "confirmed_agent_fault"
+    ]
+  },
+  "usage": {
+    "mode": "estimated",
+    "estimatedCostUsd": 0.01
+  },
+  "credits": {
+    "enabled": true,
+    "policy": "refund_estimated_cost_on_confirmed_agent_fault"
+  },
+  "ledger": {
+    "enabled": true
+  }
+}
