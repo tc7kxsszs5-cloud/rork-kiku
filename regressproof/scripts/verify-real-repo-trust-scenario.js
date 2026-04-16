@@ -7,10 +7,6 @@ const { execFileSync } = require("node:child_process");
 
 const regressproofRoot = path.resolve(__dirname, "..");
 const workspaceRoot = path.resolve(regressproofRoot, "..");
-const EXPECTED_CHANGED_FILES = [
-  "regressproof/scripts/verify-real-repo-trust-scenario.js",
-];
-
 function main() {
   const args = process.argv.slice(2);
   const repo = readArg(args, "--repo") || workspaceRoot;
@@ -43,7 +39,8 @@ function main() {
   );
 
   const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
-  assertCommittedScenario(report);
+  const expectedChangedFiles = resolveExpectedChangedFiles(repo, report.git.diffRange);
+  assertCommittedScenario(report, expectedChangedFiles);
 
   process.stdout.write(
     `${JSON.stringify(
@@ -102,7 +99,7 @@ function assertReadiness(readiness) {
   }
 }
 
-function assertCommittedScenario(report) {
+function assertCommittedScenario(report, expectedChangedFiles) {
   if (report.git.diffRange !== "HEAD~1..HEAD") {
     throw new Error(`Expected committed diffRange HEAD~1..HEAD, received ${report.git.diffRange}`);
   }
@@ -140,7 +137,7 @@ function assertCommittedScenario(report) {
     throw new Error("Expected committed scenario to report usesSnapshotCurrent=true.");
   }
 
-  const missingChangedFiles = EXPECTED_CHANGED_FILES.filter(
+  const missingChangedFiles = expectedChangedFiles.filter(
     (filePath) => !report.git.changedFiles.includes(filePath),
   );
   if (missingChangedFiles.length > 0) {
@@ -157,6 +154,22 @@ function assertCommittedScenario(report) {
   if (!currentCommand.includes("real-repo-trust-check.js")) {
     throw new Error("Expected current verification to run the real-repo trust-check entrypoint.");
   }
+}
+
+function resolveExpectedChangedFiles(repo, diffRange) {
+  const output = execFileSync("git", ["diff", "--name-only", diffRange, "--", "regressproof", "docs/REGRESSPROOF_INDEX.md"], {
+    cwd: repo,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    maxBuffer: 1024 * 1024 * 10,
+  }).trim();
+
+  const changedFiles = output.split("\n").map((item) => item.trim()).filter(Boolean);
+  if (changedFiles.length === 0) {
+    throw new Error(`Expected committed diff ${diffRange} to include RegressProof boundary changes.`);
+  }
+
+  return changedFiles;
 }
 
 function readArg(args, name) {

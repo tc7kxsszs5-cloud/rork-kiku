@@ -2,7 +2,7 @@
 
 **Project:** `RegressProof`  
 **Purpose:** Persistent project memory and navigation entry point  
-**Last updated:** 15 April 2026
+**Last updated:** 16 April 2026
 
 ## Vision
 
@@ -100,6 +100,9 @@ What already works:
 - self-hosted real-workspace trust validation now runs successfully in lightweight mode
 - a committed real-repo trust scenario can now be checked end-to-end through a single helper script
 - a deeper committed trust scenario can now be exercised through a `deep` trust-check profile
+- a single MVP verification entrypoint now exists:
+  - `node regressproof/scripts/verify-mvp.js`
+- the GitHub Action now validates the current RegressProof MVP flow instead of the older single-fixture path
 - subproject packaging boundary now includes:
   - [regressproof/AGENTS.md](/Users/mac/Desktop/rork-kiku/regressproof/AGENTS.md)
   - [regressproof/.gitignore](/Users/mac/Desktop/rork-kiku/regressproof/.gitignore)
@@ -119,9 +122,8 @@ What already works:
 
 What is next:
 
-- path-scoped baseline snapshots for targeted real-repo validation
+- wider real-repository validation on non-self-hosted repos
 - provider-native usage adapters beyond env/file ingestion
-- deeper real-repository validation beyond fixture coverage
 - richer PR presentation and review thread behavior
 - cleaner standalone packaging and eventual repo separation
 
@@ -189,15 +191,10 @@ The first release is successful if it can:
 
 ## Immediate Next Steps
 
-- deepen path-scoped baseline support for larger real repositories
+- validate RegressProof on a non-self-hosted external repository range
 - add provider-native usage adapters beyond env/file inputs
 - improve PR comment presentation for longer review threads
-- validate on a deeper real-repository scenario now that JS, Python, parser-targeted, and Swift fixtures exist
-- keep tightening the `regressproof/` package boundary so future repo separation is mechanical instead of manual
-- use the new committed compare-ref path to validate RegressProof on a meaningful historical range inside the main repository
-- keep fixture packs self-contained and reproducible through the materialization layer
-- remove remaining legacy wording that treats embedded fixture repos as the working model
-- deepen release/demo guidance around the full tracked-pack suite
+- tighten release/demo guidance around the MVP verification entrypoint
 
 ## Current Real-Repo Validation Level
 

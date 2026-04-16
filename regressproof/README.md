@@ -1,27 +1,21 @@
 # RegressProof
 
-First implementation scaffold for the `RegressProof` CLI.
+`Proof, not guesses, for agent-caused regressions.`
 
-Current scope:
+RegressProof is a local CLI and CI validation layer for AI coding regressions. It compares a baseline snapshot against a current change, classifies what actually changed, and emits evidence-focused reports instead of intuition-only blame.
 
-- read project config
-- collect git context
-- resolve baseline reference
-- calculate changed files
-- run baseline quick checks from a snapshot
-- run current quick checks in the target repo
-- emit a structured run report with a first verdict
-- write JSON and Markdown artifacts for CI usage
-- append persistent ledger entries for later cost and fault analysis
-- emit PR comment artifacts and support direct PR comment publishing in GitHub Actions
+Current MVP capabilities:
 
-This is the proof-of-function shell for the MVP. It now performs baseline and current quick-check execution, splits multi-line failures into structured records, and returns an evidence-based first verdict.
+- local CLI execution
+- baseline vs current quick-check verification
+- diff-aware changed-file mapping
+- conservative verdict classes
+- JSON and Markdown artifacts
+- append-only internal ledger output
+- tracked fixture suite for reproducible validation
+- real-repo trust scenarios for self-validation inside this repository
 
-Implementation note:
-
-- the runtime is currently plain Node.js for reliability
-- TypeScript source scaffolding is present for the next iteration
-- the next milestone is deeper real-repo validation plus broader provider-specific usage support
+The runtime is plain Node.js. In this repository, the most reliable commands are `node ...` commands first; `npm run ...` is only a convenience layer when `npm` is available in the environment.
 
 Validated fixture coverage currently includes:
 
@@ -44,41 +38,68 @@ Primary fixture model:
 - `fixture.materializer.json`
 - the tracked-pack suite now passes `10/10`
 
-## Commands
+## Quick Start
 
-Build:
+Verify the whole MVP in one shot:
 
 ```bash
-cd regressproof
-npm run build
+cd /Users/mac/Desktop/rork-kiku
+node regressproof/scripts/verify-mvp.js --repo /Users/mac/Desktop/rork-kiku --out-dir /tmp/regressproof-mvp
 ```
 
-Run:
+This is the main "does the repo work?" command. It runs:
+
+- the full tracked fixture suite
+- the committed real-repo trust scenario
+- the deeper committed real-repo scenario
+
+The final summary lands in:
+
+- `/tmp/regressproof-mvp/regressproof-mvp-summary.json`
+
+Run the fixture suite only:
 
 ```bash
-cd regressproof
-node dist/cli.js run
+cd /Users/mac/Desktop/rork-kiku
+node regressproof/scripts/run-all-fixtures.js --out-dir /tmp/regressproof-fixtures
 ```
 
-Run with JSON output:
+Run the main committed trust scenario:
 
 ```bash
-cd regressproof
-node dist/cli.js run --format json
+cd /Users/mac/Desktop/rork-kiku
+node regressproof/scripts/verify-real-repo-trust-scenario.js --repo /Users/mac/Desktop/rork-kiku --out-dir /tmp/regressproof-real-scenario
 ```
 
-Direct fixture path:
+Run the deeper committed trust scenario:
 
 ```bash
-cd regressproof
+cd /Users/mac/Desktop/rork-kiku
+node regressproof/scripts/verify-real-repo-deep-scenario.js --repo /Users/mac/Desktop/rork-kiku --out-dir /tmp/regressproof-real-deep-scenario
+```
+
+If `npm` is available, the same entrypoints are exposed as:
+
+```bash
+cd /Users/mac/Desktop/rork-kiku/regressproof
+npm run verify:mvp
+```
+
+## CLI Usage
+
+Direct local run:
+
+```bash
+cd /Users/mac/Desktop/rork-kiku/regressproof
 node src/cli.js run --repo /Users/mac/Desktop/rork-kiku/regressproof/fixtures/simple-js --format json
 ```
 
-The preferred path is now:
+Build `dist/` explicitly:
 
-- tracked scenario pack
-- materialized temp git repo
-- or the full `run-all-fixtures` suite
+```bash
+cd /Users/mac/Desktop/rork-kiku/regressproof
+node scripts/build.js
+```
 
 Preferred fixture flow:
 
@@ -133,8 +154,8 @@ This walks every fixture source and refreshes tracked `baseline/current` packs.
 Fixture suite runner:
 
 ```bash
-cd regressproof
-node scripts/run-all-fixtures.js
+cd /Users/mac/Desktop/rork-kiku
+node regressproof/scripts/run-all-fixtures.js
 ```
 
 This runner:
@@ -147,7 +168,7 @@ This runner:
 Current tracked-pack suite result:
 
 - `10/10 passed`
-- summary example: `/tmp/regressproof-fixture-suite-tracked-2/fixture-suite-summary.json`
+- summary example: `/tmp/regressproof-suite-now/fixture-suite-summary.json`
 
 Write artifacts explicitly from a materialized fixture:
 
@@ -192,7 +213,7 @@ node src/cli.js run \
   --format json
 ```
 
-Lightweight mode uses a skipped baseline for large repositories and is intended for smoke validation before richer real-repo support is added.
+Lightweight mode uses the real-repo trust-check entrypoint and is intended for self-validation inside a larger workspace.
 
 Current real-repo behavior is best understood as:
 
@@ -200,9 +221,7 @@ Current real-repo behavior is best understood as:
 
 This confirms that RegressProof can execute from inside the main workspace and complete a nested trust check that exercises tracked fixture materialization plus expected verdict handling. It does not yet replace deeper committed-change validation for real repository edits.
 
-The real-repo path now uses a committed-boundary trust-check:
-
-- `node regressproof/scripts/run-all-fixtures.js --fixture lint-js --fixture preexisting-js --out-dir /tmp/regressproof-real-trust-check`
+The real-repo path now uses a committed-boundary trust-check built on tracked scenario packs and the shared fixture suite runner.
 
 This keeps committed validation runnable while the main repository history is still being deepened.
 
@@ -263,6 +282,18 @@ This uses the `deep` trust-check profile so the committed path exercises a broad
 - `preexisting-js`
 - `parser-js`
 - `python-js`
+
+## GitHub Action
+
+The repository includes a GitHub Action at:
+
+- `/Users/mac/Desktop/rork-kiku/.github/workflows/regressproof.yml`
+
+That workflow now validates the RegressProof MVP directly by running:
+
+- `node regressproof/scripts/verify-mvp.js`
+
+and uploads the full artifact tree under `regressproof-artifacts/`.
 
 For materialized fixtures or other custom configs:
 

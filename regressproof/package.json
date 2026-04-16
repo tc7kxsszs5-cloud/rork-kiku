@@ -19,6 +19,7 @@
     "real:readiness": "node scripts/check-committed-range-readiness.js",
     "real:scenario": "node scripts/verify-real-repo-trust-scenario.js",
     "real:scenario:deep": "node scripts/verify-real-repo-deep-scenario.js",
+    "verify:mvp": "node scripts/verify-mvp.js",
     "real:workspace": "node scripts/run-workspace-real-repo-validation.js",
     "export:standalone": "node scripts/export-standalone.js"
   }

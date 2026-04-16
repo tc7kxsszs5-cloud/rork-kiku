@@ -152,3 +152,9 @@
 **Decision:** Default committed real-repo attribution should prefer the nearest parent range (`HEAD~1..HEAD`) before falling back to a wider merge-base range.
 
 **Reason:** For RegressProof, trust grows faster when committed validation stays close to the actual change under review. Preferring the nearest parent keeps changed-file evidence narrower, makes readiness more meaningful, and avoids unnecessary baseline skips caused by selecting ranges that predate the RegressProof project boundary.
+
+## Decision 26
+
+**Decision:** The usable MVP verification surface should be anchored on one repository-level entrypoint, `node regressproof/scripts/verify-mvp.js`, and the GitHub Action should execute that flow instead of an older single-fixture path.
+
+**Reason:** The project had already accumulated strong pieces of validation, but usability was still fragmented across many helper commands and a stale workflow. A single MVP verification entrypoint makes local checks, CI, and future handoff much clearer without changing the core proof model.
