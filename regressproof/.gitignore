@@ -1,0 +1,13 @@
+node_modules/
+dist/
+artifacts/
+.regressproof-self-smoke/
+.regressproof-self-parser-smoke/
+.regressproof-ledger/
+tmp/
+*.log
+fixtures/*/.git/
+fixtures/*/.module-cache/
+fixtures/*/.swift-module-cache/
+fixtures/*/.build/
+fixtures/*/.swiftpm/

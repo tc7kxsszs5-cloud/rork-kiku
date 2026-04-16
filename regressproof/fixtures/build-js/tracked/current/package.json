@@ -1,0 +1,9 @@
+{
+  "name": "regressproof-fixture-build-js",
+  "private": true,
+  "scripts": {
+    "lint": "node scripts/lint.js",
+    "build": "node scripts/build.js",
+    "test": "node scripts/test.js"
+  }
+}

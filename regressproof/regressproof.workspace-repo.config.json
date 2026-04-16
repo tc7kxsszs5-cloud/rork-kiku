@@ -1,0 +1,57 @@
+{
+  "projectName": "RegressProof Workspace Validation",
+  "baselineRef": "HEAD",
+  "baseline": {
+    "mode": "skip"
+  },
+  "git": {
+    "diffMode": "head_vs_worktree",
+    "excludePaths": [
+      "docs/sessions/",
+      "regressproof/artifacts/",
+      "regressproof/dist/"
+    ]
+  },
+  "targetPaths": [
+    "regressproof/src",
+    "regressproof/scripts",
+    "regressproof/package.json",
+    "regressproof/regressproof.config.json",
+    "regressproof/regressproof.demo.config.json",
+    "regressproof/regressproof.real-repo.config.json",
+    "regressproof/regressproof.workspace-repo.config.json",
+    "regressproof/README.md",
+    "docs/REGRESSPROOF_INDEX.md",
+    "docs/REGRESSPROOF_DECISION_LOG.md",
+    "docs/REGRESSPROOF_PROTOTYPE_WALKTHROUGH.md",
+    "docs/REGRESSPROOF_VALIDATION_PLAN.md",
+    "docs/REGRESSPROOF_WORKFLOW_MEMORY.md",
+    "docs/REGRESSPROOF_SESSION_TEMPLATE.md"
+  ],
+  "checks": {
+    "commandTimeoutMs": 45000,
+    "quick": [
+      "node regressproof/scripts/real-repo-trust-check.js >/dev/null"
+    ],
+    "full": [
+      "node regressproof/scripts/real-repo-trust-check.js >/dev/null"
+    ]
+  },
+  "reports": {
+    "defaultFormat": "json",
+    "ciFailOn": [
+      "confirmed_agent_fault"
+    ]
+  },
+  "usage": {
+    "mode": "estimated",
+    "estimatedCostUsd": 0.02
+  },
+  "credits": {
+    "enabled": true,
+    "policy": "refund_estimated_cost_on_confirmed_agent_fault"
+  },
+  "ledger": {
+    "enabled": true
+  }
+}

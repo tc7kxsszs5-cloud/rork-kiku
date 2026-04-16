@@ -1,0 +1,17 @@
+{
+  "projectName": "RegressProof Fixture Timeout JS",
+  "baselineRef": "HEAD~1",
+  "checks": {
+    "commandTimeoutMs": 1000,
+    "quick": [
+      "node scripts/lint.js",
+      "node scripts/typecheck.js"
+    ],
+    "full": [
+      "node scripts/test.js"
+    ]
+  },
+  "reports": {
+    "defaultFormat": "json"
+  }
+}

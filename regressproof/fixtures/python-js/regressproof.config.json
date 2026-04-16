@@ -1,0 +1,28 @@
+{
+  "projectName": "RegressProof Fixture Python",
+  "baselineRef": "HEAD~1",
+  "checks": {
+    "commandTimeoutMs": 5000,
+    "quick": [
+      "python3 scripts/lint.py",
+      "python3 scripts/typecheck.py"
+    ],
+    "full": [
+      "python3 scripts/test.py"
+    ]
+  },
+  "reports": {
+    "defaultFormat": "json",
+    "ciFailOn": [
+      "confirmed_agent_fault"
+    ]
+  },
+  "usage": {
+    "mode": "estimated",
+    "estimatedCostUsd": 0.01
+  },
+  "credits": {
+    "enabled": true,
+    "policy": "refund_estimated_cost_on_confirmed_agent_fault"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "projectName": "RegressProof Fixture Swift",
+  "baselineRef": "HEAD~1",
+  "checks": {
+    "commandTimeoutMs": 8000,
+    "quick": [
+      "swift scripts/lint.swift",
+      "swift scripts/typecheck.swift"
+    ],
+    "full": [
+      "swift scripts/test.swift"
+    ]
+  },
+  "reports": {
+    "defaultFormat": "json",
+    "ciFailOn": [
+      "confirmed_agent_fault"
+    ]
+  },
+  "usage": {
+    "mode": "estimated",
+    "estimatedCostUsd": 0.01
+  },
+  "credits": {
+    "enabled": true,
+    "policy": "refund_estimated_cost_on_confirmed_agent_fault"
+  }
+}
