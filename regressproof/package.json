@@ -1,0 +1,26 @@
+{
+  "name": "regressproof",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Proof, not guesses, for agent-caused regressions.",
+  "bin": {
+    "regressproof": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "run": "node dist/cli.js run",
+    "dev": "node src/cli.js run",
+    "fixtures:export-all-packs": "node scripts/export-all-fixture-packs.js",
+    "fixture:export-pack": "node scripts/export-fixture-scenario-pack.js",
+    "fixture:materialize": "node scripts/materialize-fixture.js",
+    "fixtures:run-all": "node scripts/run-all-fixtures.js",
+    "print:bootstrap-scope": "node scripts/print-bootstrap-commit-scope.js",
+    "real:committed": "node scripts/run-committed-real-repo-validation.js",
+    "real:readiness": "node scripts/check-committed-range-readiness.js",
+    "real:scenario": "node scripts/verify-real-repo-trust-scenario.js",
+    "real:scenario:deep": "node scripts/verify-real-repo-deep-scenario.js",
+    "verify:mvp": "node scripts/verify-mvp.js",
+    "real:workspace": "node scripts/run-workspace-real-repo-validation.js",
+    "export:standalone": "node scripts/export-standalone.js"
+  }
+}

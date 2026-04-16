@@ -1,0 +1,60 @@
+name: RegressProof
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  regressproof:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Verify RegressProof MVP
+        id: regressproof
+        continue-on-error: true
+        run: |
+          mkdir -p regressproof-artifacts/mvp
+          node regressproof/scripts/verify-mvp.js \
+            --repo "$GITHUB_WORKSPACE" \
+            --out-dir regressproof-artifacts/mvp | tee regressproof-artifacts/mvp/verify-mvp.stdout.json
+
+      - name: Print RegressProof MVP Summary
+        if: always()
+        run: |
+          node -e "const fs=require('fs'); const path='regressproof-artifacts/mvp/regressproof-mvp-summary.json'; if (!fs.existsSync(path)) { console.log('summary=missing'); process.exit(0); } const summary=JSON.parse(fs.readFileSync(path,'utf8')); console.log('status=' + summary.status); console.log('fixture_suite=' + summary.fixtureSuite.passedCount + '/' + summary.fixtureSuite.totalFixtures); console.log('real_scenario=' + summary.realScenario.verdict + '/' + summary.realScenario.confidence); console.log('deep_scenario=' + summary.deepScenario.verdict + '/' + summary.deepScenario.confidence);"
+
+      - name: Print RegressProof Failure Context
+        if: always()
+        run: |
+          echo "== verify step outcome =="
+          echo "${{ steps.regressproof.outcome }}"
+          echo "== artifact tree =="
+          find regressproof-artifacts -maxdepth 3 -type f | sort || true
+          echo "== verify stdout =="
+          cat regressproof-artifacts/mvp/verify-mvp.stdout.json || true
+          echo "== mvp summary =="
+          cat regressproof-artifacts/mvp/regressproof-mvp-summary.json || true
+
+      - name: Upload RegressProof Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regressproof-artifacts
+          path: regressproof-artifacts/
+
+      - name: Fail if verification failed
+        if: steps.regressproof.outcome != 'success'
+        run: exit 1

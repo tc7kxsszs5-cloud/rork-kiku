@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "configPath": "regressproof.config.json",
+  "commits": [
+    {
+      "name": "baseline",
+      "sourceDir": "tracked/baseline",
+      "message": "preexisting-js: baseline"
+    },
+    {
+      "name": "current",
+      "sourceDir": "tracked/current",
+      "message": "preexisting-js: current"
+    }
+  ]
+}
