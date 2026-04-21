@@ -1,0 +1,48 @@
+{
+  "projectName": "OpenClaw external validation",
+  "baselineRef": "HEAD~1",
+  "baseline": {
+    "mode": "path_snapshot",
+    "supportPaths": [
+      "package.json"
+    ]
+  },
+  "current": {
+    "mode": "snapshot"
+  },
+  "git": {
+    "compareRef": "HEAD",
+    "diffMode": "baseline_to_head"
+  },
+  "targetPaths": [
+    "CHANGELOG.md",
+    "extensions/openai/openai-codex-provider.ts",
+    "extensions/openai/openai-codex-provider.test.ts"
+  ],
+  "checks": {
+    "commandTimeoutMs": 15000,
+    "quick": [
+      "node -e \"const fs=require('fs'); for (const file of ['CHANGELOG.md','extensions/openai/openai-codex-provider.ts','extensions/openai/openai-codex-provider.test.ts','package.json']) { if (!fs.existsSync(file)) throw new Error('Missing expected validation file: '+file); }\"",
+      "node -e \"const fs=require('fs'); for (const file of ['CHANGELOG.md','extensions/openai/openai-codex-provider.ts','extensions/openai/openai-codex-provider.test.ts']) { const text=fs.readFileSync(file,'utf8'); if (/<<<<<<<|=======|>>>>>>>/.test(text)) throw new Error('Conflict marker found in '+file); if (!text.trim()) throw new Error('Empty validation file: '+file); }\"",
+      "node -e \"const fs=require('fs'); const pkg=JSON.parse(fs.readFileSync('package.json','utf8')); if (pkg.name !== 'openclaw') throw new Error('Unexpected package name: '+pkg.name); const provider=fs.readFileSync('extensions/openai/openai-codex-provider.ts','utf8'); const test=fs.readFileSync('extensions/openai/openai-codex-provider.test.ts','utf8'); if (!provider.includes('normalizeCodexTransportFields')) throw new Error('Provider normalization helper missing'); if (!test.includes('describe(\\\"openai codex provider\\\"')) throw new Error('OpenAI Codex provider test suite missing');\""
+    ],
+    "full": []
+  },
+  "reports": {
+    "defaultFormat": "json",
+    "ciFailOn": [
+      "confirmed_agent_fault"
+    ]
+  },
+  "usage": {
+    "mode": "estimated",
+    "estimatedCostUsd": 0.01
+  },
+  "credits": {
+    "enabled": true,
+    "policy": "refund_estimated_cost_on_confirmed_agent_fault"
+  },
+  "ledger": {
+    "enabled": true
+  }
+}

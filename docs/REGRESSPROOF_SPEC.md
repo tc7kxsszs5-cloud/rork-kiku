@@ -3,21 +3,21 @@
 **Status:** Discovery / Specification  
 **Date:** 13 April 2026  
 **Product name:** `RegressProof`  
-**Category:** AI coding regression detection and credit accountability system  
+**Category:** AI coding regression detection utility
 **Tagline:** `Proof, not guesses, for agent-caused regressions.`
 
 ## 1. What This Is
 
-This project is a validation and accounting layer for AI coding agents.
+This project is a CLI and GitHub Action utility for validating AI coding agent changes.
 
 It does **not** directly control billing inside OpenAI, Anthropic, Codex, Claude Code, or other providers. Instead, it sits around agent runs and answers four practical questions:
 
 1. What code did the agent change?
 2. Did the change introduce a measurable regression?
 3. How much token spend or estimated cost was associated with that run?
-4. Should the run be marked as an agent-caused fault and receive an internal credit or penalty score?
+4. Should the run be marked as an agent-caused fault and recorded in an internal accountability ledger?
 
-The system is meant to be usable across multiple agent environments as long as they can provide, directly or indirectly:
+The utility is meant to be usable across multiple agent environments as long as they can provide, directly or indirectly:
 
 - repository access
 - model usage metadata or estimated usage
@@ -39,7 +39,7 @@ Today, most tools can show token usage, traces, and cost, but they usually do no
 - linking cost to a concrete code regression
 - proving the regression is new
 - classifying whether the agent is actually at fault
-- issuing an internal credit or refund-like balance adjustment
+- recording an internal credit, penalty, or review flag
 
 This project addresses that gap.
 
@@ -141,8 +141,8 @@ Only high-confidence cases should trigger automatic credit decisions in the firs
 6. `GitHub Integration`
    Reads PRs, commits, checks, annotations, and can post comments or status summaries.
 
-7. `Dashboard / Reports`
-   Shows waste, confidence, regression types, and reliability over time by agent or model.
+7. `Reports`
+   Emits CLI, CI, artifact, and optional PR summaries showing confidence, regression types, and reliability signals.
 
 ## 6.2 Suggested Data Model
 
@@ -236,7 +236,7 @@ Works when the agent platform or wrapper exposes:
 
 This mode provides accurate cost tracking.
 
-### Level 3: Native platform integration
+### Level 3: Optional native integration
 
 Works when a specific environment supports hooks, plugins, or wrappers.
 
@@ -244,8 +244,8 @@ Examples:
 
 - CLI wrapper around agent commands
 - GitHub Action for PR-based validation
-- provider-specific middleware
-- IDE extension or local daemon
+- provider-specific usage adapter
+- IDE extension or local helper
 
 The project should target Level 1 first, then add Level 2 and Level 3 integrations.
 
@@ -367,7 +367,7 @@ The first version should stay narrow and prove the concept.
 
 - multi-agent compatibility
 - confidence-based fault attribution
-- automated PR comments and dashboards
+- automated PR comments and richer reports
 
 ### What is not realistically guaranteed
 
@@ -425,12 +425,12 @@ Estimated time: `4 to 7 days`
 
 Estimated time: `1 to 2 weeks`
 
-### Hardening for multi-agent use
+### Hardening for broader utility use
 
 - wrappers for multiple environments
 - more provider adapters
 - usage ingestion normalization
-- dashboard polish
+- report polish
 
 Estimated time: `3 to 6 weeks`
 
@@ -483,13 +483,13 @@ Success criteria:
 
 - every run has a cost and a classification
 
-### Phase 4: Multi-agent adapters
+### Phase 4: Optional adapters
 
 Deliver:
 
-- provider wrappers
+- provider usage adapters
 - shared event schema
-- dashboard
+- richer reports
 
 Success criteria:
 

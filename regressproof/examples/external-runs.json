@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "description": "Curated public-repository validation runs used to harden RegressProof.",
+  "candidateQueue": [
+    {
+      "id": "ky-candidate",
+      "repo": "sindresorhus/ky",
+      "url": "https://github.com/sindresorhus/ky.git",
+      "language": "typescript",
+      "status": "candidate",
+      "rationale": "Compact TypeScript HTTP client with source and test changes that may produce clear diff-to-check evidence.",
+      "firstPass": "Use sparse shallow checkout, inspect recent source/test commits, then pin a small code commit before any lightweight validation."
+    },
+    {
+      "id": "ofetch-candidate",
+      "repo": "unjs/ofetch",
+      "url": "https://github.com/unjs/ofetch.git",
+      "language": "typescript",
+      "status": "candidate",
+      "rationale": "Small TypeScript fetch utility that appears suitable for the public-repo runner model.",
+      "firstPass": "Target a recent non-doc source/test commit and avoid dependency-heavy checks until setup cost is known."
+    },
+    {
+      "id": "nanostores-candidate",
+      "repo": "nanostores/nanostores",
+      "url": "https://github.com/nanostores/nanostores.git",
+      "language": "typescript",
+      "status": "candidate",
+      "rationale": "Focused TypeScript state-management package with tests and type-oriented behavior changes.",
+      "firstPass": "Pin a compact source/test diff and capture changed files before attempting install-backed checks."
+    },
+    {
+      "id": "click-candidate",
+      "repo": "pallets/click",
+      "url": "https://github.com/pallets/click.git",
+      "language": "python",
+      "status": "candidate",
+      "rationale": "Mature Python CLI framework that can broaden validation beyond TypeScript once a small commit is pinned.",
+      "firstPass": "Select a small Python source/test commit and begin with metadata plus path-snapshot evidence before any pytest run."
+    },
+    {
+      "id": "pluggy-candidate",
+      "repo": "pytest-dev/pluggy",
+      "url": "https://github.com/pytest-dev/pluggy.git",
+      "language": "python",
+      "status": "candidate",
+      "rationale": "Smaller Python plugin-system library suitable for exercising Python attribution without a large app stack.",
+      "firstPass": "Pin a recent code commit with changed tests or source, then decide whether lightweight local checks are feasible."
+    }
+  ],
+  "runs": [
+    {
+      "id": "openclaw-provider-code-2026-04-21",
+      "repo": "openclaw/openclaw",
+      "url": "https://github.com/openclaw/openclaw.git",
+      "category": "larger-code-repository-with-provider-tests",
+      "configPath": "regressproof/examples/external-openclaw-code.config.json",
+      "validatedAt": "2026-04-21T13:06:36.490Z",
+      "baselineCommit": "dc6ecd571afd03efcda27fddeafaa26973066453",
+      "headCommit": "97534372f858b5f67a98619a3fed8790edb00cc7",
+      "diffRange": "97534372f858b5f67a98619a3fed8790edb00cc7~1..97534372f858b5f67a98619a3fed8790edb00cc7",
+      "headRef": "97534372f858b5f67a98619a3fed8790edb00cc7",
+      "changedFiles": [
+        "CHANGELOG.md",
+        "extensions/openai/openai-codex-provider.test.ts",
+        "extensions/openai/openai-codex-provider.ts"
+      ],
+      "verdict": "successful_change",
+      "confidence": "high",
+      "artifactPath": "/tmp/regressproof-openclaw-pinned-artifacts/regressproof-report.json",
+      "notes": "Pinned reproducible run for OpenAI Codex provider transport normalization changes."
+    },
+    {
+      "id": "openclaw-runner-smoke-2026-04-21",
+      "repo": "openclaw/openclaw",
+      "url": "https://github.com/openclaw/openclaw.git",
+      "category": "public-runner-smoke",
+      "configPath": "regressproof/examples/external-openclaw-code.config.json",
+      "validatedAt": "2026-04-21T09:19:02.541Z",
+      "baselineCommit": "fcc86f043b510dfc871a8d76a625f6d7b773bb52",
+      "headCommit": "f1df354222f8c05bcc8ef7d6780238a8ad2bceea",
+      "diffRange": "HEAD~1..HEAD",
+      "headRef": "HEAD",
+      "changedFiles": [
+        "CHANGELOG.md"
+      ],
+      "verdict": "successful_change",
+      "confidence": "high",
+      "artifactPath": "/tmp/regressproof-openclaw-runner-artifacts/regressproof-report.json",
+      "notes": "Floating-main runner smoke after OpenClaw advanced to a changelog-only latest commit."
+    }
+  ]
+}

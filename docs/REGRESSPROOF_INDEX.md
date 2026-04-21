@@ -2,11 +2,11 @@
 
 **Project:** `RegressProof`  
 **Purpose:** Persistent project memory and navigation entry point  
-**Last updated:** 16 April 2026
+**Last updated:** 21 April 2026
 
 ## Vision
 
-RegressProof is a validation and accountability layer for AI coding agents.
+RegressProof is a CLI and GitHub Action utility for checking whether AI coding agents introduced measurable regressions.
 
 It is designed to:
 
@@ -97,9 +97,16 @@ What already works:
   - Python typecheck regression
   - parser-targeted multi-line typecheck regression
   - Swift typecheck regression with local module-cache isolation
+  - SwiftPM macOS build regression with real AppKit compilation
 - self-hosted real-workspace trust validation now runs successfully in lightweight mode
 - a committed real-repo trust scenario can now be checked end-to-end through a single helper script
 - a deeper committed trust scenario can now be exercised through a `deep` trust-check profile
+- committed trust validation now resolves the correct real-repo config automatically for:
+  - standalone repository layout
+  - embedded workspace layout
+- command execution roots are now explicit, so the same verification flow can run from:
+  - standalone repo root
+  - embedded `regressproof/` project root inside a larger workspace
 - a single MVP verification entrypoint now exists:
   - `node regressproof/scripts/verify-mvp.js`
 - the GitHub Action now validates the current RegressProof MVP flow instead of the older single-fixture path
@@ -113,12 +120,20 @@ What already works:
   - richer git context in reports for commit-vs-commit reasoning
   - readiness checking before running committed validation on the main repository
   - explicit proof signals in reports for committed diff, changed files, path-scoped baseline, and snapshot current mode
+- public repository validation now has a reusable sparse checkout helper:
+  - `node regressproof/scripts/run-public-repo-validation.js`
+  - example config: `regressproof/examples/external-openclaw-code.config.json`
+- curated external validation runs are tracked in:
+  - `regressproof/examples/external-runs.json`
+  - `node regressproof/scripts/list-external-runs.js`
+  - `npm run external:check`
 - fixture validation now runs through tracked scenario packs:
   - `tracked/baseline`
   - `tracked/current`
   - `fixture.materializer.json`
   - temporary git materialization before verification
 - all current fixtures now have tracked scenario packs, and the full suite passes in tracked-pack mode
+- a real SwiftPM macOS fixture now validates compiler-attributed failures against actual Swift build output
 
 What is next:
 
@@ -126,6 +141,7 @@ What is next:
 - provider-native usage adapters beyond env/file ingestion
 - richer PR presentation and review thread behavior
 - cleaner standalone packaging and eventual repo separation
+- broader external validation after standalone repo separation
 
 ## Current Product Positioning
 
@@ -133,6 +149,8 @@ RegressProof is **not** framed as a universal provider token refund tool.
 
 RegressProof **is** framed as:
 
+- developer utility
+- CLI and GitHub Action
 - agent regression detection
 - fault attribution with evidence
 - cost accountability
@@ -192,6 +210,14 @@ The first release is successful if it can:
 ## Immediate Next Steps
 
 - expand external validation coverage with more code-heavy public repositories
+- triage the next external corpus candidates after OpenClaw:
+  - `sindresorhus/ky`
+  - `unjs/ofetch`
+  - `nanostores/nanostores`
+  - `pallets/click`
+  - `pytest-dev/pluggy`
+- harden the sparse public-repo runner with more repository presets
+- expand `regressproof/examples/external-runs.json` into a broader validation corpus
 - add provider-native usage adapters beyond env/file inputs
 - improve PR comment presentation for longer review threads
 - tighten release/demo guidance around the MVP verification entrypoint
@@ -209,8 +235,24 @@ RegressProof has now been validated outside its own repository on public GitHub 
 3. code-plus-test repository
    - `NousResearch/hermes-agent`
    - result: `successful_change / high`
+4. larger code repository with provider tests
+   - `openclaw/openclaw`
+   - compared commit range: `dc6ecd5..9753437`
+   - changed files: `CHANGELOG.md`, `extensions/openai/openai-codex-provider.ts`, `extensions/openai/openai-codex-provider.test.ts`
+   - result: `successful_change / high`
+   - artifact: `/tmp/regressproof-openclaw-artifacts/regressproof-report.json`
 
 This does not yet replace broader real-world validation, but it means RegressProof is no longer proven only on fixtures and self-hosted scenarios.
+
+The next external corpus queue is intentionally candidate-only, not completed validation:
+
+- `sindresorhus/ky` for a compact TypeScript HTTP-client source/test surface
+- `unjs/ofetch` for a small TypeScript fetch utility with likely sparse-checkout fit
+- `nanostores/nanostores` for TypeScript state-management changes and tests
+- `pallets/click` for Python CLI behavior coverage
+- `pytest-dev/pluggy` for a smaller Python plugin-system library
+
+Each candidate should be promoted to a completed corpus run only after a pinned commit range, changed-file list, verdict, confidence, and artifact path are recorded in `regressproof/examples/external-runs.json`.
 
 ## Current Real-Repo Validation Level
 

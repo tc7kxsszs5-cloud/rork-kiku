@@ -164,3 +164,51 @@
 **Decision:** External validation should expand across repository categories before adding another major architecture layer.
 
 **Reason:** RegressProof now has a usable MVP, internal fixtures, self-hosted real-repo trust scenarios, and an MVP verification entrypoint. The highest-value next evidence comes from more external repository runs across doc/plugin, docs/configuration, and code-plus-test repositories, not from adding more internal machinery first.
+
+## Decision 28
+
+**Decision:** MVP fixture validation now includes a real SwiftPM macOS package that compiles AppKit code, instead of relying only on script-simulated Swift failures.
+
+**Reason:** A native macOS-oriented fixture gives stronger evidence that RegressProof can parse and attribute real Swift compiler regressions in changed files, while staying lighter and more reproducible than a full Xcode app target in the current MVP.
+
+## Decision 29
+
+**Decision:** RegressProof runtime packaging should be standalone-first, with explicit workspace fallback only when the repository is embedded inside a larger parent workspace.
+
+**Reason:** The product is being packaged as `RegressProof-cli`, so default scripts and configs must work from the standalone repository root. Workspace-aware config resolution preserves local development inside the larger monorepo without making the standalone path second-class.
+
+## Decision 30
+
+**Decision:** Committed real-repo validation should automatically normalize repository mode by selecting the appropriate real-repo config, forcing committed diff mode, and executing checks from an explicit `executionRoot`.
+
+**Reason:** The trust flow needs to behave the same way across standalone and embedded layouts. Auto-selecting the right config and forcing committed diff semantics removes packaging-specific drift and keeps `HEAD~1..HEAD` trust validation reproducible.
+
+## Decision 31
+
+**Decision:** Add `openclaw/openclaw` as a larger external public repository validation target.
+
+**Reason:** The OpenClaw run exercises RegressProof against an active TypeScript codebase with provider code and tests. The first successful run compared `dc6ecd5..9753437` and returned `successful_change / high`. Normal clone attempts were too heavy because the repository has many refs, so lightweight public-repo validation should support sparse shallow checkout and path-scoped checks.
+
+## Decision 32
+
+**Decision:** Add a reusable sparse public-repository validation runner at `regressproof/scripts/run-public-repo-validation.js`.
+
+**Reason:** External corpus validation should not depend on one-off manual clone commands. The runner resolves a public repository default branch, performs a shallow sparse checkout from config target paths, deepens by one commit for committed comparison, and delegates to the existing RegressProof committed-validation path.
+
+## Decision 33
+
+**Decision:** Public repository validation examples should support pinned `--head-ref` commit SHAs.
+
+**Reason:** Public `main` branches can move during a validation session. Pinning the compared head commit makes external validation artifacts reproducible and avoids silently changing the proof target between runs.
+
+## Decision 34
+
+**Decision:** Curated external validation runs should be tracked in `regressproof/examples/external-runs.json`.
+
+**Reason:** RegressProof needs a durable evidence corpus, not only temporary artifact directories. A small JSON catalog makes public-repository validation runs searchable, reproducible, and easier to expand across repository categories.
+
+## Decision 35
+
+**Decision:** Position RegressProof first as a CLI and GitHub Action utility.
+
+**Reason:** The clearest near-term product shape is a developer utility that teams can run locally or in CI to compare baseline vs post-change verification evidence. Accountability, cost tracking, and internal credits remain important, but they should extend the utility rather than obscure the first-use value proposition.

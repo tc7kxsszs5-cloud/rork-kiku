@@ -112,6 +112,8 @@ Estimated time: `5 to 8 days`
 - Verify no false blame for pre-existing failures.
 - Review report trustworthiness.
 - Decide whether to proceed to broader integration.
+- Run sparse validation against public repositories that are too large or ref-heavy for normal clone workflows.
+- Keep example public-repo configs under `regressproof/examples/`.
 
 Estimated time: `2 to 3 days`
 
