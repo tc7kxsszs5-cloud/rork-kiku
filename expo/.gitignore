@@ -42,7 +42,6 @@ local/session-logs/
 local/chat-exports/
 local/terminal-logs/
 
-ios/
 android/
 .rork
 rork-eslint.config.js
